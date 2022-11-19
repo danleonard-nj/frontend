@@ -1,0 +1,71 @@
+# Default values for frontend.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: azureks.azurecr.io/kube-tools/frontend
+  pullPolicy: Always
+  tag: "latest"
+
+
+imagePullSecrets:
+  - name: regcred
+
+nameOverride: "frontend"
+fullnameOverride: "frontend"
+
+
+probes:
+  endpoints:
+    liveness: "/"
+    readiness: "/"
+  initialDelay: 30
+  interval: 10
+  timeout: 30
+
+environment:
+  environmentVariables: []
+  environmentSecrets:
+    - name: az-client-id
+      key: AZURE_CLIENT_ID
+    - name: az-client-secret
+      key: AZURE_CLIENT_SECRET
+    - name: az-tenant-id
+      key: AZURE_TENANT_ID
+    - name: az-storage-connection-string
+      key: AzureWebJobsStorage
+   
+
+serviceAccount:
+  create: true
+
+service:
+  type: ClusterIP
+  port: 80
+
+
+ingress:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 75m
+    memory: 200Mi
+  requests:
+    cpu: 50m
+    memory: 100Mi
+    
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

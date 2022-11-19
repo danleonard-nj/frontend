@@ -1,0 +1,7 @@
+.pac-container {
+  z-index: 1500 !important;
+}
+
+.pac-item:hover {
+  background: #6666;
+}
