@@ -1,0 +1,10 @@
+[
+    {
+        "source" : "configs/kube-tools/frontend/src/config.json",
+        "target" : "services/frontend/src/config.json"
+    },
+    {
+        "source" : "configs/kube-tools/frontend/src/msalConfig.json",
+        "target" : "services/frontend/src/msalConfig.json"
+    }
+]
