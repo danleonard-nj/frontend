@@ -1,7 +1,7 @@
 [
     {
         "source" : "configs/kube-tools/frontend/src/config.json",
-        "target" : "services/frontend/src/config.json"
+        "target" : "services/frontend/src/config.prod.json"
     },
     {
         "source" : "configs/kube-tools/frontend/src/msalConfig.js",
