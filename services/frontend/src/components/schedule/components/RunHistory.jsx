@@ -1,6 +1,7 @@
 import { Grid } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { getLocalDateTimeFromTimestamp } from '../../../api/helpers/dateTimeUtils';
 import DashboardTitle from '../../dashboard/DashboardTitle';
 import RunDisplayCard from './RunDisplayCard';
 
@@ -20,13 +21,13 @@ export default function RunHistory() {
           <Grid item lg={12}>
             <RunDisplayCard
               title='Last Runtime'
-              runtime={schedule?.lastRuntime}
+              runtime={getLocalDateTimeFromTimestamp(schedule?.lastRuntime)}
             />
           </Grid>
           <Grid item lg={12}>
             <RunDisplayCard
               title='Next Runtime'
-              runtime={schedule?.nextRuntime}
+              runtime={getLocalDateTimeFromTimestamp(schedule?.nextRuntime)}
             />
           </Grid>
         </Grid>
