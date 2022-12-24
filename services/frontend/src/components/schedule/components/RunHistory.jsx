@@ -1,14 +1,18 @@
 import { Grid } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { getLocalDateTimeFromTimestamp } from '../../../api/helpers/dateTimeUtils';
 import DashboardTitle from '../../dashboard/DashboardTitle';
 import RunDisplayCard from './RunDisplayCard';
 
+const getDisplayTime = (timestamp) => {
+  console.log('Timestamp to convert: ', timestamp);
+  const displayDate = new Date(timestamp * 1000).toLocaleString();
+  console.log('Display date: ', displayDate);
+  return displayDate;
+};
+
 export default function RunHistory() {
   const schedule = useSelector((x) => x.schedule?.schedule);
-  const scheduleFetching = useSelector((x) => x.schedule.scheduleFetching);
-  const scheduleLoaded = useSelector((x) => x.schedule.scheduleLoaded);
 
   return (
     <div style={{ minHeight: '22rem' }}>
@@ -21,13 +25,13 @@ export default function RunHistory() {
           <Grid item lg={12}>
             <RunDisplayCard
               title='Last Runtime'
-              runtime={getLocalDateTimeFromTimestamp(schedule?.lastRuntime)}
+              runtime={getDisplayTime(schedule?.lastRuntime ?? 0)}
             />
           </Grid>
           <Grid item lg={12}>
             <RunDisplayCard
               title='Next Runtime'
-              runtime={getLocalDateTimeFromTimestamp(schedule?.nextRuntime)}
+              runtime={getDisplayTime(schedule?.nextRuntime ?? 0)}
             />
           </Grid>
         </Grid>

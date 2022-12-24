@@ -17,7 +17,7 @@ export default function RunDisplayCard({ title, runtime }) {
           variant='h5'
           component='div'
           id='schedule-runtime-card-body'>
-          {getLocalDateTimeFromString(runtime)}
+          {runtime}
         </Typography>
       </CardContent>
     </Card>

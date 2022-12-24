@@ -1,77 +1,56 @@
 import config from '../../config.json';
+import ApiBase from '../apiBase';
 
-export default class FeatureApi {
+export default class FeatureApi extends ApiBase {
   constructor() {
-    this.baseUrl = config.featuresBaseUrl;
-    this.apiKey = config.featureApiKey;
+    super(null);
+
+    this.baseUrl = config.features.baseUrl;
+    this.apiKey = config.features.apiKey;
+    this.apiHeaderKey = config.features.apiHeaderKey;
   }
 
-  getHeaders() {
+  async getAuthHeaders() {
     return {
-      'api-key': config.featureApiKey,
+      [this.apiHeaderKey]: this.apiKey,
       'content-type': 'application/json',
     };
   }
 
   async getFeatures() {
-    const response = await fetch(`${this.baseUrl}/api/feature`, {
-      headers: this.getHeaders(),
-    });
-
-    return await response.json();
+    return await this.send(`${this.baseUrl}/api/feature`, 'GET');
   }
 
-  async getFeatureById() {
-    const response = await fetch(`${this.baseUrl}/api/feature`, {
-      headers: this.getHeaders(),
-    });
-
-    return await response.json();
+  async getFeatureById(featureId) {
+    return await this.send(
+      `${this.baseUrl}/api/feature/id/${featureId}`,
+      'GET'
+    );
   }
 
   async getFeatureByKey(featureKey) {
-    const response = await fetch(`${this.baseUrl}/api/feature/${featureKey}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
-
-    return await response.json();
+    return await this.send(
+      `${this.baseUrl}/api/feature/key/${featureKey}`,
+      'GET'
+    );
   }
 
   async deleteFeature(featureId) {
-    const response = await fetch(
+    return await this.send(
       `${this.baseUrl}/api/feature/id/${featureId}`,
-      {
-        method: 'DELETE',
-        headers: this.getHeaders(),
-      }
+      'DELETE'
     );
-
-    return await response.json();
   }
 
   async setFeature(featureKey, value) {
-    const body = {
-      value: value,
-    };
-
-    const response = await fetch(
-      `${this.baseUrl}/api/feature/set/${featureKey}`,
-      {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify(body),
-      }
+    return await this.send(
+      `${this.baseUrl}/api/feature/evaluate/${featureKey}`,
+      'PUT',
+      { value: value }
     );
-    return await response.json();
   }
 
   async createFeature(feature) {
-    const response = await fetch(`${this.baseUrl}/api/feature`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify(feature),
-    });
-    return await response.json();
+    return await this.send(`${this.baseUrl}/api/feature`, 'POST', feature);
   }
 }

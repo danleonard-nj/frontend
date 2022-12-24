@@ -12,30 +12,20 @@ import Select from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { featureType } from '../../../api/helpers/featureHelpers';
+import { dialogType } from '../../../store/dialog/dialogSlice';
 import { createFeature } from '../../../store/features/featureActions';
 import {
   setCreateFeatureDialog,
   updateFeature,
 } from '../../../store/features/featureSlice';
 
-const featureTypes = [
-  {
-    name: 'Boolean',
-    value: 1,
-  },
-  {
-    name: 'String',
-    value: 2,
-  },
-  {
-    name: 'Array',
-    value: 3,
-  },
-];
 export default function CreateFeatureDialog() {
   const dispatch = useDispatch();
-  const createFeatureOpen = useSelector((x) => x.feature.createFeatureOpen);
   const feature = useSelector((x) => x.feature.feature);
+  const createFeatureOpen = useSelector(
+    (x) => x.dialog[dialogType.createFeatureDialog]
+  );
 
   const handleClose = () => {
     dispatch(setCreateFeatureDialog(false));
@@ -64,7 +54,7 @@ export default function CreateFeatureDialog() {
   }, [feature.name]);
 
   const handleCreate = () => {
-    dispatch(createFeature());
+    dispatch(createFeature(feature));
   };
 
   return (
@@ -121,18 +111,18 @@ export default function CreateFeatureDialog() {
                     <Select
                       labelId='demo-simple-select-label'
                       label='Feature Type'
-                      name='type_id'
+                      name='feature_type'
                       onChange={handleChange}
                       value={feature.feature_id}
                       fullWidth>
-                      {featureTypes.map((type) => (
-                        <MenuItem value={type.value}>{type.name}</MenuItem>
+                      {Object.keys(featureType).map((type) => (
+                        <MenuItem value={type}>{type}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>
                 </Grid>
                 <Grid item lg={6} align='center'>
-                  {feature.type_id == 1 && (
+                  {feature.feature_type == featureType.boolean && (
                     <FormControl>
                       <FormControlLabel
                         control={<Switch defaultChecked />}
@@ -140,13 +130,34 @@ export default function CreateFeatureDialog() {
                       />
                     </FormControl>
                   )}
-                  {feature.type_id == 2 && (
+                  {feature.feature_type == featureType.string && (
                     <TextField
                       label='Value'
                       name='value'
                       fullWidth
                       variant='standard'
-                      value={feature.value}
+                      value={feature?.value ?? ''}
+                      onChange={handleChange}
+                    />
+                  )}
+                  {feature.feature_type == featureType.json && (
+                    <TextField
+                      label='JSON'
+                      name='value'
+                      fullWidth
+                      variant='standard'
+                      value={feature?.value ?? ''}
+                      onChange={handleChange}
+                    />
+                  )}
+                  {feature.feature_type == featureType.number && (
+                    <TextField
+                      label='Value'
+                      name='value'
+                      type='number'
+                      fullWidth
+                      variant='standard'
+                      value={feature?.value ?? ''}
                       onChange={handleChange}
                     />
                   )}

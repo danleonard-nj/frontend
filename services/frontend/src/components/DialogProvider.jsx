@@ -1,3 +1,4 @@
+import CreateFeatureDialog from './features/dialogs/CreateFeatureDialog';
 import { KasaDeviceClientResponseDialog } from './kasa/dialogs/KasaDeviceClientResponseDialog';
 import { KasaSceneCategoryDialog } from './kasa/dialogs/KasaSceneCategoryAddDialog';
 import { KasaSceneCategoryRemoveDialog } from './kasa/dialogs/KasaSceneCategoryRemoveDialog';
@@ -24,6 +25,7 @@ export const DialogProvider = () => {
       <KasaSceneCategoryRemoveDialog />
       <KasaDeviceClientResponseDialog />
       <ReverbOrderDetailDialog />
+      <CreateFeatureDialog />
     </>
   );
 };

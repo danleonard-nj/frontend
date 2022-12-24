@@ -1,55 +1,114 @@
+import autoBind from 'auto-bind';
 import FeatureApi from '../../api/features/featuresApi';
-import {
-  createFeatureFetched,
-  createFeatureFetching,
-  featuresFetched,
-  featuresFetching,
-  openSnackbar,
-  setCreateFeatureDialog,
-} from './featureSlice';
+import { popErrorMessage, popMessage } from '../alert/alertActions';
+import { closeDialog, dialogType } from '../dialog/dialogSlice';
+import { setFeature, setFeatureLoading, setFeatures } from './featureSlice';
 
-export function getFeatures() {
-  return async (dispatch, getState) => {
-    dispatch(featuresFetching());
+const handleErrorMessage = (message, data) => {
+  return 'message' in data ? `${message}: ${data}` : message;
+};
 
-    const api = new FeatureApi();
-    const response = await api.getFeatures();
+export default class FeatureActions {
+  constructor() {
+    this.featureApi = new FeatureApi();
+    autoBind(this);
+  }
 
-    dispatch(featuresFetched(response?.features));
+  getFeatures = () => {
+    return async (dispatch, getState) => {
+      dispatch(setFeatureLoading(true));
+
+      const handleErrorResponse = ({ data }) => {
+        // Pop an error message if we failed to fetch
+        // the feature list
+        const errorMessage = handleErrorMessage(
+          'Failed to fetch feature list',
+          data
+        );
+        dispatch(popErrorMessage(errorMessage));
+      };
+
+      const response = await this.featureApi.getFeatures();
+
+      response?.status === 200
+        ? dispatch(setFeatures(response.data))
+        : handleErrorResponse(response);
+    };
+  };
+
+  deleteFeature = (featureId) => {
+    return async (dispatch, getState) => {
+      const handleErrorResponse = ({ data }) => {
+        const errorMessage = handleErrorMessage(
+          `Failed to delete feature with the ID '${featureId}'`,
+          data
+        );
+        // Pop an error message if we failed to delete
+        dispatch(popErrorMessage(errorMessage));
+      };
+
+      const response = await this.featureApi.deleteFeature(featureId);
+
+      response?.status === 200
+        ? dispatch(setFeature(response.data))
+        : handleErrorResponse(response);
+    };
+  };
+
+  createFeature = (feature) => {
+    return async (dispatch, getState) => {
+      const handleErrorResponse = ({ data }) => {
+        // Pop an error on failure to create the feature
+        const errorMessage = handleErrorMessage(
+          'Failed to create feature',
+          data
+        );
+        dispatch(popErrorMessage(errorMessage));
+      };
+
+      const handleSuccessResponse = ({ data, status }) => {
+        // Pop a success message
+        dispatch(popMessage(`Feature '${data.feature_key}' created!`));
+
+        // Close dialog and reload feature list
+        dispatch(closeDialog(dialogType.createFeatureDialog));
+        dispatch(this.getFeatures());
+      };
+
+      dispatch(setFeatureLoading(true));
+
+      const response = await this.featureApi.createFeature(feature);
+
+      response?.status === 200
+        ? handleSuccessResponse(response)
+        : handleErrorResponse(response);
+    };
+  };
+
+  updateFeatureValue = (featureKey, value) => {
+    return async (dispatch, getState) => {
+      const handleErrorResponse = ({ data }) => {
+        // Pop an error if we fail to set the feature value
+        const errorMessage = handleErrorMessage(
+          `Failed to get feature: ${featureKey}`,
+          data
+        );
+        dispatch(popErrorMessage(errorMessage));
+      };
+
+      const handleSuccessResponse = () => {
+        // Pop a success message and reload feature list
+        dispatch(popMessage(`Feature '${featureKey}' updated successfully!`));
+      };
+
+      const response = await this.featureApi.setFeature(featureKey, value);
+
+      response?.status === 200
+        ? handleSuccessResponse()
+        : handleErrorResponse(response);
+    };
   };
 }
 
-export function deleteFeature(featureId) {
-  return async (dispatch, getState) => {
-    const api = new FeatureApi();
-    await api.deleteFeature(featureId);
-    dispatch(getFeatures());
-  };
-}
-
-export function createFeature() {
-  return async (dispatch, getState) => {
-    dispatch(createFeatureFetching());
-
-    const state = getState();
-    const api = new FeatureApi();
-    const response = await api.createFeature(state.feature.feature);
-
-    dispatch(createFeatureFetched(response));
-    dispatch(
-      openSnackbar({
-        open: true,
-        message: `Feature created! ID: ${response.feature_id}`,
-      })
-    );
-    dispatch(getFeatures());
-    dispatch(setCreateFeatureDialog(false));
-  };
-}
-
-export function setFeature(featureKey, value) {
-  return async (dispatch, getState) => {
-    const api = new FeatureApi();
-    await api.setFeature(featureKey, value);
-  };
-}
+export const { updateFeatureValue, createFeature, deleteFeature, getFeatures } =
+  new FeatureActions();

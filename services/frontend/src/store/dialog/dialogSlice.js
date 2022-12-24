@@ -16,6 +16,7 @@ export const dialogType = {
   sceneCategoryAdd: 'sceneCategoryAdd',
   sceneCategoryRemove: 'sceneCategoryRemove',
   kasaDeviceClientResponse: 'kasaDeviceClientResponse',
+  createFeatureDialog: 'createFeatureDialog',
 };
 
 const getInitialState = () => {

@@ -4,16 +4,17 @@ const initialFeature = {
   description: 'This is a feature',
   feature_key: 'new-feature',
   name: 'New Feature',
-  type_id: 1,
-  type_name: 'BOOLEAN',
+  feature_type: 'boolean',
   value: true,
 };
 
 const initialState = {
   features: [],
   featuresFetched: false,
+  featuresLoading: true,
   feature: initialFeature,
   featureFetched: false,
+  featureLoading: false,
   editMode: true,
   editFeature: null,
   createFeatureOpen: false,
@@ -30,20 +31,34 @@ const featureSlice = createSlice({
   name: 'feature',
   initialState,
   reducers: {
-    featureFetched(state, { payload }) {
-      state.featureFetched = true;
+    setFeature(state, { payload }) {
+      state.featureLoading = false;
       state.feature = payload;
     },
-    featuresFetched(state, { payload }) {
-      state.featuresFetched = true;
+    setFeatureLoading(state, { payload }) {
+      state.featureLoading = true;
+    },
+    setFeatures(state, { payload }) {
+      state.featuresLoading = false;
       state.features = payload;
     },
-    featureFetching(state) {
-      state.featureFetched = false;
+    setFeaturesLoading(state, { payload }) {
+      state.featuresLoading = true;
     },
-    featuresFetching(state) {
-      state.featureFetched = false;
-    },
+    // featureFetched(state, { payload }) {
+    //   state.featureFetched = true;
+    //   state.feature = payload;
+    // },
+    // featuresFetched(state, { payload }) {
+    //   state.featuresFetched = true;
+    //   state.features = payload;
+    // },
+    // featureFetching(state) {
+    //   state.featureFetched = false;
+    // },
+    // featuresFetching(state) {
+    //   state.featureFetched = false;
+    // },
     setCreateFeatureDialog(state, { payload }) {
       state.createFeatureOpen = payload;
     },
@@ -69,7 +84,10 @@ const featureSlice = createSlice({
 });
 
 export const {
-  featureFetched,
+  setFeature,
+  setFeatureLoading,
+  setFeatures,
+  setFeaturesLoading,
   featureFetching,
   updateFeatureListItem,
   featuresFetched,
