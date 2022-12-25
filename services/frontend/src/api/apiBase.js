@@ -1,10 +1,11 @@
 import { msalInstance } from '..';
-import config from '../config.json';
+import { getConfig } from './data/configProvider';
 
 export default class ApiBase {
   constructor(scope) {
+    const config = getConfig();
     this.scope = scope;
-    this.baseUrl = config.baseUrl;
+    this.baseUrl = config.apiBaseUrl;
   }
 
   get defaultOptions() {

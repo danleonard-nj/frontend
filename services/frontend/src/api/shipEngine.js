@@ -1,11 +1,9 @@
 import ApiBase from './apiBase';
-import config from '../config.json';
 import { serviceScopes } from '../msalConfig';
 
 export default class ShipEngineApi extends ApiBase {
   constructor() {
     super(serviceScopes.shipEngine);
-    this.baseUrl = config.gatewayBaseUrl;
   }
 
   async getShipments(pageNumber, pageSize) {

@@ -1,12 +1,10 @@
 import { serviceScopes } from '../msalConfig';
 import ApiBase from './apiBase';
-import config from '../config.json';
 import AzureGatewayApi from './azureGatewayApi';
 
 export default class ScheduleApi extends ApiBase {
   constructor() {
     super(serviceScopes.scheduler);
-    this.baseUrl = config.apiBaseUrl;
     this.azureGatewayApi = new AzureGatewayApi();
   }
 

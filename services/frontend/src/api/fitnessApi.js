@@ -1,11 +1,9 @@
-import config from '../config.json';
 import { serviceScopes } from '../msalConfig';
 import ApiBase from './apiBase';
 
 export default class FitnessApi extends ApiBase {
   constructor() {
     super(serviceScopes.fitness);
-    this.baseUrl = config.baseUrl;
   }
 
   async getFitnessRange(startDate, endDate) {

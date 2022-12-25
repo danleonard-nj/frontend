@@ -1,11 +1,11 @@
-import config from '../../config.json';
 import ApiBase from '../apiBase';
+import { getConfig } from '../data/configProvider';
 
 export default class FeatureApi extends ApiBase {
   constructor() {
     super(null);
 
-    this.baseUrl = config.features.baseUrl;
+    const config = getConfig();
     this.apiKey = config.features.apiKey;
     this.apiHeaderKey = config.features.apiHeaderKey;
   }

@@ -12,7 +12,6 @@ import {
   setGeoLocation,
   setLocation,
 } from '../../../../store/reminders/reminderSlice';
-import config from '../../../../config.json';
 import GoogleMaps, { MapsAutocomplete } from '../components/MapsAutocomplete';
 
 export const CreateLocationDialogLayout = () => {

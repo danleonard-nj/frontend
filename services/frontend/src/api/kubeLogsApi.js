@@ -1,11 +1,9 @@
-import config from '../config.json';
 import { serviceScopes } from '../msalConfig';
 import ApiBase from './apiBase';
 
 export default class KubeLogsApi extends ApiBase {
   constructor() {
     super(serviceScopes.azureGateway);
-    this.baseUrl = config.gatewayBaseUrl;
   }
 
   async getPods() {
