@@ -7,7 +7,6 @@ import DashboardKasaLayout from '../layouts/DashboardKasaLayout';
 import DashboardKasaSceneLayout from '../layouts/DashboardKasaSceneLayout';
 import { DashboardKubernetesLogLayout } from '../layouts/DashboardKubernetesLogLayout';
 import { DashboardLocationHistoryLayout } from '../layouts/DashboardLocationHistoryLayout';
-import DashboardRemindersLayout from '../layouts/DashboardRemindersLayout';
 import DashboardReverbLayout from '../layouts/DashboardReverbLayout';
 import DashboardScheduleLayout from '../layouts/DashboardScheduleLayout';
 import DashboardShipEngineLayout from '../layouts/DashboardShipEngineLayout';
@@ -24,7 +23,6 @@ export default function Dashboard() {
       {dashboardPage === 'scenes' && <DashboardKasaSceneLayout />}
       {dashboardPage === 'shipengine' && <DashboardShipEngineLayout />}
       {dashboardPage === 'reverb' && <DashboardReverbLayout />}
-      {dashboardPage === 'reminders' && <DashboardRemindersLayout />}
       {dashboardPage === 'fitness' && <DashboardFitnessLayout />}
       {dashboardPage === 'locations' && <DashboardLocationHistoryLayout />}
       {dashboardPage === 'kubernetes' && <DashboardKubernetesLogLayout />}

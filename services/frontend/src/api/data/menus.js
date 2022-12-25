@@ -5,7 +5,6 @@ const pages = [
   'Scenes',
   'ShipEngine',
   'Reverb',
-  'Reminders',
   'Fitness',
   'Locations',
   'Kubernetes',
