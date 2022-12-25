@@ -8,7 +8,7 @@ import KasaSceneToolbar from './KasaSceneToolbar';
 
 export default function KasaScene() {
   const dispatch = useDispatch();
-  const scene = useSelector((x) => x.scene.scene);
+  const scene = useSelector((x) => x.scene.scene) ?? {};
 
   const handleNameChange = (event) => {
     dispatch(

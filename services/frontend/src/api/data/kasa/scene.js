@@ -39,7 +39,7 @@ const getNewScene = () => {
 
 const getDeviceOptions = (devices, flow) => {
   const ids = flow.map((x) => x.id);
-  return devices.filter((x) => !ids.includes(x.device_id));
+  return devices?.filter((x) => !ids.includes(x.device_id)) ?? [];
 };
 
 const getPresetOptions = (presets, flow) => {

@@ -6,6 +6,8 @@ import {
   setIsNew,
   setLinkOptions,
   setSchedule,
+  setScheduleHistory,
+  setScheduleHistoryLoading,
   setSchedules,
 } from './scheduleSlice';
 
@@ -29,6 +31,44 @@ export default class ScheduleActions {
       // Pop error message on failed status
       handleResultMessage(response?.status);
       dispatch(setSchedules(response?.data));
+    };
+  }
+
+  getScheduleHistory(startTimestamp) {
+    return async (dispatch, getState) => {
+      const handleResultMessage = (status) => {
+        if (status !== 200) {
+          dispatch(popErrorMessage('Failed to fetch schedule history'));
+        }
+      };
+
+      dispatch(setScheduleHistoryLoading(true));
+
+      // Fetch schedule history
+      const endTimestamp = Math.round(new Date().getTime() / 1000);
+      const response = await this.scheduleApi.getScheduleHistory(
+        startTimestamp,
+        endTimestamp
+      );
+
+      const data = [];
+      response.data.forEach((schedule) => {
+        schedule.tasks.forEach((task) => {
+          data.push({
+            scheduleId: schedule.scheduleId,
+            scheduleName: schedule.scheduleName,
+            taskId: task.taskId,
+            taskName: task.taskName,
+            isManualTrigger: schedule.isManualTrigger,
+            triggerDate: schedule.triggerDate,
+            createdDate: schedule.createdDate,
+          });
+        });
+      });
+
+      // Pop error message on failed status
+      handleResultMessage(response?.status);
+      dispatch(setScheduleHistory(data));
     };
   }
 
@@ -200,4 +240,5 @@ export const {
   getLinkOptions,
   getAvailableTasks,
   getSchedules,
+  getScheduleHistory,
 } = new ScheduleActions();

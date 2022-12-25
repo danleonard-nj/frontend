@@ -1,7 +1,9 @@
-import { Grid } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import DashboardTitle from '../../dashboard/DashboardTitle';
+import { dialogType, openDialog } from '../../../store/dialog/dialogSlice';
+
 import RunDisplayCard from './RunDisplayCard';
 
 const getDisplayTime = (timestamp) => {
@@ -11,16 +13,24 @@ const getDisplayTime = (timestamp) => {
   return displayDate;
 };
 
-export default function RunHistory() {
+export default function ScheduleHistoryPanel() {
+  const dispatch = useDispatch();
   const schedule = useSelector((x) => x.schedule?.schedule);
 
-  return (
-    <div style={{ minHeight: '22rem' }}>
-      <div style={{ height: '3rem' }}>
-        <DashboardTitle>History</DashboardTitle>
-      </div>
+  const handleOpenViewDialog = () => {
+    dispatch(openDialog(dialogType.scheduleHistoryViewDialog));
+  };
 
-      <>
+  return (
+    <Grid container spacing={3}>
+      <Grid item lg={12}>
+        <Grid container direction='row' justifyContent='space-between'>
+          <DashboardTitle>History</DashboardTitle>
+          <Button onClick={handleOpenViewDialog}>View</Button>
+        </Grid>
+      </Grid>
+
+      <Grid item lg={12}>
         <Grid container spacing={3} justify='center'>
           <Grid item lg={12}>
             <RunDisplayCard
@@ -35,7 +45,7 @@ export default function RunHistory() {
             />
           </Grid>
         </Grid>
-      </>
-    </div>
+      </Grid>
+    </Grid>
   );
 }

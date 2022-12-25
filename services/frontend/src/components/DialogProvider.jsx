@@ -9,6 +9,7 @@ import { ViewDestinationDetailsDialog } from './reminders/dialogs/ViewDestinatio
 import ReverbOrderDetailDialog from './reverb/ReverbOrderDetailDialog';
 import ScheduleAddLinkDialog from './schedule/dialogs/ScheduleAddLinkDialog';
 import ScheduleDeleteConfirmDialog from './schedule/dialogs/ScheduleDeleteConfirmDialog';
+import { ScheduleHistoryViewDialog } from './schedule/dialogs/ScheduleHistoryViewDialog';
 import DeleteTaskConfirmationDialog from './task/dialogs/DeleteTaskConfirmationDialog';
 
 export const DialogProvider = () => {
@@ -26,6 +27,7 @@ export const DialogProvider = () => {
       <KasaDeviceClientResponseDialog />
       <ReverbOrderDetailDialog />
       <CreateFeatureDialog />
+      <ScheduleHistoryViewDialog />
     </>
   );
 };

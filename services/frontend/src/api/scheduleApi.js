@@ -1,15 +1,24 @@
 import { serviceScopes } from '../msalConfig';
 import ApiBase from './apiBase';
+import config from '../config.json';
 import AzureGatewayApi from './azureGatewayApi';
 
 export default class ScheduleApi extends ApiBase {
   constructor() {
     super(serviceScopes.scheduler);
+    this.baseUrl = config.apiBaseUrl;
     this.azureGatewayApi = new AzureGatewayApi();
   }
 
   async getSchedules() {
     return await this.send(`${this.baseUrl}/api/scheduler/schedule`, 'GET');
+  }
+
+  async getScheduleHistory(startTimestamp, endTimestamp) {
+    return await this.send(
+      `${this.baseUrl}/api/scheduler/history?startTimestamp=${startTimestamp}&endTimestamp=${endTimestamp}`,
+      'GET'
+    );
   }
 
   async getSchedule(scheduleId) {

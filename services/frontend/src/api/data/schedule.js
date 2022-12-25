@@ -27,6 +27,8 @@ const scheduleState = {
   scheduleLoading: false,
   linkOptions: [],
   isNew: false,
+  scheduleHistoryLoading: true,
+  scheduleHistory: [],
 };
 
 export { scheduleTemplate, defaultSchedule, scheduleState };

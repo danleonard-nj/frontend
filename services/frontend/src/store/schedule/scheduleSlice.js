@@ -25,6 +25,13 @@ const scheduleSlice = createSlice({
     setSchedulesLoading(state) {
       state.schedulesLoading = true;
     },
+    setScheduleHistory(state, { payload }) {
+      state.scheduleHistoryLoading = false;
+      state.scheduleHistory = payload;
+    },
+    setScheduleHistoryLoading(state) {
+      state.scheduleHistoryLoading = true;
+    },
     setLinkOptions(state, { payload }) {
       state.linkOptions = payload;
     },
@@ -39,6 +46,8 @@ export const {
   setScheduleLoading,
   setSchedulesLoading,
   setIsNew,
+  setScheduleHistory,
+  setScheduleHistoryLoading,
 } = scheduleSlice.actions;
 
 export default scheduleSlice.reducer;
