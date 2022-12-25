@@ -60,14 +60,15 @@ export default class KasaDeviceActions {
 
   getDevices = () => {
     return async (dispatch, getState) => {
-      const response = await this.deviceApi.getDevices();
-      console.log(response);
+      const handleErrorResponse = () => {
+        dispatch(popErrorMessage('Failed to fetch device list'));
+      };
 
-      dispatch(
-        response.status === 200
-          ? setDevices(response?.data?.devices)
-          : popErrorMessage('Failed to upload device')
-      );
+      const response = await this.deviceApi.getDevices();
+
+      response.status === 200
+        ? dispatch(setDevices(response?.data))
+        : handleErrorResponse();
     };
   };
 
