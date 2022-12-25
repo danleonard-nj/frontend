@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { getLocalDateTimeFromString } from '../../../api/helpers/dateTimeUtils';
+import { getScheduleHistoryDisplayDateTime } from '../../../api/helpers/scheduleHelpers';
 import DashboardTitle from '../../dashboard/DashboardTitle';
 import Spinner from '../../Spinner';
 
@@ -38,7 +38,7 @@ export default function RunQueueTable() {
                   scheduleQueue?.map((runtime, index) => (
                     <TableRow hover key={index}>
                       <TableCell>
-                        {getLocalDateTimeFromString(runtime)}
+                        {getScheduleHistoryDisplayDateTime(runtime)}
                       </TableCell>
                     </TableRow>
                   ))}

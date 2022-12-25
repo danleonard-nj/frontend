@@ -9,6 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import * as React from 'react';
+import { useEffect } from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTimestampHoursBack } from '../../../api/helpers/scheduleHelpers';
@@ -36,6 +37,10 @@ const ScheduleHistoryViewDialog = () => {
   const handleClose = () => {
     dispatch(closeDialog(dialogType.scheduleHistoryViewDialog));
   };
+
+  useEffect(() => {
+    handleLoadHistoryData();
+  }, []);
 
   return (
     <Dialog open={isOpen} onClose={handleClose} maxWidth='lg' fullWidth>

@@ -51,24 +51,9 @@ export default class ScheduleActions {
         endTimestamp
       );
 
-      const data = [];
-      response.data.forEach((schedule) => {
-        schedule.tasks.forEach((task) => {
-          data.push({
-            scheduleId: schedule.scheduleId,
-            scheduleName: schedule.scheduleName,
-            taskId: task.taskId,
-            taskName: task.taskName,
-            isManualTrigger: schedule.isManualTrigger,
-            triggerDate: schedule.triggerDate,
-            createdDate: schedule.createdDate,
-          });
-        });
-      });
-
       // Pop error message on failed status
       handleResultMessage(response?.status);
-      dispatch(setScheduleHistory(data));
+      dispatch(setScheduleHistory(response?.data));
     };
   }
 

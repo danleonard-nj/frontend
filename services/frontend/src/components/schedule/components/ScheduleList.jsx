@@ -18,14 +18,12 @@ import {
 } from '../../../store/schedule/scheduleActions';
 import { newSchedule } from '../../../store/schedule/scheduleSlice';
 import { getTasks } from '../../../store/task/taskActions';
+import Spinner from '../../Spinner';
 
 export default function ScheduleList() {
   const dispatch = useDispatch();
   const schedules = useSelector((x) => x.schedule.schedules) ?? [];
   const schedulesLoading = useSelector((x) => x.schedule.schedulesLoading);
-
-  console.log('render, schedules ', schedules);
-  console.log('render, schedules loading ', schedulesLoading);
 
   const handleScheduleSelect = (scheduleId) => {
     dispatch(getSchedule(scheduleId));
@@ -71,20 +69,24 @@ export default function ScheduleList() {
           </Button>
         </Grid>
       </Grid>
-      <Paper elevation={3}>
-        <List component='nav' id='schedule-list' sx={scrollable}>
-          {schedules.map((schedule) => (
-            <ListItemButton
-              onClick={() => handleScheduleSelect(schedule.scheduleId)}
-              key={schedule.scheduleId}
-              selected={false}>
-              <ListItemIcon>
-                <ScheduleIcon />
-              </ListItemIcon>
-              <ListItemText primary={schedule.scheduleName} />
-            </ListItemButton>
-          ))}
-        </List>
+      <Paper elevation={3} sx={{ minHeight: '75vh' }}>
+        {schedulesLoading ? (
+          <Spinner id='schedule-list-spinner' />
+        ) : (
+          <List component='nav' id='schedule-list' sx={scrollable}>
+            {schedules.map((schedule) => (
+              <ListItemButton
+                onClick={() => handleScheduleSelect(schedule.scheduleId)}
+                key={schedule.scheduleId}
+                selected={false}>
+                <ListItemIcon>
+                  <ScheduleIcon />
+                </ListItemIcon>
+                <ListItemText primary={schedule.scheduleName} />
+              </ListItemButton>
+            ))}
+          </List>
+        )}
       </Paper>
     </>
   );

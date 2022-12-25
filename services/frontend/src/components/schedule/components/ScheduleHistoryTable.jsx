@@ -19,29 +19,21 @@ const ScheduleHistoryTable = () => {
       <Table sx={{ minWidth: 650 }} aria-label='simple table'>
         <TableHead>
           <TableRow>
-            <TableCell>Schedule ID</TableCell>
-            <TableCell>Schedule Name</TableCell>
-            <TableCell>Task ID</TableCell>
-            <TableCell>Task Name</TableCell>
+            <TableCell>Timestamp</TableCell>
             <TableCell>Manual Trigger</TableCell>
-            <TableCell>Triggered</TableCell>
-            <TableCell>Created Date</TableCell>
+            <TableCell>Schedule Name</TableCell>
+            <TableCell>Schedule ID</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {scheduleHistory.map((row) => (
             <TableRow key={row.scheduleId}>
-              <TableCell>{row.scheduleId}</TableCell>
-              <TableCell>{row.scheduleName}</TableCell>
-              <TableCell>{row.taskId}</TableCell>
-              <TableCell>{row.taskName}</TableCell>
-              <TableCell>{row.isManualTrigger}</TableCell>
-              <TableCell>
-                {getScheduleHistoryDisplayDateTime(row.triggerDate)}
-              </TableCell>
               <TableCell>
                 {getScheduleHistoryDisplayDateTime(row.createdDate)}
               </TableCell>
+              <TableCell>{row.isManualTrigger}</TableCell>
+              <TableCell>{row.scheduleName}</TableCell>
+              <TableCell>{row.scheduleId}</TableCell>
             </TableRow>
           ))}
         </TableBody>
