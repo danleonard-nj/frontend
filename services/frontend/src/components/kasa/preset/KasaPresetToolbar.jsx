@@ -1,24 +1,11 @@
-import {
-  Button,
-  ButtonGroup,
-  Grid,
-  Stack,
-  TextField,
-} from '@mui/material';
+import { Button, ButtonGroup, Grid, Stack, TextField } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  dialogType,
-  openDialog,
-} from '../../../store/dialog/dialogSlice';
+import { dialogType, openDialog } from '../../../store/dialog/dialogSlice';
 import {
   deletePreset,
-  getPresets,
   savePreset,
 } from '../../../store/kasa/actions/presetActions';
-import {
-  setNewPreset,
-  setPreset,
-} from '../../../store/kasa/presetSlice';
+import { setNewPreset, setPreset } from '../../../store/kasa/presetSlice';
 
 export default function KasaPresetToolbar() {
   const dispatch = useDispatch();
@@ -42,9 +29,6 @@ export default function KasaPresetToolbar() {
 
   function handlePresetDelete() {
     dispatch(deletePreset());
-
-    // Reload presets after delete
-    dispatch(getPresets());
   }
 
   function handlePresetClone() {

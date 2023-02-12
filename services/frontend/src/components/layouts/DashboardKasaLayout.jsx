@@ -35,23 +35,12 @@ export default function DashboardKasaLayout() {
           <Tab label='Regions' id='kasa-tab-list-regions-tab' />
         </Tabs>
         <Paper>
-          {tab === 0 && (
-            <KasaPresetList id='kasa-tab-content-preset-list' />
-          )}
-          {tab === 1 && (
-            <KasaSceneList id='kasa-tab-content-scene-list' />
-          )}
-          {tab === 2 && (
-            <KasaDeviceList id='kasa-tab-content-scene-list' />
-          )}
+          {tab === 0 && <KasaPresetList id='kasa-tab-content-preset-list' />}
+          {tab === 1 && <KasaSceneList id='kasa-tab-content-scene-list' />}
+          {tab === 2 && <KasaDeviceList id='kasa-tab-content-scene-list' />}
         </Paper>
       </Grid>
-      <Grid
-        item
-        lg={9}
-        xs={12}
-        md={8}
-        id='kasa-tab-content-container'>
+      <Grid item lg={9} xs={12} md={8} id='kasa-tab-content-container'>
         <Paper
           sx={{
             p: 2,

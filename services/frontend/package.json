@@ -19,7 +19,6 @@
     "apexcharts": "^3.35.5",
     "auto-bind": "^5.0.1",
     "autosuggest-highlight": "^3.3.4",
-    "babel-plugin-prismjs": "^2.1.0",
     "chart.js": "^3.9.1",
     "google-map-react": "^2.2.0",
     "install": "^0.13.0",

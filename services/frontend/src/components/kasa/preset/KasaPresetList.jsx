@@ -5,13 +5,10 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { scrollable } from '../../../api/helpers/formattingHelpers';
-import {
-  getPreset,
-  getPresets,
-} from '../../../store/kasa/actions/presetActions';
+import { getPreset } from '../../../store/kasa/actions/presetActions';
 import Spinner from '../../Spinner';
 
 export default function KasaPresetList() {

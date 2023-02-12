@@ -12,16 +12,13 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getLogs } from '../../store/kubeLogs/kubeLogActions';
 import { setLogTail } from '../../store/kubeLogs/kubeLogSlice';
-import Prism from 'prismjs';
 
 const KubernetesLogs = () => {
   const dispatch = useDispatch();
   const logs = useSelector((x) => x.kubeLogs.logs);
   const logTail = useSelector((x) => x.kubeLogs.logTail);
   const selectedPod = useSelector((x) => x.kubeLogs.selectedPod);
-  const selectedNamespace = useSelector(
-    (x) => x.kubeLogs.selectedNamespace
-  );
+  const selectedNamespace = useSelector((x) => x.kubeLogs.selectedNamespace);
 
   const [slider, setSlider] = useState(logTail ?? 0);
   const [autoRefresh, setAutoRefresh] = useState(false);
@@ -54,10 +51,6 @@ const KubernetesLogs = () => {
   useEffect(() => {
     dispatch(getLogs(selectedNamespace, selectedPod));
   }, [logTail]);
-
-  useEffect(() => {
-    Prism.highlightAll();
-  }, []);
 
   return (
     <Grid container spacing={3} sx={{ marginTop: 3 }}>
@@ -116,7 +109,6 @@ const KubernetesLogs = () => {
           fullWidth
           contentEditable={false}
           spellCheck={false}
-          sx={{ fontFamily: '"Courier New", Courier, monospace' }}
         />
       </Grid>
     </Grid>
