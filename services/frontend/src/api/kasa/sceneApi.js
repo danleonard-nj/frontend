@@ -95,7 +95,7 @@ export default class SceneApi extends ApiBase {
 
   async runScene(sceneId, regionId) {
     const response = await fetch(
-      regionId === null
+      !regionId
         ? `${this.baseUrl}/api/kasa/scene/${sceneId}/run`
         : `${this.baseUrl}/api/kasa/scene/${sceneId}/run?region=${regionId}`,
       {

@@ -11,17 +11,10 @@ export default function FeatureTopMenu() {
   };
 
   return (
-    <Grid container spacing={3}>
-      <Grid item lg={12}>
-        <Grid container direction='row' justifyContent='end'>
-          <Button
-            color='primary'
-            variant='contained'
-            onClick={handleCreateFeature}>
-            New Feature
-          </Button>
-        </Grid>
-      </Grid>
+    <Grid container direction='row' justifyContent='end'>
+      <Button color='primary' variant='contained' onClick={handleCreateFeature}>
+        New Feature
+      </Button>
     </Grid>
   );
 }

@@ -1,6 +1,9 @@
 import autoBind from 'auto-bind';
 import DeviceApi from '../../../api/kasa/deviceApi';
-import { popErrorMessage, popMessage } from '../../alert/alertActions';
+import {
+  popErrorMessage,
+  popMessage,
+} from '../../alert/alertActions';
 import {
   setDevice,
   setDeviceClientResponse,
@@ -29,7 +32,9 @@ export default class KasaDeviceActions {
 
   getDeviceClientResponse = (deviceId) => {
     return async (dispatch, getState) => {
-      const response = await this.deviceApi.getDeviceClientResponse(deviceId);
+      const response = await this.deviceApi.getDeviceClientResponse(
+        deviceId
+      );
 
       dispatch(
         response.status === 200
@@ -64,10 +69,24 @@ export default class KasaDeviceActions {
         dispatch(popErrorMessage('Failed to fetch device list'));
       };
 
+      const handleResponse = ({ success, data }) => {
+        data.sort(function (a, b) {
+          if (a.device_name < b.device_name) {
+            return -1;
+          }
+          if (a.device_name > b.device_name) {
+            return 1;
+          }
+          return 0;
+        });
+
+        dispatch(setDevices(response?.data));
+      };
+
       const response = await this.deviceApi.getDevices();
 
       response.status === 200
-        ? dispatch(setDevices(response?.data))
+        ? handleResponse(response)
         : handleErrorResponse();
     };
   };

@@ -1,4 +1,10 @@
-import { CircularProgress, List, ListSubheader, Paper } from '@mui/material';
+import {
+  CircularProgress,
+  Container,
+  List,
+  ListSubheader,
+  Paper,
+} from '@mui/material';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFeatures } from '../../store/features/featureActions';
@@ -9,8 +15,6 @@ export default function FeatureList() {
   const features = useSelector((x) => x.feature.features);
   const featuresLoading = useSelector((x) => x.feature.featuresLoading);
 
-  console.log('rendered feature list', featuresLoading, features);
-
   useEffect(() => {
     dispatch(getFeatures());
   }, []);
@@ -20,13 +24,15 @@ export default function FeatureList() {
       {featuresLoading ? (
         <CircularProgress />
       ) : (
-        <Paper>
-          <List subheader={<ListSubheader>Features</ListSubheader>}>
-            {features.map((feature) => (
-              <FeatureListItem feature={feature} />
-            ))}
-          </List>
-        </Paper>
+        <Container maxWidth='md'>
+          <Paper>
+            <List subheader={<ListSubheader>Features</ListSubheader>}>
+              {features.map((feature) => (
+                <FeatureListItem feature={feature} />
+              ))}
+            </List>
+          </Paper>
+        </Container>
       )}
     </>
   );

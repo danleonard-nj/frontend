@@ -9,6 +9,7 @@ import KasaPresetToolbar from './KasaPresetToolbar';
 export default function KasaPreset() {
   const deviceType = useSelector((x) => x.preset.preset.device_type);
   const presetLoading = useSelector((x) => x.preset.presetLoading);
+
   return (
     <>
       <KasaSelectDeviceTypeDialog />
@@ -21,8 +22,12 @@ export default function KasaPreset() {
         <Grid item lg={6} xs={12}>
           {!presetLoading && (
             <Paper sx={{ padding: 3 }} elevation={4}>
-              {deviceType === deviceTypes.SmartLight && <KasaPresetLight />}
-              {deviceType === deviceTypes.SmartPlug && <KasaPresetPlug />}
+              {deviceType === deviceTypes.SmartLight && (
+                <KasaPresetLight />
+              )}
+              {deviceType === deviceTypes.SmartPlug && (
+                <KasaPresetPlug />
+              )}
             </Paper>
           )}
         </Grid>

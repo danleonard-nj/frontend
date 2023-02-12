@@ -1,5 +1,7 @@
 import autoBind from 'auto-bind';
 import PresetApi from '../../../api/kasa/presetApi';
+import { popErrorMessage } from '../../alert/alertActions';
+import { getErrorMessage } from '../../../api/helpers/apiHelpers';
 import {
   presetLoading,
   presetsLoading as setPresetsLoading,
@@ -24,9 +26,20 @@ export default class KasaPresetActions {
   getPresets() {
     return async (dispatch, getState) => {
       dispatch(setPresetsLoading(true));
-      const presets = await this.presetApi.getPresets();
-      console.log(presets);
-      dispatch(setPresets(presets?.data?.presets));
+
+      const handleErrorResponse = ({ data }) => {
+        dispatch(
+          popErrorMessage(
+            `Failed to fetch presets: ${getErrorMessage(data)}`
+          )
+        );
+      };
+
+      const response = await this.presetApi.getPresets();
+
+      response?.status === 200
+        ? dispatch(setPresets(response.data?.presets))
+        : handleErrorResponse(response);
     };
   }
 
