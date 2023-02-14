@@ -16,41 +16,53 @@ export default class SceneApi extends ApiBase {
   }
 
   async getScene(sceneId) {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene/${sceneId}`, {
-      method: 'GET',
-      headers: await this.getAuthHeaders(),
-    });
+    const response = await fetch(
+      `${this.baseUrl}/api/kasa/scene/${sceneId}`,
+      {
+        method: 'GET',
+        headers: await this.getAuthHeaders(),
+      }
+    );
 
     const json = await response.json();
     return { data: json, status: response.status };
   }
 
   async deleteScene(sceneId) {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene/${sceneId}`, {
-      method: 'DELETE',
-      headers: await this.getAuthHeaders(),
-    });
+    const response = await fetch(
+      `${this.baseUrl}/api/kasa/scene/${sceneId}`,
+      {
+        method: 'DELETE',
+        headers: await this.getAuthHeaders(),
+      }
+    );
 
     const json = await response.json();
     return { data: json, status: response.status };
   }
 
   async getSceneCategories() {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene/category`, {
-      method: 'GET',
-      headers: await this.getAuthHeaders(),
-    });
+    const response = await fetch(
+      `${this.baseUrl}/api/kasa/scene/category`,
+      {
+        method: 'GET',
+        headers: await this.getAuthHeaders(),
+      }
+    );
 
     const json = await response.json();
     return { data: json, status: response.status };
   }
 
   async createSceneCategory(category) {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene/category`, {
-      method: 'POST',
-      headers: await this.getAuthHeaders(),
-      body: JSON.stringify(category),
-    });
+    const response = await fetch(
+      `${this.baseUrl}/api/kasa/scene/category`,
+      {
+        method: 'POST',
+        headers: await this.getAuthHeaders(),
+        body: JSON.stringify(category),
+      }
+    );
 
     const json = await response.json();
     return { data: json, status: response.status };
@@ -95,7 +107,7 @@ export default class SceneApi extends ApiBase {
 
   async runScene(sceneId, regionId) {
     const response = await fetch(
-      regionId === null
+      regionId === null || regionId === undefined
         ? `${this.baseUrl}/api/kasa/scene/${sceneId}/run`
         : `${this.baseUrl}/api/kasa/scene/${sceneId}/run?region=${regionId}`,
       {
