@@ -19,6 +19,7 @@ import {
   filterScenesByCategory,
   getCategories,
   getScenes,
+  updateSceneCategory,
 } from '../../store/kasa/actions/sceneActions';
 import {
   setNewSceneCategoryToggle,
@@ -42,7 +43,6 @@ export default function DashboardKasaSceneLayout() {
   filteredScenes ??= [];
 
   const openSceneCategoryAddDialog = (categoryId) => {
-    dispatch(setSelectedSceneCategory(categoryId));
     dispatch(openDialog(dialogType.sceneCategoryAdd));
   };
 
@@ -52,10 +52,11 @@ export default function DashboardKasaSceneLayout() {
     dispatch(setNewSceneCategoryToggle(!newSceneCategoryToggle));
   };
 
-  const handleTabChange = (categoryId) => {
-    setTab(categoryId);
-    dispatch(setSelectedSceneCategory(categoryId));
-    dispatch(filterScenesByCategory(categoryId));
+  const handleTabChange = (event, value) => {
+    dispatch(getScenes());
+    setTab(value);
+    dispatch(setSelectedSceneCategory(value));
+    dispatch(filterScenesByCategory(value));
   };
 
   useEffect(() => {
@@ -100,7 +101,7 @@ export default function DashboardKasaSceneLayout() {
                     variant='scrollable'
                     scrollButtons
                     allowScrollButtonsMobile
-                    onChange={(event, tab) => handleTabChange(tab)}>
+                    onChange={handleTabChange}>
                     {sceneCategories?.map((sc) => (
                       <Tab
                         label={sc.scene_category}

@@ -10,14 +10,13 @@ import {
   Select,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useState } from 'react';
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
-import { closeDialog, dialogType } from '../../../store/dialog/dialogSlice';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  filterScenesByCategory,
-  getAllScenes,
+  closeDialog,
+  dialogType,
+} from '../../../store/dialog/dialogSlice';
+import {
   getScenes,
   updateSceneCategory,
 } from '../../../store/kasa/actions/sceneActions';
@@ -25,7 +24,9 @@ import {
 const KasaSceneCategoryAddDialog = () => {
   const dispatch = useDispatch();
   const scenes = useSelector((x) => x.scene.scenes) ?? [];
-  const isVisible = useSelector((x) => x.dialog[dialogType.sceneCategoryAdd]);
+  const isVisible = useSelector(
+    (x) => x.dialog[dialogType.sceneCategoryAdd]
+  );
   const selectedSceneCategory = useSelector(
     (x) => x.scene.selectedSceneCategory
   );
@@ -33,7 +34,9 @@ const KasaSceneCategoryAddDialog = () => {
   const [selected, setSelected] = useState('');
 
   const getFilteredSceneList = () => {
-    return scenes.filter((x) => x.scene_category_id !== selectedSceneCategory);
+    return scenes.filter(
+      (x) => x.scene_category_id !== selectedSceneCategory
+    );
   };
 
   const handleClose = () => {
@@ -43,8 +46,12 @@ const KasaSceneCategoryAddDialog = () => {
 
   const handleAddScene = () => {
     dispatch(updateSceneCategory(selected, selectedSceneCategory));
-    dispatch(getScenes());
     handleClose();
+
+    setTimeout(() => {
+      console.log('fire!');
+      dispatch(getScenes());
+    }, 2000);
   };
 
   const handleChange = (event) => {
@@ -53,15 +60,21 @@ const KasaSceneCategoryAddDialog = () => {
 
   useEffect(() => {
     setSceneList(getFilteredSceneList());
-  }, [selectedSceneCategory]);
+  }, [selectedSceneCategory, scenes]);
 
   return (
-    <Dialog onClose={handleClose} open={isVisible} maxWidth='sm' fullWidth>
+    <Dialog
+      onClose={handleClose}
+      open={isVisible}
+      maxWidth='sm'
+      fullWidth>
       <DialogTitle>Add Scene</DialogTitle>
       <DialogContent>
         <Box sx={{ marginTop: 1 }}>
           <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Scene</InputLabel>
+            <InputLabel id='demo-simple-select-label'>
+              Scene
+            </InputLabel>
             <Select
               variant='standard'
               labelId='demo-simple-select-label'
