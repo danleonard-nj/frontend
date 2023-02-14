@@ -12,11 +12,12 @@ import { useSelector } from 'react-redux';
 import { getScheduleHistoryDisplayDateTime } from '../../../api/helpers/scheduleHelpers';
 
 const ScheduleHistoryTable = () => {
-  const scheduleHistory = useSelector((x) => x.schedule.scheduleHistory) ?? [];
+  const scheduleHistory =
+    useSelector((x) => x.schedule.scheduleHistory) ?? [];
 
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+      <Table>
         <TableHead>
           <TableRow>
             <TableCell>Timestamp</TableCell>
@@ -31,7 +32,9 @@ const ScheduleHistoryTable = () => {
               <TableCell>
                 {getScheduleHistoryDisplayDateTime(row.createdDate)}
               </TableCell>
-              <TableCell>{row.isManualTrigger}</TableCell>
+              <TableCell>
+                {row.isManualTrigger && true.toString()}
+              </TableCell>
               <TableCell>{row.scheduleName}</TableCell>
               <TableCell>{row.scheduleId}</TableCell>
             </TableRow>

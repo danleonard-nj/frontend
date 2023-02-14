@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -9,11 +10,13 @@ import {
   Typography,
 } from '@mui/material';
 import * as React from 'react';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTimestampHoursBack } from '../../../api/helpers/scheduleHelpers';
-import { closeDialog, dialogType } from '../../../store/dialog/dialogSlice';
+import {
+  closeDialog,
+  dialogType,
+} from '../../../store/dialog/dialogSlice';
 import { getScheduleHistory } from '../../../store/schedule/scheduleActions';
 import { ScheduleHistoryTable } from '../components/ScheduleHistoryTable';
 
@@ -23,7 +26,7 @@ const ScheduleHistoryViewDialog = () => {
     (x) => x.dialog[dialogType.scheduleHistoryViewDialog]
   );
 
-  const [hoursBack, setHoursBack] = useState(1);
+  const [hoursBack, setHoursBack] = useState(4);
 
   const handleLoadHistoryData = () => {
     const startTimestamp = getTimestampHoursBack(hoursBack);
@@ -43,11 +46,17 @@ const ScheduleHistoryViewDialog = () => {
   }, []);
 
   return (
-    <Dialog open={isOpen} onClose={handleClose} maxWidth='lg' fullWidth>
-      <DialogTitle>Schedule History</DialogTitle>
-      <DialogContent sx={{ padding: 2 }}>
-        <Grid container spacing={3}>
-          <Grid item lg={12}>
+    <Dialog
+      open={isOpen}
+      onClose={handleClose}
+      maxWidth='lg'
+      fullWidth>
+      <Grid container>
+        <Grid item lg={6}>
+          <DialogTitle>Schedule History</DialogTitle>
+        </Grid>
+        <Grid item lg={6} justifyContent='flex-end'>
+          <Box sx={{ display: 'inline-block', width: '100%', p: 2 }}>
             <Typography id='input-slider' gutterBottom>
               Hours Back
             </Typography>
@@ -57,7 +66,12 @@ const ScheduleHistoryViewDialog = () => {
               onChangeCommitted={handleLoadHistoryData}
               valueLabelDisplay='auto'
             />
-          </Grid>
+          </Box>
+        </Grid>
+      </Grid>
+      <DialogContent sx={{ padding: 2 }}>
+        <Grid container spacing={3}>
+          <Grid item lg={6}></Grid>
           <Grid item lg={12}>
             <ScheduleHistoryTable />
           </Grid>

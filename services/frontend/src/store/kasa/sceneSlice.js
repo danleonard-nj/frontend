@@ -10,6 +10,8 @@ const initialState = {
   isNew: false,
   filteredScenes: [],
   selectedSceneCategory: '',
+  newSceneCategoryToggle: false,
+  newSceneCategoryName: '',
 };
 
 const sceneSlice = createSlice({
@@ -43,6 +45,9 @@ const sceneSlice = createSlice({
     setSelectedSceneCategory(state, { payload }) {
       state.selectedSceneCategory = payload;
     },
+    setNewSceneCategoryToggle(state, { payload }) {
+      state.newSceneCategoryToggle = payload;
+    },
   },
 });
 
@@ -55,6 +60,7 @@ export const {
   setScenesLoading,
   setScenes,
   setFilteredScenes,
+  setNewSceneCategoryToggle,
 } = sceneSlice.actions;
 
 export default sceneSlice.reducer;
