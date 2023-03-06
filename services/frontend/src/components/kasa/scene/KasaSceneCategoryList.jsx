@@ -1,6 +1,5 @@
 import { Add } from '@mui/icons-material';
 import {
-  Divider,
   Grid,
   IconButton,
   List,
@@ -49,22 +48,18 @@ const KasaSceneCategoryList = () => {
         <Grid item lg={12}>
           <List sx={scrollable} dense>
             {sceneCategories.map((item) => (
-              <>
-                <ListItem
-                  secondaryAction={
-                    <KasaSceneCategoryListActions item={item} />
+              <ListItem
+                secondaryAction={
+                  <KasaSceneCategoryListActions item={item} />
+                }>
+                <ListItemButton
+                  key={item?.scene_category_id}
+                  onClick={() =>
+                    handleSelectSceneCategory(item?.scene_category_id)
                   }>
-                  <ListItemButton
-                    key={item?.scene_category_id}
-                    onClick={() =>
-                      handleSelectSceneCategory(
-                        item?.scene_category_id
-                      )
-                    }>
-                    <ListItemText primary={item.scene_category} />
-                  </ListItemButton>
-                </ListItem>
-              </>
+                  <ListItemText primary={item.scene_category} />
+                </ListItemButton>
+              </ListItem>
             ))}
             {newSceneCategoryToggle && (
               <ListItem>

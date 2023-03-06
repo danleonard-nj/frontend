@@ -12,7 +12,10 @@ import React from 'react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-import { createInputNode, createOutputNode } from '../../../api/data/flow';
+import {
+  createInputNode,
+  createOutputNode,
+} from '../../../api/data/flow';
 import {
   getDeviceOptions,
   getPresetOptions,
@@ -40,14 +43,24 @@ export default function KasaSceneFlowToolbar() {
   };
 
   const handleAddPreset = () => {
-    const preset = presets.filter((x) => x.preset_id === selectedPreset)[0];
-    const presetNode = createInputNode(preset.preset_id, preset.preset_name);
+    const preset = presets.filter(
+      (x) => x.preset_id === selectedPreset
+    )[0];
+    const presetNode = createInputNode(
+      preset.preset_id,
+      preset.preset_name
+    );
     dispatch(updateFlowState((flow) => [...flow, presetNode]));
   };
 
   const handleAddDevice = () => {
-    const device = devices.filter((x) => x.device_id === selectedDevice)[0];
-    const deviceNode = createOutputNode(device.device_id, device.device_name);
+    const device = devices.filter(
+      (x) => x.device_id === selectedDevice
+    )[0];
+    const deviceNode = createOutputNode(
+      device.device_id,
+      device.device_name
+    );
     dispatch(updateFlowState((flow) => [...flow, deviceNode]));
   };
 
@@ -68,9 +81,15 @@ export default function KasaSceneFlowToolbar() {
               md={6}
               xs={12}
               id='kasa-scene-preset-select-container'>
-              <FormControl fullWidth id='kasa-scene-preset-select-form'>
-                <Box display='flex' id='kasa-scene-preset-select-flex'>
-                  <InputLabel id='kasa-scene-preset-select-label' size='small'>
+              <FormControl
+                fullWidth
+                id='kasa-scene-preset-select-form'>
+                <Box
+                  display='flex'
+                  id='kasa-scene-preset-select-flex'>
+                  <InputLabel
+                    id='kasa-scene-preset-select-label'
+                    size='small'>
                     Preset
                   </InputLabel>
 
@@ -83,7 +102,9 @@ export default function KasaSceneFlowToolbar() {
                     value={selectedPreset}
                     onChange={handleSelectPreset}>
                     {presetOptions.map((preset) => (
-                      <MenuItem key={preset.preset_id} value={preset.preset_id}>
+                      <MenuItem
+                        key={preset.preset_id}
+                        value={preset.preset_id}>
                         {preset?.preset_name}
                       </MenuItem>
                     ))}
@@ -104,9 +125,15 @@ export default function KasaSceneFlowToolbar() {
               md={6}
               xs={12}
               id='kasa-scene-device-select-container'>
-              <FormControl fullWidth id='kasa-scene-device-select-form'>
-                <Box display='flex' id='kasa-scene-device-select-flex'>
-                  <InputLabel id='kasa-scene-device-select-label' size='small'>
+              <FormControl
+                fullWidth
+                id='kasa-scene-device-select-form'>
+                <Box
+                  display='flex'
+                  id='kasa-scene-device-select-flex'>
+                  <InputLabel
+                    id='kasa-scene-device-select-label'
+                    size='small'>
                     Device
                   </InputLabel>
                   <Select
@@ -118,7 +145,9 @@ export default function KasaSceneFlowToolbar() {
                     value={selectedDevice}
                     onChange={handleSelectDevice}>
                     {deviceOptions.map((device) => (
-                      <MenuItem key={device.device_id} value={device.device_id}>
+                      <MenuItem
+                        key={device.device_id}
+                        value={device.device_id}>
                         {device?.device_name}
                       </MenuItem>
                     ))}

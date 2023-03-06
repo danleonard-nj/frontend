@@ -30,6 +30,7 @@ export default function KasaScene() {
           value={scene?.scene_name ?? ''}
         />
       </Grid>
+
       <Grid item lg={4} xs={12} align='right'>
         <KasaSceneToolbar />
       </Grid>

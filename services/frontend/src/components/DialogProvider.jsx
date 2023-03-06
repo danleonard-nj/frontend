@@ -1,7 +1,7 @@
 import CreateFeatureDialog from './features/dialogs/CreateFeatureDialog';
 import { KasaDeviceClientResponseDialog } from './kasa/dialogs/KasaDeviceClientResponseDialog';
 import { KasaSceneCategoryDialog } from './kasa/dialogs/KasaSceneCategoryAddDialog';
-import { KasaSceneCategoryRemoveDialog } from './kasa/dialogs/KasaSceneCategoryRemoveDialog';
+import { KasaSceneCategoryRemoveDialog } from './kasa/dialogs/KasaCreateSceneCategoryDialog';
 import ReverbOrderDetailDialog from './reverb/ReverbOrderDetailDialog';
 import ScheduleAddLinkDialog from './schedule/dialogs/ScheduleAddLinkDialog';
 import ScheduleDeleteConfirmDialog from './schedule/dialogs/ScheduleDeleteConfirmDialog';

@@ -117,7 +117,9 @@ export default class SceneActions {
         (x) => x.scene_category_id === categoryId
       );
 
-      dispatch(setFilteredScenes(filteredScenes));
+      dispatch(
+        setFilteredScenes(categoryId ? filteredScenes : scenes)
+      );
     };
   }
 

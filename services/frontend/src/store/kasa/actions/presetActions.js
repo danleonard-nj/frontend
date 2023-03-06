@@ -1,7 +1,11 @@
 import autoBind from 'auto-bind';
-import PresetApi from '../../../api/kasa/presetApi';
 import {
-  presetLoading,
+  getErrorMessage,
+  sortBy,
+} from '../../../api/helpers/apiHelpers';
+import PresetApi from '../../../api/kasa/presetApi';
+import { popErrorMessage } from '../../alert/alertActions';
+import {
   presetsLoading as setPresetsLoading,
   setNewPreset,
   setPreset,
@@ -23,10 +27,24 @@ export default class KasaPresetActions {
 
   getPresets() {
     return async (dispatch, getState) => {
+      const handleErrorResponse = ({ status, data }) => {
+        const message = getErrorMessage(data);
+        dispatch(
+          popErrorMessage(`Failed to fetch presets: ${message}`)
+        );
+      };
+
       dispatch(setPresetsLoading(true));
-      const presets = await this.presetApi.getPresets();
-      console.log(presets);
-      dispatch(setPresets(presets?.data?.presets));
+      const response = await this.presetApi.getPresets();
+
+      const sortedPresets = sortBy(
+        response?.data?.presets,
+        'preset_name'
+      );
+
+      response.status === 200
+        ? dispatch(setPresets(sortedPresets))
+        : handleErrorResponse(response);
     };
   }
 
@@ -43,7 +61,7 @@ export default class KasaPresetActions {
       await this.presetApi.deletePreset(presetId);
 
       const presets = await this.presetApi.getPresets();
-      dispatch(setPresets(presets));
+      dispatch(setPresets(presets?.data?.presets));
     };
   }
 
@@ -60,7 +78,7 @@ export default class KasaPresetActions {
       }
 
       const presets = await this.presetApi.getPresets();
-      dispatch(setPresets(presets));
+      dispatch(setPresets(presets?.data?.presets));
     };
   }
 }

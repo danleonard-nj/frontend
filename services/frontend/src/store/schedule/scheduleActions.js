@@ -1,6 +1,6 @@
 import autoBind from 'auto-bind';
 import { defaultSchedule } from '../../api/data/schedule';
-import ScheduleApi from '../../api/scheduleApi';
+import ScheduleApi from '../../.vscode/scheduleApi';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
   setIsNew,
@@ -38,7 +38,9 @@ export default class ScheduleActions {
     return async (dispatch, getState) => {
       const handleResultMessage = (status) => {
         if (status !== 200) {
-          dispatch(popErrorMessage('Failed to fetch schedule history'));
+          dispatch(
+            popErrorMessage('Failed to fetch schedule history')
+          );
         }
       };
 
@@ -60,7 +62,8 @@ export default class ScheduleActions {
   getAvailableTasks(schedule, tasks) {
     const scheduleTasks = schedule?.links?.map((x) => x.taskId) ?? [];
     const filteredTasks =
-      tasks.filter((task) => !scheduleTasks.includes(task.taskId)) ?? [];
+      tasks.filter((task) => !scheduleTasks.includes(task.taskId)) ??
+      [];
     return filteredTasks;
   }
 
@@ -125,7 +128,9 @@ export default class ScheduleActions {
         }
       };
 
-      const response = await this.scheduleApi.deleteSchedule(scheduleId);
+      const response = await this.scheduleApi.deleteSchedule(
+        scheduleId
+      );
       handleResultMessage(response?.status);
 
       // Set selected schedule to default values since we
@@ -155,7 +160,10 @@ export default class ScheduleActions {
       const state = getState();
 
       const schedule = state.schedule.schedule;
-      const validTasks = removeInvalidTasks(state.task.tasks, schedule);
+      const validTasks = removeInvalidTasks(
+        state.task.tasks,
+        schedule
+      );
       const updatedSchedule = { ...schedule, links: validTasks };
 
       const handleResultMessage = (status) => {

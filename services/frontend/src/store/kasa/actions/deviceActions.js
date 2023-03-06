@@ -1,6 +1,10 @@
 import autoBind from 'auto-bind';
+import { sortBy } from '../../../api/helpers/apiHelpers';
 import DeviceApi from '../../../api/kasa/deviceApi';
-import { popErrorMessage, popMessage } from '../../alert/alertActions';
+import {
+  popErrorMessage,
+  popMessage,
+} from '../../alert/alertActions';
 import {
   setDevice,
   setDeviceClientResponse,
@@ -29,7 +33,9 @@ export default class KasaDeviceActions {
 
   getDeviceClientResponse = (deviceId) => {
     return async (dispatch, getState) => {
-      const response = await this.deviceApi.getDeviceClientResponse(deviceId);
+      const response = await this.deviceApi.getDeviceClientResponse(
+        deviceId
+      );
 
       dispatch(
         response.status === 200
@@ -65,9 +71,13 @@ export default class KasaDeviceActions {
       };
 
       const response = await this.deviceApi.getDevices();
+      console.log('Device call:', response);
+
+      const sortedDevices = sortBy(response.data, 'device_name');
+      console.log('Sorted:', sortedDevices);
 
       response.status === 200
-        ? dispatch(setDevices(response?.data))
+        ? dispatch(setDevices(sortedDevices))
         : handleErrorResponse();
     };
   };

@@ -1,6 +1,6 @@
 import autoBind from 'auto-bind';
 import { defaultTask } from '../../api/helpers/taskHelpers';
-import ScheduleApi from '../../api/scheduleApi';
+import ScheduleApi from '../../.vscode/scheduleApi';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import { setIsNew } from '../schedule/scheduleSlice';
 import { setClients, setTask, setTasks } from './taskSlice';
@@ -81,14 +81,18 @@ export default class TaskActions {
       // Handle insert for new tasks
       if (state.isNew) {
         dispatch(setIsNew(false));
-        const insertResult = await this.scheduleApi.insertTask(state.task);
+        const insertResult = await this.scheduleApi.insertTask(
+          state.task
+        );
 
         // Pop message on insert failure
         handleResultMessage(insertResult?.status);
 
         // Handle updates
       } else {
-        const updateResult = await this.scheduleApi.updateTask(state.task);
+        const updateResult = await this.scheduleApi.updateTask(
+          state.task
+        );
 
         // Pop message on update faliure
         handleResultMessage(updateResult?.status);
@@ -131,7 +135,9 @@ export default class TaskActions {
       if (tasksResponse.status === 200) {
         dispatch(setTasks(tasksResponse?.data));
       } else {
-        dispatch(popErrorMessage('Failed to fetch updated task list'));
+        dispatch(
+          popErrorMessage('Failed to fetch updated task list')
+        );
       }
     };
   }

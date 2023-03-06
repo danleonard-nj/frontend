@@ -5,6 +5,7 @@ const getErrorMessage = (data) => {
 const sortBy = (obj, prop) => {
   const sortFunc = (x, y) => (x[prop] > y[prop] ? 1 : -1);
   obj.sort(sortFunc);
+  return obj;
 };
 
 const replace = (selector, items, replacement) => {

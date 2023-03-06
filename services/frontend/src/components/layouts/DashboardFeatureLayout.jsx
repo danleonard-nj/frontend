@@ -3,11 +3,13 @@ import React from 'react';
 import FeatureList from '../features/FeatureList';
 import FeatureTopMenu from '../features/FeatureTopMenu';
 
-export default function DashboardFeatureLayout() {
+const DashboardFeatureLayout = () => {
   return (
-    <>
+    <Container>
       <FeatureTopMenu />
       <FeatureList />
-    </>
+    </Container>
   );
-}
+};
+
+export { DashboardFeatureLayout };

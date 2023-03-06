@@ -56,8 +56,8 @@ const getNewTask = (scene) => {
     payload: {},
   };
 };
-
-const isJsonEditorVisible = (task) => ['POST', 'PUT'].includes(task?.method);
+const isJsonEditorVisible = (task) =>
+  ['POST', 'PUT'].includes(task?.method);
 
 export {
   isJsonEditorVisible,

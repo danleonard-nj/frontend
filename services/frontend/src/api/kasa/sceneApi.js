@@ -8,116 +8,71 @@ export default class SceneApi extends ApiBase {
 
   async getScenes(categoryId) {
     return await this.send(
-      categoryId
-        ? `${this.baseUrl}/api/kasa/scene?category=${categoryId}`
-        : `${this.baseUrl}/api/kasa/scene`,
+      categoryId === null || categoryId === undefined
+        ? `${this.baseUrl}/api/kasa/scene`
+        : `${this.baseUrl}/api/kasa/scene?category=${categoryId}`,
       'GET'
     );
   }
 
   async getScene(sceneId) {
-    const response = await fetch(
+    return await this.send(
       `${this.baseUrl}/api/kasa/scene/${sceneId}`,
-      {
-        method: 'GET',
-        headers: await this.getAuthHeaders(),
-      }
+      'GET'
     );
-
-    const json = await response.json();
-    return { data: json, status: response.status };
   }
 
   async deleteScene(sceneId) {
-    const response = await fetch(
+    return await this.send(
       `${this.baseUrl}/api/kasa/scene/${sceneId}`,
-      {
-        method: 'DELETE',
-        headers: await this.getAuthHeaders(),
-      }
+      'DELETE'
     );
-
-    const json = await response.json();
-    return { data: json, status: response.status };
   }
 
   async getSceneCategories() {
-    const response = await fetch(
+    return await this.send(
       `${this.baseUrl}/api/kasa/scene/category`,
-      {
-        method: 'GET',
-        headers: await this.getAuthHeaders(),
-      }
+      'GET'
     );
-
-    const json = await response.json();
-    return { data: json, status: response.status };
   }
 
   async createSceneCategory(category) {
-    const response = await fetch(
+    return await this.send(
       `${this.baseUrl}/api/kasa/scene/category`,
-      {
-        method: 'POST',
-        headers: await this.getAuthHeaders(),
-        body: JSON.stringify(category),
-      }
+      'POST',
+      category
     );
-
-    const json = await response.json();
-    return { data: json, status: response.status };
   }
 
   async deleteSceneCategory(sceneId) {
-    const response = await fetch(
+    return await this.send(
       `${this.baseUrl}/api/kasa/scene/category/${sceneId}`,
-      {
-        method: 'DELETE',
-        headers: await this.getAuthHeaders(),
-      }
+      'DELETE'
     );
-
-    const json = await response.json();
-    return { data: json, status: response.status };
   }
 
   async updateScene(scene) {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene`, {
-      method: 'PUT',
-      body: JSON.stringify(scene),
-      headers: await this.getAuthHeaders(),
-    });
-
-    const json = await response.json();
-
-    return { data: json, status: response.status };
+    return await this.send(
+      `${this.baseUrl}/api/kasa/scene`,
+      'PUT',
+      scene
+    );
   }
 
   async createScene(scene) {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene`, {
-      method: 'POST',
-      body: JSON.stringify(scene),
-      headers: await this.getAuthHeaders(),
-    });
-
-    const json = await response.json();
-
-    return { data: json, status: response.status };
+    return await this.send(
+      `${this.baseUrl}/api/kasa/scene`,
+      'POST',
+      scene
+    );
   }
 
   async runScene(sceneId, regionId) {
-    const response = await fetch(
+    return await this.send(
       regionId === null || regionId === undefined
         ? `${this.baseUrl}/api/kasa/scene/${sceneId}/run`
         : `${this.baseUrl}/api/kasa/scene/${sceneId}/run?region=${regionId}`,
-      {
-        method: 'POST',
-        headers: await this.getAuthHeaders(),
-      }
+      'POST'
     );
-
-    const json = await response.json();
-
-    return { data: json, status: response.status };
   }
 }

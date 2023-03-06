@@ -14,7 +14,7 @@ export const dialogType = {
   createReminderLocation: 'createReminderLocation',
   editReminderNotification: 'editReminderNotification',
   sceneCategoryAdd: 'sceneCategoryAdd',
-  sceneCategoryRemove: 'sceneCategoryRemove',
+  createSceneCategoryDialog: 'createSceneCategoryDialog',
   kasaDeviceClientResponse: 'kasaDeviceClientResponse',
   createFeatureDialog: 'createFeatureDialog',
   scheduleHistoryViewDialog: 'scheduleHistoryViewDialog',

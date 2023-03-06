@@ -13,7 +13,6 @@ import {
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { runScene } from '../../../store/kasa/actions/sceneActions';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 const KasaSceneButton = ({ scene }) => {
   const regions = useSelector((x) => x.device.regions);
@@ -21,28 +20,28 @@ const KasaSceneButton = ({ scene }) => {
   const [open, setOpen] = useState(false);
   const anchorRef = React.useRef(null);
 
-  const handleClick = () => {
+  // Handle clicking the main button (fire a run scene call)
+  const handleMainButtonClick = () => {
     dispatch(runScene(scene.scene_id, null));
   };
 
+  // Handle clicking an item in dropdown icon button (fire a
+  // run scene call w/ selected category)
   const handleMenuItemClick = (regionId) => {
     dispatch(runScene(scene.scene_id, regionId));
     setOpen(false);
   };
 
+  // Toggle for dropdown icon button
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
   };
 
+  // Handle closing the icon button menu
   const handleClose = (event) => {
-    if (
-      anchorRef.current &&
-      anchorRef.current.contains(event.target)
-    ) {
-      return;
-    }
-
-    setOpen(false);
+    !(
+      anchorRef.current && anchorRef.current.contains(event.target)
+    ) && setOpen(false);
   };
   return (
     <>
@@ -52,7 +51,10 @@ const KasaSceneButton = ({ scene }) => {
         sx={{ height: '100%' }}
         fullWidth
         aria-label='split button'>
-        <Button onClick={handleClick} fullWidth color='info'>
+        <Button
+          onClick={handleMainButtonClick}
+          fullWidth
+          color='info'>
           {scene.scene_name}
         </Button>
         <IconButton
@@ -93,7 +95,6 @@ const KasaSceneButton = ({ scene }) => {
                       {option.region_name}
                     </MenuItem>
                   ))}
-                  <MenuItem key='remove'>Remove Category</MenuItem>
                 </MenuList>
               </ClickAwayListener>
             </Paper>

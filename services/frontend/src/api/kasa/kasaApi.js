@@ -7,51 +7,37 @@ export default class KasaApi extends ApiBase {
   }
 
   async getScenes() {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
-
-    const json = await response.json();
-    return { data: json?.scenes, status: response.status };
+    return await this.send(`${this.baseUrl}/api/kasa/scene`, 'GET');
   }
 
   async deleteScene(sceneId) {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene/${sceneId}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
-    });
-
-    const json = await response.json();
-    return { data: json, status: response.status };
+    return this.send(
+      `${this.baseUrl}/api/kasa/scene/${sceneId}`,
+      'DELETE'
+    );
   }
 
   async updateScene(scene) {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene`, {
-      method: 'PUT',
-      body: JSON.stringify(scene),
-      headers: this.getHeaders(),
-    });
-
-    const json = await response.json();
-
-    return { data: json, status: response.status };
+    return await this.send(
+      `${this.baseUrl}/api/kasa/scene`,
+      'PUT',
+      scene
+    );
   }
 
   async createScene(scene) {
-    const response = await fetch(`${this.baseUrl}/api/kasa/scene`, {
-      method: 'POST',
-      body: JSON.stringify(scene),
-      headers: this.getHeaders(),
-    });
-
-    const json = await response.json();
-
-    return { data: json, status: response.status };
+    return await this.send(
+      `${this.baseUrl}/api/kasa/scene`,
+      'POST',
+      scene
+    );
   }
 
   async getDevices() {
-    const response = await this.send(`${this.baseUrl}/api/kasa/device`, 'GET');
+    const response = await this.send(
+      `${this.baseUrl}/api/kasa/device`,
+      'GET'
+    );
     return response?.devices?.devices;
   }
 }

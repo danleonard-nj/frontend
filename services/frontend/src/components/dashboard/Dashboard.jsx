@@ -1,7 +1,7 @@
 import { Container } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import DashboardFeatureLayout from '../layouts/DashboardFeatureLayout';
+import { DashboardFeatureLayout } from '../layouts/DashboardFeatureLayout';
 import { DashboardFitnessLayout } from '../layouts/DashboardFitnessLayout';
 import DashboardKasaLayout from '../layouts/DashboardKasaLayout';
 import DashboardKasaSceneLayout from '../layouts/DashboardKasaSceneLayout';
@@ -16,16 +16,25 @@ export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
 
   return (
-    <Container maxWidth='xl' sx={{ marginTop: 5 }} id='dashboard-container'>
+    <Container
+      maxWidth='xl'
+      sx={{ marginTop: 5 }}
+      id='dashboard-container'>
       {dashboardPage === 'schedules' && <DashboardScheduleLayout />}
       {dashboardPage === 'tasks' && <DashboardTaskLayout />}
       {dashboardPage === 'kasa' && <DashboardKasaLayout />}
       {dashboardPage === 'scenes' && <DashboardKasaSceneLayout />}
-      {dashboardPage === 'shipengine' && <DashboardShipEngineLayout />}
+      {dashboardPage === 'shipengine' && (
+        <DashboardShipEngineLayout />
+      )}
       {dashboardPage === 'reverb' && <DashboardReverbLayout />}
       {dashboardPage === 'fitness' && <DashboardFitnessLayout />}
-      {dashboardPage === 'locations' && <DashboardLocationHistoryLayout />}
-      {dashboardPage === 'kubernetes' && <DashboardKubernetesLogLayout />}
+      {dashboardPage === 'locations' && (
+        <DashboardLocationHistoryLayout />
+      )}
+      {dashboardPage === 'kubernetes' && (
+        <DashboardKubernetesLogLayout />
+      )}
       {dashboardPage === 'features' && <DashboardFeatureLayout />}
     </Container>
   );

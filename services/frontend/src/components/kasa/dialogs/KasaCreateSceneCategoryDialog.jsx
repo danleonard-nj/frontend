@@ -12,13 +12,16 @@ import {
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeDialog, dialogType } from '../../../store/dialog/dialogSlice';
+import {
+  closeDialog,
+  dialogType,
+} from '../../../store/dialog/dialogSlice';
 import {
   getScenes,
   updateSceneCategory,
 } from '../../../store/kasa/actions/sceneActions';
 
-const KasaSceneCategoryRemoveDialog = () => {
+const KasaCreateSceneCategoryDialog = () => {
   const dispatch = useDispatch();
   const isVisible = useSelector(
     (x) => x.dialog[dialogType.sceneCategoryRemove]
@@ -45,12 +48,18 @@ const KasaSceneCategoryRemoveDialog = () => {
   };
 
   return (
-    <Dialog onClose={handleClose} open={isVisible} maxWidth='sm' fullWidth>
+    <Dialog
+      onClose={handleClose}
+      open={isVisible}
+      maxWidth='sm'
+      fullWidth>
       <DialogTitle>Remove Scene</DialogTitle>
       <DialogContent>
         <Box sx={{ marginTop: 1 }}>
           <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Scene</InputLabel>
+            <InputLabel id='demo-simple-select-label'>
+              Scene
+            </InputLabel>
             <Select
               variant='standard'
               labelId='demo-simple-select-label'
@@ -76,4 +85,4 @@ const KasaSceneCategoryRemoveDialog = () => {
   );
 };
 
-export { KasaSceneCategoryRemoveDialog };
+export { KasaCreateSceneCategoryDialog as KasaSceneCategoryRemoveDialog };
