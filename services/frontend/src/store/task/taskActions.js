@@ -1,6 +1,6 @@
 import autoBind from 'auto-bind';
 import { defaultTask } from '../../api/helpers/taskHelpers';
-import ScheduleApi from '../../.vscode/scheduleApi';
+import ScheduleApi from '../../api/scheduleApi';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import { setIsNew } from '../schedule/scheduleSlice';
 import { setClients, setTask, setTasks } from './taskSlice';

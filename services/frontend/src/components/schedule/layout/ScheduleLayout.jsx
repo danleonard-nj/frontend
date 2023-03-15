@@ -1,9 +1,9 @@
 import { Grid, Paper } from '@mui/material';
 import React from 'react';
+import ScheduleLinkList from '../components/LinkList';
 import RunHistory from '../components/RunHistory';
 import RunQueueTable from '../components/RunQueueTable';
 import ScheduleDetail from '../components/ScheduleDetail';
-import ScheduleLinkList from '../components/LinkList';
 
 export default function ScheduleLayout() {
   return (
@@ -11,7 +11,11 @@ export default function ScheduleLayout() {
       <Grid item lg={8} xs={12}>
         <Grid container spacing={3} id='grid-dashboard-schedule'>
           <ScheduleDetail />
-          <Grid item lg={12} xs={12} id='grid-item-schedule-link-list'>
+          <Grid
+            item
+            lg={12}
+            xs={12}
+            id='grid-item-schedule-link-list'>
             <Paper
               sx={{
                 p: 2,

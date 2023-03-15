@@ -1,5 +1,5 @@
-import { serviceScopes } from '../msalConfig';
-import ApiBase from './apiBase';
+import { serviceScopes } from '../../msalConfig';
+import ApiBase from '../apiBase';
 
 export default class AzureGatewayApi extends ApiBase {
   constructor() {

@@ -2,6 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import LinkIcon from '@mui/icons-material/Link';
 import {
   Box,
+  Button,
   Grid,
   IconButton,
   List,
@@ -13,52 +14,88 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import {
+  dialogType,
+  openDialog,
+} from '../../../store/dialog/dialogSlice';
 import { updateScheduleState } from '../../../store/schedule/scheduleActions';
-import { getTasks } from '../../../store/task/taskActions';
-import DashboardLinkListHeader from '../links/DashboardLinkListHeader';
+import DashboardTitle from '../../dashboard/DashboardTitle';
 
 export default function ScheduleLinkList() {
   const dispatch = useDispatch();
-  const schedule = useSelector((store) => store.schedule?.schedule) ?? {};
-  const scheduleLoading = useSelector((x) => x.schedule.scheduleLoading);
+
+  // Task and schedule list
   const tasks = useSelector((x) => x.task.tasks) ?? [];
+  const { schedule, scheduleLoading } =
+    useSelector((store) => store.schedule) ?? {};
 
   const [schedulesWithLinks, setSchedulesWithLinks] = useState([]);
 
-  function getScheduleWithLinks(schedule, tasks) {
+  // Fetch and Populate schedule links
+  const handleGetScheduleWithLinks = (schedule, tasks) => {
+    // Get schedules and list of all tasks not
+    // linked to this task
     const links = tasks.filter((x) =>
       (schedule.links ?? []).includes(x.taskId)
     );
     return { ...schedule, links: links };
-  }
+  };
 
-  function handleDelete(taskId) {
+  // Add link handler
+  const handleOpenAddScheduleLinkDialog = () => {
+    dispatch(openDialog(dialogType.addLink));
+  };
+
+  // Delete task handler
+  const handleDelete = (taskId) => {
     dispatch(
       updateScheduleState((schedule) => ({
         ...schedule,
         links: schedule.links.filter((id) => id !== taskId),
       }))
     );
-  }
+  };
 
   useEffect(() => {
-    if (!tasks?.length) {
-      dispatch(getTasks());
-    }
-    if (!scheduleLoading) {
-      setSchedulesWithLinks(getScheduleWithLinks(schedule, tasks));
-    }
+    !scheduleLoading &&
+      setSchedulesWithLinks(
+        handleGetScheduleWithLinks(schedule, tasks)
+      );
   }, [schedule?.links]);
 
   return (
     <>
       <Box sx={{ marginBottom: 1 }}>
-        <DashboardLinkListHeader />
+        <Grid container id='schedule-link-list-header-grid'>
+          <Grid
+            item
+            lg={10}
+            xs={6}
+            id='schedule-link-list-header-container'>
+            <DashboardTitle>Links</DashboardTitle>
+          </Grid>
+          <Grid
+            item
+            lg={2}
+            xs={6}
+            align='right'
+            id='schedule-link-add-link-button-container'>
+            <Button
+              id='schedule-link-add-link-button'
+              variant='text'
+              onClick={handleOpenAddScheduleLinkDialog}>
+              Link
+            </Button>
+          </Grid>
+        </Grid>
       </Box>
       <Paper elevation={2} sx={{ p: 2 }}>
         <>
-          <Grid id='schedule-link-list-grid' container sx={{ height: '100%' }}>
-            <Grid item lg={12} md={12}>
+          <Grid
+            id='schedule-link-list-grid'
+            container
+            sx={{ height: '100%' }}>
+            <Grid item lg={12} md={12} sm={12}>
               <Box sx={{ marginTop: 2 }}>
                 <Paper
                   id='schedule-link-list-paper'
@@ -81,7 +118,7 @@ export default function ScheduleLinkList() {
                             />
                           </IconButton>
                         }>
-                        <ListItemButton>
+                        <ListItemButton sx={{ wudth: '100%' }}>
                           <ListItemIcon>
                             <LinkIcon />
                           </ListItemIcon>

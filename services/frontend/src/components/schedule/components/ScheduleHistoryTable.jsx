@@ -1,4 +1,5 @@
 import {
+  Grid,
   Paper,
   Table,
   TableBody,
@@ -16,32 +17,34 @@ const ScheduleHistoryTable = () => {
     useSelector((x) => x.schedule.scheduleHistory) ?? [];
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Timestamp</TableCell>
-            <TableCell>Manual Trigger</TableCell>
-            <TableCell>Schedule Name</TableCell>
-            <TableCell>Schedule ID</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {scheduleHistory.map((row) => (
-            <TableRow key={row.scheduleId}>
-              <TableCell>
-                {getScheduleHistoryDisplayDateTime(row.createdDate)}
-              </TableCell>
-              <TableCell>
-                {row.isManualTrigger && true.toString()}
-              </TableCell>
-              <TableCell>{row.scheduleName}</TableCell>
-              <TableCell>{row.scheduleId}</TableCell>
+    <Grid>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Timestamp</TableCell>
+              <TableCell>Manual Trigger</TableCell>
+              <TableCell>Schedule Name</TableCell>
+              <TableCell>Schedule ID</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {scheduleHistory.map((row) => (
+              <TableRow key={row.scheduleId}>
+                <TableCell>
+                  {getScheduleHistoryDisplayDateTime(row.createdDate)}
+                </TableCell>
+                <TableCell>
+                  {row.isManualTrigger && true.toString()}
+                </TableCell>
+                <TableCell>{row.scheduleName}</TableCell>
+                <TableCell>{row.scheduleId}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Grid>
   );
 };
 
