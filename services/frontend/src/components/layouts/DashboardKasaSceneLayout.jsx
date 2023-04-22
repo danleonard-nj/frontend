@@ -26,6 +26,7 @@ import {
   setSelectedSceneCategory,
 } from '../../store/kasa/sceneSlice';
 import KasaSceneButton from '../kasa/scene/KasaSceneButton';
+import Spinner from '../Spinner';
 
 export default function DashboardKasaSceneLayout() {
   const [tab, setTab] = useState('');
@@ -36,6 +37,7 @@ export default function DashboardKasaSceneLayout() {
     sceneCategories,
     newSceneCategoryToggle,
     filteredScenes,
+    scenesLoading,
   } = useSelector((x) => x.scene);
 
   scenes ??= [];
@@ -62,6 +64,7 @@ export default function DashboardKasaSceneLayout() {
   useEffect(() => {
     if (!sceneCategories?.length) {
       dispatch(getCategories());
+      dispatch(setSelectedSceneCategory('All'));
     }
     if (!regions?.length) {
       dispatch(getRegions());
@@ -70,6 +73,11 @@ export default function DashboardKasaSceneLayout() {
       dispatch(getScenes());
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(setSelectedSceneCategory(tab));
+    dispatch(filterScenesByCategory(tab));
+  }, [tab, scenesLoading]);
 
   return (
     <>
@@ -85,55 +93,59 @@ export default function DashboardKasaSceneLayout() {
           </ButtonGroup>
         </Grid>
         <Grid item lg={12} xs={12} sm={12}>
-          <Paper
-            id='kasa-scene-layout-container-paper'
-            elevation={3}
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-            }}>
-            <Grid container spacing={3}>
-              <Grid item lg={12} xs={12} sm={12}>
-                <AppBar position='static' color='inherit'>
-                  <Tabs
-                    value={tab}
-                    variant='scrollable'
-                    scrollButtons
-                    allowScrollButtonsMobile
-                    onChange={handleTabChange}>
-                    {sceneCategories?.map((sc) => (
+          {scenesLoading ? (
+            <Spinner />
+          ) : (
+            <Paper
+              id='kasa-scene-layout-container-paper'
+              elevation={3}
+              sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+              }}>
+              <Grid container spacing={3}>
+                <Grid item lg={12} xs={12} sm={12}>
+                  <AppBar position='static' color='inherit'>
+                    <Tabs
+                      value={tab}
+                      variant='scrollable'
+                      scrollButtons
+                      allowScrollButtonsMobile
+                      onChange={handleTabChange}>
+                      {sceneCategories?.map((sc) => (
+                        <Tab
+                          label={sc.scene_category}
+                          value={sc.scene_category_id}
+                          id='kasa-scene-layout-scene-tab'
+                        />
+                      ))}
                       <Tab
-                        label={sc.scene_category}
-                        value={sc.scene_category_id}
-                        id='kasa-scene-layout-scene-tab'
+                        label='all'
+                        value=''
+                        id='kasa-all-scenes-tab'
                       />
-                    ))}
-                    <Tab
-                      label='all'
-                      value=''
-                      id='kasa-all-scenes-tab'
-                    />
-                  </Tabs>
-                </AppBar>
-              </Grid>
-              <Grid item lg={12} sm={12} xs={12}>
-                <Box p={2}>
-                  <Grid container spacing={3}>
-                    <Grid item lg={4} xs={12} sm={12}>
-                      <Grid container spacing={1}>
-                        {filteredScenes.map((scene) => (
-                          <Grid item lg={12} xs={12} sm={12} p={1}>
-                            <KasaSceneButton scene={scene} />
-                          </Grid>
-                        ))}
+                    </Tabs>
+                  </AppBar>
+                </Grid>
+                <Grid item lg={12} sm={12} xs={12}>
+                  <Box p={2}>
+                    <Grid container spacing={3}>
+                      <Grid item lg={4} xs={12} sm={12}>
+                        <Grid container spacing={1}>
+                          {filteredScenes.map((scene) => (
+                            <Grid item lg={12} xs={12} sm={12} p={1}>
+                              <KasaSceneButton scene={scene} />
+                            </Grid>
+                          ))}
+                        </Grid>
                       </Grid>
                     </Grid>
-                  </Grid>
-                </Box>
+                  </Box>
+                </Grid>
               </Grid>
-            </Grid>
-          </Paper>
+            </Paper>
+          )}
         </Grid>
       </Grid>
     </>

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Grid, Paper } from '@mui/material';
 import TaskDetail from '../components/TaskDetail';
-import IdentityClient from '../components/IdentityClient';
 import JsonEditor from '../components/JsonEditor';
 import { useSelector } from 'react-redux';
 import { isJsonEditorVisible } from '../../../api/data/kasa/scene';
+import { IdentityClient } from '../components/IdentityClient';
 
 export const TaskLayout = () => {
   const task = useSelector((x) => x.task.task);
@@ -32,8 +32,15 @@ export const TaskLayout = () => {
       </Grid>
 
       <Grid item lg={3} xs={12} id='task-identity-client-container'>
-        <Grid container spacing={3} id='task-identity-client-inner-container'>
-          <Grid item lg={12} xs={12} id='task-identity-client-select-container'>
+        <Grid
+          container
+          spacing={3}
+          id='task-identity-client-inner-container'>
+          <Grid
+            item
+            lg={12}
+            xs={12}
+            id='task-identity-client-select-container'>
             <Paper
               sx={{
                 p: 2,

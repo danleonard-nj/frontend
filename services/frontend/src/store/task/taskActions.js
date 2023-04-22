@@ -76,13 +76,14 @@ export default class TaskActions {
         }
       };
 
-      const state = getState().task;
+      const state = getState();
+      const taskState = state.task;
 
       // Handle insert for new tasks
-      if (state.isNew) {
+      if (taskState.isNew) {
         dispatch(setIsNew(false));
         const insertResult = await this.scheduleApi.insertTask(
-          state.task
+          taskState.task
         );
 
         // Pop message on insert failure
@@ -91,7 +92,7 @@ export default class TaskActions {
         // Handle updates
       } else {
         const updateResult = await this.scheduleApi.updateTask(
-          state.task
+          taskState.task
         );
 
         // Pop message on update faliure

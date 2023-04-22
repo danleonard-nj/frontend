@@ -1,5 +1,6 @@
 import { Add } from '@mui/icons-material';
 import {
+  Container,
   Grid,
   IconButton,
   List,
@@ -22,15 +23,15 @@ import {
   setSelectedSceneCategory,
 } from '../../../store/kasa/sceneSlice';
 import { KasaSceneCategoryListActions } from './KasaSceneCategoryListActions';
+import Spinner from '../../Spinner';
 
 const KasaSceneCategoryList = () => {
   const dispatch = useDispatch();
 
   const [newCategoryName, setNewCategoryName] = useState('');
 
-  const { newSceneCategoryToggle, sceneCategories } = useSelector(
-    (x) => x.scene
-  );
+  const { newSceneCategoryToggle, sceneCategories, scenesLoading } =
+    useSelector((x) => x.scene);
 
   const handleSelectSceneCategory = (categoryId) => {
     dispatch(setSelectedSceneCategory(categoryId));
@@ -42,7 +43,11 @@ const KasaSceneCategoryList = () => {
     dispatch(getCategories());
   };
 
-  return (
+  return scenesLoading ? (
+    <Container>
+      <Spinner />
+    </Container>
+  ) : (
     <Paper elevation={4} sx={{ padding: 1, m: 1 }}>
       <Grid container>
         <Grid item lg={12}>

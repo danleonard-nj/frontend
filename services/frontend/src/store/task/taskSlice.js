@@ -1,15 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { defaultTask } from '../../api/helpers/taskHelpers';
-
-const initialState = {
-  clients: [],
-  tasks: [],
-  task: defaultTask,
-  taskLoading: false,
-  tasksLoading: false,
-  clientsLoading: true,
-  isNew: false,
-};
+import { taskState } from '../../api/data/task';
 
 const clientReducers = {
   setClient(state, { payload }) {
@@ -58,11 +49,16 @@ const taskReducers = {
 
 const taskSlice = createSlice({
   name: 'task',
-  initialState,
+  initialState: taskState,
   reducers: { ...taskReducers, ...clientReducers },
 });
 
-export const { setTask, setTasks, setClient, setClients, setClientsLoading } =
-  taskSlice.actions;
+export const {
+  setTask,
+  setTasks,
+  setClient,
+  setClients,
+  setClientsLoading,
+} = taskSlice.actions;
 
 export default taskSlice.reducer;

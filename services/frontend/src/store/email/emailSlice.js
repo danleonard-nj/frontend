@@ -3,20 +3,41 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   emailRules: [],
   emailRulesLoading: true,
-  selectedEmail: '',
+  emailRule: {},
+  emailRuleLoading: true,
+  selectedEmailRule: '',
 };
 
 const emailSlice = createSlice({
   name: 'email',
   initialState: initialState,
   reducers: {
-    setLocations(state, { payload }) {
-      state.locationsLoading = false;
-      state.locations = payload;
+    setEmailRules(state, { payload }) {
+      state.emailRules = payload;
+      state.emailRulesLoading = false;
+    },
+    setEmailRulesLoading(state, { payload }) {
+      state.emailRulesLoading = payload;
+    },
+    setEmailRule(state, { payload }) {
+      state.emailRule = payload;
+      state.emailRuleLoading = false;
+    },
+    setEmailRuleLoading(state, { payload }) {
+      state.emailRuleLoading = payload;
+    },
+    setSelectedEmailRule(state, { payload }) {
+      state.selectedEmailRule = payload;
     },
   },
 });
 
-export const { name, set } = locationSlice.actions;
+export const {
+  setEmailRules,
+  setEmailRulesLoading,
+  setEmailRule,
+  setEmailRuleLoading,
+  setSelectedEmailRule,
+} = emailSlice.actions;
 
 export default emailSlice.reducer;

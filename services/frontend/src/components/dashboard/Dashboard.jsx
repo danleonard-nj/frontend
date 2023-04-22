@@ -11,6 +11,7 @@ import DashboardReverbLayout from '../layouts/DashboardReverbLayout';
 import DashboardScheduleLayout from '../layouts/DashboardScheduleLayout';
 import DashboardShipEngineLayout from '../layouts/DashboardShipEngineLayout';
 import DashboardTaskLayout from '../layouts/DashboardTaskLayout';
+import { DashoardEmailRuleLayout } from '../layouts/DashboardEmailRuleLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -36,6 +37,7 @@ export default function Dashboard() {
         <DashboardKubernetesLogLayout />
       )}
       {dashboardPage === 'features' && <DashboardFeatureLayout />}
+      {dashboardPage === 'email' && <DashoardEmailRuleLayout />}
     </Container>
   );
 }

@@ -1,28 +1,34 @@
-import { FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material';
+import {
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTask } from '../../../store/task/taskSlice';
 import DashboardTitle from '../../dashboard/DashboardTitle';
 
-export default function IdentityClient() {
+const IdentityClient = () => {
   const dispatch = useDispatch();
   const task = useSelector((store) => store.task.task) ?? {};
   const clients = useSelector((x) => x.task.clients) ?? [];
 
-  function handleClientChange(event) {
+  const handleClientStateChange = (event) => {
     dispatch(
       setTask({
         ...task,
         [event.target.name]: event.target.value,
       })
     );
-  }
+  };
 
   return (
     <>
       <DashboardTitle>Identity</DashboardTitle>
       <Grid container spacing={3} marginTop='1rem'>
-        <Grid item lg={12}>
+        <Grid item lg={12} xs={12}>
           <FormControl fullWidth>
             <InputLabel id='demo-simple-select-label'>
               Active Directory App
@@ -33,7 +39,7 @@ export default function IdentityClient() {
               name='identityClientId'
               value={task?.identityClientId ?? ''}
               label='Client'
-              onChange={handleClientChange}>
+              onChange={handleClientStateChange}>
               {clients.map((client) => (
                 <MenuItem
                   key={client.application_id}
@@ -47,4 +53,6 @@ export default function IdentityClient() {
       </Grid>
     </>
   );
-}
+};
+
+export { IdentityClient };

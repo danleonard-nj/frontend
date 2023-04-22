@@ -95,7 +95,7 @@ export default function ScheduleLinkList() {
             id='schedule-link-list-grid'
             container
             sx={{ height: '100%' }}>
-            <Grid item lg={12} md={12} sm={12}>
+            <Grid item lg={12} md={12} sm={12} xs={12}>
               <Box sx={{ marginTop: 2 }}>
                 <Paper
                   id='schedule-link-list-paper'

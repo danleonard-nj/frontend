@@ -9,6 +9,7 @@ const pages = [
   'Locations',
   'Kubernetes',
   'Features',
+  'Email',
 ];
 
 export { pages };
