@@ -47,4 +47,21 @@ const getNewPreset = (deviceType) => {
   };
 };
 
-export { getColor, getDefaultColor, getNewPreset, defaultPreset, presetState };
+const getColorFromPreset = (preset) => {
+  const color = {
+    hsl: {
+      h: preset.definition.hue,
+      s: preset.definition.saturation / 100,
+    },
+  };
+  return color;
+};
+
+export {
+  getColor,
+  getDefaultColor,
+  getNewPreset,
+  defaultPreset,
+  presetState,
+  getColorFromPreset,
+};

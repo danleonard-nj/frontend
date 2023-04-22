@@ -1,27 +1,7 @@
-import {
-  Container,
-  FormControl,
-  Grid,
-  InputLabel,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  MenuItem,
-  Paper,
-  Select,
-  TextField,
-} from '@mui/material';
+import { Container, Grid, Paper } from '@mui/material';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { actionType } from '../../api/data/email';
-import {
-  getEmailRule,
-  getEmailRules,
-} from '../../store/email/emailActions';
-import { setSelectedEmailRule } from '../../store/email/emailSlice';
-import Spinner from '../Spinner';
-import DashboardTitle from '../dashboard/DashboardTitle';
+import { getEmailRules } from '../../store/email/emailActions';
 import { EmailRuleDetail } from '../email/EmailRuleDetail';
 import { EmailRuleList } from '../email/EmailRuleList';
 
@@ -30,14 +10,8 @@ const DashoardEmailRuleLayout = () => {
   const { selectedEmailRule } = useSelector((x) => x.email);
 
   useEffect(() => {
-    console.log('Fetching email rules');
     dispatch(getEmailRules());
   }, []);
-
-  useEffect(() => {
-    console.log('Fetching rule: ', selectedEmailRule?.rule_id);
-    dispatch(getEmailRule(selectedEmailRule?.rule_id));
-  }, [selectedEmailRule]);
 
   return (
     <Container>

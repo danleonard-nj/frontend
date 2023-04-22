@@ -11,18 +11,20 @@ import {
 import { useEffect, useState } from 'react';
 import { SketchPicker } from 'react-color';
 import { useDispatch, useSelector } from 'react-redux';
-import { getColor, getDefaultColor } from '../../../api/data/kasa/preset';
+import {
+  getColor,
+  getDefaultColor,
+} from '../../../api/data/kasa/preset';
 import { whiteBalanceTemperatures } from '../../../api/data/kasa/whiteBalances';
 import { setPreset } from '../../../store/kasa/presetSlice';
-import KasaPresetParameterDisplay from '../preset/KasaPresetParameterDisplay';
+import { KasaPresetParameterDisplay } from '../preset/KasaPresetParameterDisplay';
 
-export default function KasaPresetLight() {
+const KasaPresetLight = () => {
   const dispatch = useDispatch();
   const preset = useSelector((x) => x.preset.preset);
 
-  const { hue, saturation, temperature, state, brightness } = useSelector(
-    (x) => x.preset.preset.definition
-  );
+  const { hue, saturation, temperature, state, brightness } =
+    useSelector((x) => x.preset.preset.definition);
 
   const [color, setColor] = useState(getDefaultColor());
   const [localBrightness, setBrightness] = useState(0);
@@ -70,7 +72,12 @@ export default function KasaPresetLight() {
 
   return (
     <Grid container spacing={3} id='kasa-preset-light-container'>
-      <Grid item lg={6} xs={12} md={6} id='kasa-preset-light-color-container'>
+      <Grid
+        item
+        lg={6}
+        xs={12}
+        md={6}
+        id='kasa-preset-light-color-container'>
         <SketchPicker
           color={color.hsl}
           onChange={handleColorChange}
@@ -84,7 +91,9 @@ export default function KasaPresetLight() {
             lg={6}
             xs={6}
             id='kasa-preset-light-power-slider-container'>
-            <Typography id='kasa-preset-light-power-slider-header' gutterBottom>
+            <Typography
+              id='kasa-preset-light-power-slider-header'
+              gutterBottom>
               On / Off
             </Typography>
             <Switch
@@ -134,4 +143,6 @@ export default function KasaPresetLight() {
       </Grid>
     </Grid>
   );
-}
+};
+
+export { KasaPresetLight };

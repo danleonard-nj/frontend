@@ -1,14 +1,15 @@
 import { Grid, Paper } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { deviceTypes } from '../../../api/data/kasa/device';
-import KasaSelectDeviceTypeDialog from '../KasaSelectDeviceTypeDialog';
-import KasaPresetLight from './KasaPresetLight';
-import KasaPresetPlug from './KasaPresetPlug';
-import KasaPresetToolbar from './KasaPresetToolbar';
+import { KasaSelectDeviceTypeDialog } from '../KasaSelectDeviceTypeDialog';
+import { KasaPresetLight } from './KasaPresetLight';
+import { KasaPresetPlug } from './KasaPresetPlug';
+import { KasaPresetToolbar } from './KasaPresetToolbar';
 
-export default function KasaPreset() {
-  const deviceType = useSelector((x) => x.preset.preset.device_type);
-  const presetLoading = useSelector((x) => x.preset.presetLoading);
+const KasaPreset = () => {
+  const { device_type: deviceType, presetLoading } = useSelector(
+    (x) => x.preset.preset
+  );
   return (
     <>
       <KasaSelectDeviceTypeDialog />
@@ -21,12 +22,18 @@ export default function KasaPreset() {
         <Grid item lg={6} xs={12}>
           {!presetLoading && (
             <Paper sx={{ padding: 3 }} elevation={4}>
-              {deviceType === deviceTypes.SmartLight && <KasaPresetLight />}
-              {deviceType === deviceTypes.SmartPlug && <KasaPresetPlug />}
+              {deviceType === deviceTypes.SmartLight && (
+                <KasaPresetLight />
+              )}
+              {deviceType === deviceTypes.SmartPlug && (
+                <KasaPresetPlug />
+              )}
             </Paper>
           )}
         </Grid>
       </Grid>
     </>
   );
-}
+};
+
+export { KasaPreset };

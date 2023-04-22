@@ -12,15 +12,14 @@ import { updateFlow } from '../../../store/kasa/flowSlice';
 import Spinner from '../../Spinner';
 import { scrollable } from '../../../api/helpers/formattingHelpers';
 
-export default function KasaSceneList() {
+const KasaSceneList = () => {
   const dispatch = useDispatch();
-  const scenes = useSelector((x) => x.scene?.scenes) ?? [];
-  const scenesLoading = useSelector((x) => x.scene.scenesLoading);
+  const { scenes, scenesLoading } = useSelector((x) => x.scene);
 
-  function handleSceneSelect(scene) {
+  const handleSceneSelect = (scene) => {
     dispatch(setScene(scene));
     dispatch(updateFlow(scene?.flow ?? []));
-  }
+  };
 
   return scenesLoading ? (
     <Spinner />
@@ -41,4 +40,6 @@ export default function KasaSceneList() {
       </List>
     </>
   );
-}
+};
+
+export { KasaSceneList };

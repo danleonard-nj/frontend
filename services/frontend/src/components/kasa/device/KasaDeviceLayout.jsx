@@ -4,4 +4,4 @@ const KasaDeviceLayout = () => {
   return <DeviceCard />;
 };
 
-export default KasaDeviceLayout;
+export { KasaDeviceLayout };

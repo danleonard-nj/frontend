@@ -6,7 +6,7 @@ import KasaSceneFlow from '../scene/KasaSceneFlow';
 import KasaSceneFlowToolbar from './KasaSceneFlowToolbar';
 import KasaSceneToolbar from './KasaSceneToolbar';
 
-export default function KasaScene() {
+const KasaScene = () => {
   const dispatch = useDispatch();
   const scene = useSelector((x) => x.scene.scene) ?? {};
 
@@ -45,4 +45,6 @@ export default function KasaScene() {
       </Grid>
     </Grid>
   );
-}
+};
+
+export { KasaScene };

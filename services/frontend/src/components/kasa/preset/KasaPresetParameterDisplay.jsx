@@ -1,6 +1,6 @@
 import { Grid, TextField } from '@mui/material';
 
-export default function PresetParameterDisplay({ preset }) {
+const KasaPresetParameterDisplay = ({ preset }) => {
   return (
     <>
       <Grid item lg={6} xs={12}>
@@ -60,4 +60,6 @@ export default function PresetParameterDisplay({ preset }) {
       </Grid>
     </>
   );
-}
+};
+
+export { KasaPresetParameterDisplay };

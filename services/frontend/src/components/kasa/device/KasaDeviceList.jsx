@@ -18,8 +18,7 @@ import Spinner from '../../Spinner';
 
 const KasaDeviceList = () => {
   const dispatch = useDispatch();
-  const devices = useSelector((x) => x.device.devices);
-  const devicesLoading = useSelector((x) => x.device.devicesLoading);
+  const { devices, devicesLoading } = useSelector((x) => x.device);
 
   useEffect(() => {
     dispatch(getDevices());
@@ -53,4 +52,4 @@ const KasaDeviceList = () => {
   );
 };
 
-export default KasaDeviceList;
+export { KasaDeviceList };

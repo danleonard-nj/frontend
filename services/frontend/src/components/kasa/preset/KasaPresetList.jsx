@@ -11,7 +11,7 @@ import { scrollable } from '../../../api/helpers/formattingHelpers';
 import { getPreset } from '../../../store/kasa/actions/presetActions';
 import Spinner from '../../Spinner';
 
-export default function KasaPresetList() {
+const KasaPresetList = () => {
   const dispatch = useDispatch();
   const presets = useSelector((x) => x.preset.presets);
   const presetsLoading = useSelector((x) => x.preset.presetsLoading);
@@ -43,4 +43,6 @@ export default function KasaPresetList() {
       )}
     </>
   );
-}
+};
+
+export { KasaPresetList };

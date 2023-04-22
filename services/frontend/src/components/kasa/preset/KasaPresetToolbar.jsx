@@ -1,13 +1,25 @@
-import { Button, ButtonGroup, Grid, Stack, TextField } from '@mui/material';
+import {
+  Button,
+  ButtonGroup,
+  Grid,
+  Stack,
+  TextField,
+} from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { dialogType, openDialog } from '../../../store/dialog/dialogSlice';
+import {
+  dialogType,
+  openDialog,
+} from '../../../store/dialog/dialogSlice';
 import {
   deletePreset,
   savePreset,
 } from '../../../store/kasa/actions/presetActions';
-import { setNewPreset, setPreset } from '../../../store/kasa/presetSlice';
+import {
+  setNewPreset,
+  setPreset,
+} from '../../../store/kasa/presetSlice';
 
-export default function KasaPresetToolbar() {
+const KasaPresetToolbar = () => {
   const dispatch = useDispatch();
   const preset = useSelector((x) => x.preset.preset);
 
@@ -82,4 +94,6 @@ export default function KasaPresetToolbar() {
       </Grid>
     </Grid>
   );
-}
+};
+
+export { KasaPresetToolbar };

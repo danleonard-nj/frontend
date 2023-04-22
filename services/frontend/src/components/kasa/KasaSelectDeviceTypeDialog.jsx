@@ -14,10 +14,16 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { deviceTypes } from '../../api/data/kasa/device';
 import { getNewPreset } from '../../api/data/kasa/preset';
-import { closeDialog, dialogType } from '../../store/dialog/dialogSlice';
-import { setNewPreset, setPreset } from '../../store/kasa/presetSlice';
+import {
+  closeDialog,
+  dialogType,
+} from '../../store/dialog/dialogSlice';
+import {
+  setNewPreset,
+  setPreset,
+} from '../../store/kasa/presetSlice';
 
-export default function KasaSelectDeviceTypeDialog() {
+const KasaSelectDeviceTypeDialog = () => {
   const dispatch = useDispatch();
   const dialogState =
     useSelector((x) => x.dialog[dialogType.addPreset]) ?? false;
@@ -46,15 +52,21 @@ export default function KasaSelectDeviceTypeDialog() {
       <DialogContent>
         <Box sx={{ marginTop: 1 }}>
           <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Device Type</InputLabel>
+            <InputLabel id='demo-simple-select-label'>
+              Device Type
+            </InputLabel>
             <Select
               labelId='demo-simple-select-label'
               id='demo-simple-select'
               value={selectedDeviceType}
               label='Device Type'
               onChange={handleSelectDeviceType}>
-              <MenuItem value={deviceTypes.SmartLight}>SmartLight</MenuItem>
-              <MenuItem value={deviceTypes.SmartPlug}>SmartPlug</MenuItem>
+              <MenuItem value={deviceTypes.SmartLight}>
+                SmartLight
+              </MenuItem>
+              <MenuItem value={deviceTypes.SmartPlug}>
+                SmartPlug
+              </MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -66,4 +78,6 @@ export default function KasaSelectDeviceTypeDialog() {
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export { KasaSelectDeviceTypeDialog };

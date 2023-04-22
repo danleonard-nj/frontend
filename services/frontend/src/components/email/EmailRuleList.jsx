@@ -7,6 +7,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedEmailRule } from '../../store/email/emailSlice';
 import Spinner from '../Spinner';
+import { getEmailRule } from '../../store/email/emailActions';
 
 const EmailRuleList = () => {
   const dispatch = useDispatch();
@@ -18,6 +19,7 @@ const EmailRuleList = () => {
   const handleSelectRule = (rule) => {
     console.log('Selected rule: ', rule);
     dispatch(setSelectedEmailRule(rule));
+    dispatch(getEmailRule(rule.rule_id));
   };
 
   return emailRulesLoading ? (

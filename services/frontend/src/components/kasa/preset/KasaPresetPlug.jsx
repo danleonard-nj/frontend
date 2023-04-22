@@ -9,7 +9,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPreset } from '../../../store/kasa/presetSlice';
 
-export default function KasaPresetPlug() {
+const KasaPresetPlug = () => {
   const dispatch = useDispatch();
   const preset = useSelector((x) => x.preset.preset);
 
@@ -17,7 +17,10 @@ export default function KasaPresetPlug() {
     dispatch(
       setPreset({
         ...preset,
-        definition: { ...preset.definition, state: event.target.checked },
+        definition: {
+          ...preset.definition,
+          state: event.target.checked,
+        },
       })
     );
   };
@@ -47,4 +50,6 @@ export default function KasaPresetPlug() {
       </Grid>
     </Grid>
   );
-}
+};
+
+export { KasaPresetPlug };
