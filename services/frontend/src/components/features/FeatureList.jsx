@@ -1,18 +1,15 @@
-import {
-  CircularProgress,
-  List,
-  ListSubheader,
-  Paper,
-} from '@mui/material';
+import { CircularProgress, List, ListSubheader, Paper } from '@mui/material';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFeatures } from '../../store/features/featureActions';
 import { FeatureListItem } from './FeatureListItem';
 
-const FeatureList = () => {
+export default function FeatureList() {
   const dispatch = useDispatch();
+  const features = useSelector((x) => x.feature.features);
+  const featuresLoading = useSelector((x) => x.feature.featuresLoading);
 
-  const { features, featuresLoading } = useSelector((x) => x.feature);
+  console.log('rendered feature list', featuresLoading, features);
 
   useEffect(() => {
     dispatch(getFeatures());
@@ -33,6 +30,4 @@ const FeatureList = () => {
       )}
     </>
   );
-};
-
-export { FeatureList };
+}

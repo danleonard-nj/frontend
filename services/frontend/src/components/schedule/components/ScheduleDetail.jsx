@@ -4,31 +4,17 @@ import {
   Grid,
   Paper,
   TextField,
-  styled,
 } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateScheduleState } from '../../../store/schedule/scheduleActions';
 import Spinner from '../../Spinner';
-import { ScheduleToolbar } from './ScheduleToolbar';
+import ScheduleToolbar from './ScheduleToolbar';
 
-const ScheduleDetailStyledPaper = styled(Paper)({
-  p: 2,
-  minHeight: '8rem',
-  display: 'flex',
-  flexDirection: 'column',
-});
-
-const FormControlFlexLabel = styled(FormControlLabel)({
-  display: 'flex',
-});
-
-const ScheduleDetail = () => {
+export default function ScheduleDetail() {
   const dispatch = useDispatch();
-
-  const { schedule, scheduleLoading } = useSelector(
-    (x) => x.schedule
-  );
+  const schedule = useSelector((store) => store.schedule?.schedule);
+  const scheduleLoading = useSelector((x) => x.schedule.scheduleLoading);
 
   const handleSecondsCheckboxChange = (event) => {
     dispatch(
@@ -60,7 +46,13 @@ const ScheduleDetail = () => {
   return (
     <>
       <Grid item lg={12} xs={12} id='schedule-layout-grid'>
-        <ScheduleDetailStyledPaper>
+        <Paper
+          sx={{
+            p: 2,
+            minHeight: '8rem',
+            display: 'flex',
+            flexDirection: 'column',
+          }}>
           {scheduleLoading ? (
             <Spinner />
           ) : (
@@ -80,10 +72,7 @@ const ScheduleDetail = () => {
                     label='Schedule Name'
                     value={schedule?.scheduleName ?? ''}
                     onChange={(event) =>
-                      handleChange(
-                        event.target.value,
-                        event.target.name
-                      )
+                      handleChange(event.target.value, event.target.name)
                     }
                     fullWidth
                     variant='standard'
@@ -104,12 +93,8 @@ const ScheduleDetail = () => {
                     }
                   />
                 </Grid>
-                <Grid
-                  item
-                  lg
-                  xs={4}
-                  id='schedule-seconds-checkbox-container'>
-                  <FormControlFlexLabel
+                <Grid item lg xs={4} id='schedule-seconds-checkbox-container'>
+                  <FormControlLabel
                     id='schedule-seconds-checkbox-form-control'
                     control={
                       <Checkbox
@@ -119,15 +104,12 @@ const ScheduleDetail = () => {
                       />
                     }
                     label='Seconds'
+                    sx={{ display: 'flex' }}
                     labelPlacement='end'
                   />
                 </Grid>
-                <Grid
-                  item
-                  lg
-                  xs={4}
-                  id='schedule-active-checkbox-container'>
-                  <FormControlFlexLabel
+                <Grid item lg xs={4} id='schedule-active-checkbox-container'>
+                  <FormControlLabel
                     id='schedule-active-checkbox-form-control'
                     control={
                       <Checkbox
@@ -137,16 +119,15 @@ const ScheduleDetail = () => {
                       />
                     }
                     label='Active'
+                    sx={{ display: 'flex' }}
                     labelPlacement='end'
                   />
                 </Grid>
               </Grid>
             </>
           )}
-        </ScheduleDetailStyledPaper>
+        </Paper>
       </Grid>
     </>
   );
-};
-
-export { ScheduleDetail };
+}

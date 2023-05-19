@@ -19,16 +19,12 @@ import {
 } from '../../../store/dialog/dialogSlice';
 import { getScheduleHistory } from '../../../store/schedule/scheduleActions';
 import { ScheduleHistoryTable } from '../components/ScheduleHistoryTable';
-import Spinner from '../../Spinner';
 
 const ScheduleHistoryViewDialog = () => {
   const dispatch = useDispatch();
   const isOpen = useSelector(
     (x) => x.dialog[dialogType.scheduleHistoryViewDialog]
   );
-
-  const scheduleHistoryLoading =
-    useSelector((x) => x.schedule.scheduleHistoryLoading) ?? [];
 
   const [hoursBack, setHoursBack] = useState(4);
 
@@ -77,11 +73,7 @@ const ScheduleHistoryViewDialog = () => {
         <Grid container spacing={3}>
           <Grid item lg={6}></Grid>
           <Grid item lg={12}>
-            {scheduleHistoryLoading ? (
-              <Spinner />
-            ) : (
-              <ScheduleHistoryTable />
-            )}
+            <ScheduleHistoryTable />
           </Grid>
         </Grid>
       </DialogContent>

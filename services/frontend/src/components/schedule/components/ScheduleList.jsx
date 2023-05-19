@@ -8,10 +8,10 @@ import {
   ListItemText,
   Paper,
   Typography,
-  styled,
 } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { scrollable } from '../../../api/helpers/formattingHelpers';
 import {
   getSchedule,
   getSchedules,
@@ -20,25 +20,10 @@ import { newSchedule } from '../../../store/schedule/scheduleSlice';
 import { getTasks } from '../../../store/task/taskActions';
 import Spinner from '../../Spinner';
 
-const ScheduleListStyledGrid = styled(Grid)({
-  marginBottom: 1,
-});
-
-const ScheduleListStyledPaper = styled(Paper)({
-  minHeight: '75vh',
-});
-
-const ScrollableList = styled(List)({
-  maxHeight: '75vh',
-  overflow: 'auto',
-});
-
-const ScheduleList = () => {
+export default function ScheduleList() {
   const dispatch = useDispatch();
-
-  const { schedules, schedulesLoading } = useSelector(
-    (x) => x.schedule
-  );
+  const schedules = useSelector((x) => x.schedule.schedules) ?? [];
+  const schedulesLoading = useSelector((x) => x.schedule.schedulesLoading);
 
   const handleScheduleSelect = (scheduleId) => {
     dispatch(getSchedule(scheduleId));
@@ -49,16 +34,20 @@ const ScheduleList = () => {
   };
 
   useEffect(() => {
-    dispatch(getSchedules());
+    if (!schedules?.length) {
+      dispatch(getSchedules());
+    }
+
     dispatch(getTasks());
   }, []);
 
   return (
     <>
-      <ScheduleListStyledGrid
+      <Grid
         id='schedule-list-grid'
         container
-        spacing={3}>
+        spacing={3}
+        sx={{ marginBottom: 1 }}>
         <Grid item lg={6} xs={6}>
           <Typography
             component='h2'
@@ -75,23 +64,19 @@ const ScheduleList = () => {
           xs={6}
           align='right'
           id='schedule-new-button-container'>
-          <Button
-            onClick={handleNewSchedule}
-            id='schedule-new-button'>
+          <Button onClick={handleNewSchedule} id='schedule-new-button'>
             New
           </Button>
         </Grid>
-      </ScheduleListStyledGrid>
-      <ScheduleListStyledPaper elevation={3}>
+      </Grid>
+      <Paper elevation={3} sx={{ minHeight: '75vh' }}>
         {schedulesLoading ? (
           <Spinner id='schedule-list-spinner' />
         ) : (
-          <ScrollableList component='nav' id='schedule-list'>
+          <List component='nav' id='schedule-list' sx={scrollable}>
             {schedules.map((schedule) => (
               <ListItemButton
-                onClick={() =>
-                  handleScheduleSelect(schedule.scheduleId)
-                }
+                onClick={() => handleScheduleSelect(schedule.scheduleId)}
                 key={schedule.scheduleId}
                 selected={false}>
                 <ListItemIcon>
@@ -100,11 +85,9 @@ const ScheduleList = () => {
                 <ListItemText primary={schedule.scheduleName} />
               </ListItemButton>
             ))}
-          </ScrollableList>
+          </List>
         )}
-      </ScheduleListStyledPaper>
+      </Paper>
     </>
   );
-};
-
-export { ScheduleList };
+}

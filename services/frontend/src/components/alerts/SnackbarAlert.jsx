@@ -1,13 +1,9 @@
-import { Alert, Snackbar, styled } from '@mui/material';
+import { Alert, Snackbar } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeAlert } from '../../store/alert/alertSlice';
 
-const Toast = styled(Alert)({
-  width: '100%',
-});
-
-const SnackbarAlert = () => {
+export default function SnackbarAlert() {
   const dispatch = useDispatch();
   const alert = useSelector((store) => store.alert);
 
@@ -23,16 +19,15 @@ const SnackbarAlert = () => {
           open={alert.isOpen}
           autoHideDuration={6000}
           onClose={handleAlertClose}>
-          <Toast
+          <Alert
             id='alert'
             onClose={handleAlertClose}
-            severity={alert.severity}>
+            severity={alert.severity}
+            sx={{ width: '100%' }}>
             {alert.message}
-          </Toast>
+          </Alert>
         </Snackbar>
       )}
     </>
   );
-};
-
-export { SnackbarAlert };
+}

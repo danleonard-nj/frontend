@@ -6,15 +6,12 @@ import {
   formatDate,
   isShipButtonDisabled,
 } from '../../api/helpers/reverbHelpers';
+import { dialogType, openDialog } from '../../store/dialog/dialogSlice';
 import {
-  dialogType,
-  openDialog,
-} from '../../store/dialog/dialogSlice';
-import {
+  initialOrderDetail,
   setSelectedOrder,
   updateOrderDetail,
 } from '../../store/reverb/reverbSlice';
-import { initialOrderDetail } from '../../api/data/reverb';
 
 const ReverbOrderTableRow = ({ order }) => {
   const dispatch = useDispatch();

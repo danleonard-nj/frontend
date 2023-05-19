@@ -10,15 +10,12 @@ import {
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  dialogType,
-  openDialog,
-} from '../../store/dialog/dialogSlice';
+import { dialogType, openDialog } from '../../store/dialog/dialogSlice';
 import { getOrders } from '../../store/reverb/reverbActions';
-import Spinner from '../Spinner';
 import ReverbOrderTable from '../reverb/ReverbOrderTable';
+import Spinner from '../Spinner';
 
-const DashboardReverbLayout = () => {
+export default function DashboardReverbLayout() {
   const dispatch = useDispatch();
   const ordersLoading = useSelector((x) => x.reverb.ordersLoading);
 
@@ -33,7 +30,7 @@ const DashboardReverbLayout = () => {
   };
 
   const openCreateShipmentDialog = () => {
-    dispatch(openDialog(dialogType.createShipment));
+    dispatch(openDialog(dialogType.orderDetail));
   };
 
   return (
@@ -42,9 +39,7 @@ const DashboardReverbLayout = () => {
         <Grid item lg={10}></Grid>
         <Grid item lg={2}>
           <ButtonGroup variant='text' fullWidth>
-            <Button
-              variant='contained'
-              onClick={openCreateShipmentDialog}>
+            <Button variant='contained' onClick={openCreateShipmentDialog}>
               Create Shipment
             </Button>
           </ButtonGroup>
@@ -88,6 +83,4 @@ const DashboardReverbLayout = () => {
       </Grid>
     </Toolbar>
   );
-};
-
-export { DashboardReverbLayout };
+}
