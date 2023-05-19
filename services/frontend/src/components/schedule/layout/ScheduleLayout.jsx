@@ -1,11 +1,16 @@
-import { Grid, Paper } from '@mui/material';
+import { Grid, Paper, styled } from '@mui/material';
 import React from 'react';
 import ScheduleLinkList from '../components/LinkList';
 import RunHistory from '../components/RunHistory';
 import RunQueueTable from '../components/RunQueueTable';
-import ScheduleDetail from '../components/ScheduleDetail';
+import { ScheduleDetail } from '../components/ScheduleDetail';
 
-export default function ScheduleLayout() {
+const StyledPaper = styled(Paper)({
+  p: 2,
+  display: 'flex',
+});
+
+const ScheduleLayout = () => {
   return (
     <Grid container spacing={3}>
       <Grid item lg={8} xs={12}>
@@ -16,14 +21,12 @@ export default function ScheduleLayout() {
             lg={12}
             xs={12}
             id='grid-item-schedule-link-list'>
-            <Paper
+            <StyledPaper
               sx={{
-                p: 2,
-                display: 'flex',
                 flexDirection: 'column',
               }}>
               <ScheduleLinkList />
-            </Paper>
+            </StyledPaper>
           </Grid>
         </Grid>
       </Grid>
@@ -52,4 +55,6 @@ export default function ScheduleLayout() {
       </Grid>
     </Grid>
   );
-}
+};
+
+export { ScheduleLayout };

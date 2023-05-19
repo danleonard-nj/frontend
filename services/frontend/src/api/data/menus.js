@@ -5,11 +5,11 @@ const pages = [
   'Scenes',
   'ShipEngine',
   'Reverb',
-  'Fitness',
   'Locations',
   'Kubernetes',
   'Features',
   'Email',
+  'Nest',
 ];
 
 export { pages };

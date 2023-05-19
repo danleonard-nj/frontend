@@ -30,7 +30,7 @@ const ScheduleHistoryTable = () => {
           </TableHead>
           <TableBody>
             {scheduleHistory.map((row) => (
-              <TableRow key={row.scheduleId}>
+              <TableRow key={row.scheduleHistoryId}>
                 <TableCell>
                   {getScheduleHistoryDisplayDateTime(row.createdDate)}
                 </TableCell>

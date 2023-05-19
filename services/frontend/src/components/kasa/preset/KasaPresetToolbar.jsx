@@ -21,15 +21,35 @@ import {
 
 const KasaPresetToolbar = () => {
   const dispatch = useDispatch();
-  const preset = useSelector((x) => x.preset.preset);
+  const { preset } = useSelector((x) => x.preset);
 
+  // Save preset
   const handleSavePreset = () => {
     dispatch(savePreset());
   };
+
+  // New preset
   const handleNewPreset = () => {
     dispatch(openDialog(dialogType.addPreset));
   };
 
+  // Delete preset
+  const handlePresetDelete = () => {
+    dispatch(deletePreset());
+  };
+
+  // Clone preset
+  const handlePresetClone = () => {
+    const clonedPreset = {
+      ...preset,
+      preset_name: `${preset.preset_name} (Clone)`,
+      preset_id: null,
+    };
+    dispatch(setNewPreset(true));
+    dispatch(savePreset(clonedPreset));
+  };
+
+  // Update name
   const handleNameChange = (event) => {
     dispatch(
       setPreset({
@@ -38,20 +58,6 @@ const KasaPresetToolbar = () => {
       })
     );
   };
-
-  function handlePresetDelete() {
-    dispatch(deletePreset());
-  }
-
-  function handlePresetClone() {
-    const clonedPreset = {
-      ...preset,
-      preset_name: `${preset.preset_name} (Clone)`,
-      preset_id: null,
-    };
-    dispatch(setNewPreset(true));
-    dispatch(savePreset(clonedPreset));
-  }
 
   return (
     <Grid container spacing={3}>

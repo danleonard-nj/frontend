@@ -26,6 +26,8 @@ const KasaCreateSceneCategoryDialog = () => {
   const isVisible = useSelector(
     (x) => x.dialog[dialogType.sceneCategoryRemove]
   );
+
+  console.log('Add scene dialog: ', isVisible);
   const filteredScenes = useSelector((x) => x.scene.filteredScenes);
 
   const [selected, setSelected] = useState('');

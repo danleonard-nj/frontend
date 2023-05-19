@@ -7,18 +7,23 @@ import {
   Slider,
   TextField,
   Typography,
+  styled,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getLogs } from '../../store/kubeLogs/kubeLogActions';
 import { setLogTail } from '../../store/kubeLogs/kubeLogSlice';
 
+const LogTextField = styled(TextField)({
+  fontFamily: 'monospace',
+  font: 'monospace',
+});
+
 const KubernetesLogs = () => {
+  const { logs, logTail, selectedPod, selectedNamespace } =
+    useSelector((x) => x.kubeLogs);
+
   const dispatch = useDispatch();
-  const logs = useSelector((x) => x.kubeLogs.logs);
-  const logTail = useSelector((x) => x.kubeLogs.logTail);
-  const selectedPod = useSelector((x) => x.kubeLogs.selectedPod);
-  const selectedNamespace = useSelector((x) => x.kubeLogs.selectedNamespace);
 
   const [slider, setSlider] = useState(logTail ?? 0);
   const [autoRefresh, setAutoRefresh] = useState(false);
@@ -82,21 +87,6 @@ const KubernetesLogs = () => {
               Refresh
             </Button>
           </Grid>
-          <Grid item lg={3}>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    value={autoRefresh}
-                    onChange={(event) =>
-                      handleSetAutoRefresh(event.target.checked)
-                    }
-                  />
-                }
-                label='Auto-Refresh'
-              />
-            </FormGroup>
-          </Grid>
         </Grid>
       </Grid>
       <Grid item lg={12} xs={12} sm={12} md={12}>
@@ -109,6 +99,7 @@ const KubernetesLogs = () => {
           fullWidth
           contentEditable={false}
           spellCheck={false}
+          inputProps={{ font: 'monospace' }}
         />
       </Grid>
     </Grid>

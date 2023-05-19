@@ -97,7 +97,6 @@ export default class SceneActions {
       };
 
       const response = await this.sceneApi.getScenes(categoryId);
-      console.log(response);
       handleResultMessage(response?.status);
 
       // Update scene list state on successful request

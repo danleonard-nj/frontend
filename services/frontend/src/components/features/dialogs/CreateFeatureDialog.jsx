@@ -13,12 +13,12 @@ import Switch from '@mui/material/Switch';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { featureType } from '../../../api/helpers/featureHelpers';
-import { dialogType } from '../../../store/dialog/dialogSlice';
-import { createFeature } from '../../../store/features/featureActions';
 import {
-  setCreateFeatureDialog,
-  updateFeature,
-} from '../../../store/features/featureSlice';
+  closeDialog,
+  dialogType,
+} from '../../../store/dialog/dialogSlice';
+import { createFeature } from '../../../store/features/featureActions';
+import { updateFeature } from '../../../store/features/featureSlice';
 
 export default function CreateFeatureDialog() {
   const dispatch = useDispatch();
@@ -28,7 +28,7 @@ export default function CreateFeatureDialog() {
   );
 
   const handleClose = () => {
-    dispatch(setCreateFeatureDialog(false));
+    dispatch(closeDialog(dialogType.createFeatureDialog));
   };
 
   const handleChange = (event) => {
@@ -40,10 +40,12 @@ export default function CreateFeatureDialog() {
     );
   };
 
+  // Feature Name -> feature-name
   const getFeatureKey = (name) => {
     return name.toLowerCase().split(' ').join('-');
   };
 
+  // Feature key update on feature name change
   useEffect(() => {
     dispatch(
       updateFeature((feature) => ({
@@ -64,11 +66,15 @@ export default function CreateFeatureDialog() {
         <Grid container spacing={2}>
           <Grid item lg={12}>
             <Paper elevation={2} sx={{ padding: 2 }}>
-              <Typography component='h2' variant='h6' color='white'>
+              <Typography
+                component='h2'
+                variant='h6'
+                color='white'
+                sx={{ marginBottom: 1 }}>
                 Feature
               </Typography>
               <Grid container spacing={3}>
-                <Grid item lg={6}>
+                <Grid item lg={6} xs={12}>
                   <TextField
                     label='Name'
                     name='name'
@@ -78,7 +84,7 @@ export default function CreateFeatureDialog() {
                     onChange={handleChange}
                   />
                 </Grid>
-                <Grid item lg={6}>
+                <Grid item lg={6} xs={12}>
                   <TextField
                     label='Feature Key'
                     name='feature_key'
@@ -91,7 +97,7 @@ export default function CreateFeatureDialog() {
                     onChange={handleChange}
                   />
                 </Grid>
-                <Grid item lg={12}>
+                <Grid item lg={12} xs={12}>
                   <TextField
                     label='Feature Description'
                     name='description'
@@ -102,7 +108,7 @@ export default function CreateFeatureDialog() {
                   />
                 </Grid>
 
-                <Grid item lg={6}>
+                <Grid item lg={6} xs={12}>
                   <FormControl fullWidth>
                     <InputLabel id='demo-simple-select-label'>
                       Feature Type
@@ -121,7 +127,7 @@ export default function CreateFeatureDialog() {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item lg={6} align='center'>
+                <Grid item lg={6} xs={12}>
                   {feature.feature_type == featureType.boolean && (
                     <FormControl>
                       <FormControlLabel

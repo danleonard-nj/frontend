@@ -4,7 +4,10 @@ import {
   sortBy,
 } from '../../../api/helpers/apiHelpers';
 import PresetApi from '../../../api/kasa/presetApi';
-import { popErrorMessage } from '../../alert/alertActions';
+import {
+  popErrorMessage,
+  popMessage,
+} from '../../alert/alertActions';
 import {
   presetsLoading as setPresetsLoading,
   setNewPreset,
@@ -48,7 +51,7 @@ export default class KasaPresetActions {
     };
   }
 
-  deletePreset() {
+  deletePreset(presetId) {
     return async (dispatch, getState) => {
       const state = getState();
       const presetId = state.preset.preset.preset_id;
@@ -67,14 +70,25 @@ export default class KasaPresetActions {
 
   savePreset(toSave) {
     return async (dispatch, getState) => {
-      const state = getState();
-      const preset = toSave ?? state.preset.preset;
+      const handleResultMessage = (status) => {
+        status === 200
+          ? dispatch(popMessage('Preset saved successfully'))
+          : dispatch(popErrorMessage('Failed to save preset'));
+      };
 
-      if (state.preset.isNewPreset) {
-        await this.presetApi.createPreset(preset);
+      const { isNewPreset, preset } = getState().preset;
+      preset ??= toSave;
+
+      // Update or create preset
+      const { status } = isNewPreset
+        ? await this.presetApi.createPreset(toSave ?? preset)
+        : await this.presetApi.updatePreset(toSave ?? preset);
+
+      handleResultMessage(status);
+
+      // Flip the new flag
+      if (isNewPreset) {
         dispatch(setNewPreset(false));
-      } else {
-        await this.presetApi.updatePreset(preset);
       }
 
       const presets = await this.presetApi.getPresets();

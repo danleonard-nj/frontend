@@ -37,12 +37,18 @@ import {
 import { clearRate } from '../../store/shipEngine/shipEngineSlice';
 import ShipEngineSelectCarrierDialog from './ShipEngineSelectCarrierDialog';
 
-export default function ShipEngineCreateShipmentDialog() {
+const ShipEngineCreateShipmentDialog = () => {
   const dispatch = useDispatch();
 
-  const isOpen = useSelector((x) => x.dialog[dialogType.createShipment]);
-  const createShipment = useSelector((x) => x.shipEngine.createShipment);
-  const carrierNameLookup = useSelector((x) => x.shipEngine.carrierNameLookup);
+  const isOpen = useSelector(
+    (x) => x.dialog[dialogType.createShipment]
+  );
+  const createShipment = useSelector(
+    (x) => x.shipEngine.createShipment
+  );
+  const carrierNameLookup = useSelector(
+    (x) => x.shipEngine.carrierNameLookup
+  );
 
   const handleClose = () => {
     dispatch(closeDialog(dialogType.createShipment));
@@ -50,7 +56,9 @@ export default function ShipEngineCreateShipmentDialog() {
 
   const handleSelectOriginStateChange = (event) => {
     dispatch(
-      updateCreateShipment((shipment) => reduceSelectOrigin(shipment, event))
+      updateCreateShipment((shipment) =>
+        reduceSelectOrigin(shipment, event)
+      )
     );
   };
 
@@ -63,18 +71,26 @@ export default function ShipEngineCreateShipmentDialog() {
   };
 
   const handleOriginChange = (event) => {
-    dispatch(updateCreateShipment((shipment) => reduceOrigin(shipment, event)));
+    dispatch(
+      updateCreateShipment((shipment) =>
+        reduceOrigin(shipment, event)
+      )
+    );
   };
 
   const handleDestinationChange = (event) => {
     dispatch(
-      updateCreateShipment((shipment) => reduceDestination(shipment, event))
+      updateCreateShipment((shipment) =>
+        reduceDestination(shipment, event)
+      )
     );
   };
 
   const handleChange = (event, value = null) => {
     dispatch(
-      updateCreateShipment((shipment) => reduceShipment(shipment, event, value))
+      updateCreateShipment((shipment) =>
+        reduceShipment(shipment, event, value)
+      )
     );
   };
 
@@ -132,7 +148,10 @@ export default function ShipEngineCreateShipmentDialog() {
             <Grid container spacing={2}>
               <Grid item lg={6}>
                 <Paper elevation={2} sx={{ padding: 2 }}>
-                  <Typography component='h2' variant='h6' color='white'>
+                  <Typography
+                    component='h2'
+                    variant='h6'
+                    color='white'>
                     Shipper
                   </Typography>
                   <Grid container spacing={3}>
@@ -140,7 +159,9 @@ export default function ShipEngineCreateShipmentDialog() {
                       <TextField
                         label='First Name'
                         name='first_name'
-                        value={createShipment?.origin?.first_name ?? ''}
+                        value={
+                          createShipment?.origin?.first_name ?? ''
+                        }
                         fullWidth
                         variant='standard'
                         onChange={handleOriginChange}
@@ -152,7 +173,9 @@ export default function ShipEngineCreateShipmentDialog() {
                         name='last_name'
                         fullWidth
                         variant='standard'
-                        value={createShipment?.origin?.last_name ?? ''}
+                        value={
+                          createShipment?.origin?.last_name ?? ''
+                        }
                         onChange={handleOriginChange}
                       />
                     </Grid>
@@ -161,7 +184,9 @@ export default function ShipEngineCreateShipmentDialog() {
                         label='Street Address'
                         name='address_one'
                         fullWidth
-                        value={createShipment?.origin?.address_one ?? ''}
+                        value={
+                          createShipment?.origin?.address_one ?? ''
+                        }
                         variant='standard'
                         onChange={handleOriginChange}
                       />
@@ -172,7 +197,9 @@ export default function ShipEngineCreateShipmentDialog() {
                         fullWidth
                         variant='standard'
                         name='city_locality'
-                        value={createShipment?.origin?.city_locality ?? ''}
+                        value={
+                          createShipment?.origin?.city_locality ?? ''
+                        }
                         onChange={handleSelectOriginStateChange}
                       />
                     </Grid>
@@ -180,11 +207,15 @@ export default function ShipEngineCreateShipmentDialog() {
                       <Select
                         label='State'
                         name='state_province'
-                        value={createShipment?.origin?.state_province ?? ''}
+                        value={
+                          createShipment?.origin?.state_province ?? ''
+                        }
                         onChange={handleSelectOriginStateChange}
                         fullWidth>
                         {states.map((state) => (
-                          <MenuItem key={state.code} value={state.code}>
+                          <MenuItem
+                            key={state.code}
+                            value={state.code}>
                             {state.name}
                           </MenuItem>
                         ))}
@@ -215,7 +246,10 @@ export default function ShipEngineCreateShipmentDialog() {
               </Grid>
               <Grid item lg={6}>
                 <Paper elevation={2} sx={{ padding: 2 }}>
-                  <Typography component='h2' variant='h6' color='white'>
+                  <Typography
+                    component='h2'
+                    variant='h6'
+                    color='white'>
                     Destination
                   </Typography>
                   <Grid container spacing={3}>
@@ -225,7 +259,10 @@ export default function ShipEngineCreateShipmentDialog() {
                         name='first_name'
                         fullWidth
                         variant='standard'
-                        value={createShipment?.destination?.first_name ?? ''}
+                        value={
+                          createShipment?.destination?.first_name ??
+                          ''
+                        }
                         onChange={handleDestinationChange}
                       />
                     </Grid>
@@ -235,7 +272,9 @@ export default function ShipEngineCreateShipmentDialog() {
                         fullWidth
                         variant='standard'
                         name='last_name'
-                        value={createShipment?.destination?.last_name ?? ''}
+                        value={
+                          createShipment?.destination?.last_name ?? ''
+                        }
                         onChange={handleDestinationChange}
                       />
                     </Grid>
@@ -246,7 +285,10 @@ export default function ShipEngineCreateShipmentDialog() {
                         fullWidth
                         variant='standard'
                         onChange={handleDestinationChange}
-                        value={createShipment?.destination?.address_one ?? ''}
+                        value={
+                          createShipment?.destination?.address_one ??
+                          ''
+                        }
                       />
                     </Grid>
                     <Grid item lg={6}>
@@ -256,18 +298,25 @@ export default function ShipEngineCreateShipmentDialog() {
                         variant='standard'
                         name='city_locality'
                         onChange={handleDestinationChange}
-                        value={createShipment?.destination?.city_locality ?? ''}
+                        value={
+                          createShipment?.destination
+                            ?.city_locality ?? ''
+                        }
                       />
                     </Grid>
                     <Grid item lg={6}>
                       <Select
                         label='State'
                         name='state_province'
-                        value={createShipment.destination.state_province}
+                        value={
+                          createShipment.destination.state_province
+                        }
                         onChange={handleSelectDestinationStateChange}
                         fullWidth>
                         {states.map((state) => (
-                          <MenuItem key={state.code} value={state.code}>
+                          <MenuItem
+                            key={state.code}
+                            value={state.code}>
                             {state.name}
                           </MenuItem>
                         ))}
@@ -280,7 +329,9 @@ export default function ShipEngineCreateShipmentDialog() {
                         variant='standard'
                         name='zip_code'
                         onChange={handleDestinationChange}
-                        value={createShipment?.destination?.zip_code ?? ''}
+                        value={
+                          createShipment?.destination?.zip_code ?? ''
+                        }
                       />
                     </Grid>
                     <Grid item lg={6}>
@@ -290,7 +341,9 @@ export default function ShipEngineCreateShipmentDialog() {
                         variant='standard'
                         name='phone'
                         onChange={handleDestinationChange}
-                        value={createShipment?.destination?.phone ?? ''}
+                        value={
+                          createShipment?.destination?.phone ?? ''
+                        }
                       />
                     </Grid>
                   </Grid>
@@ -298,7 +351,10 @@ export default function ShipEngineCreateShipmentDialog() {
               </Grid>
               <Grid item lg={6}>
                 <Paper elevation={2} sx={{ padding: 2 }}>
-                  <Typography component='h2' variant='h6' color='white'>
+                  <Typography
+                    component='h2'
+                    variant='h6'
+                    color='white'>
                     Package Details
                   </Typography>
                   <Grid container spacing={3}>
@@ -310,12 +366,17 @@ export default function ShipEngineCreateShipmentDialog() {
                         variant='standard'
                         value={createShipment?.length ?? ''}
                         onChange={(event) =>
-                          handleChange(event, parseInt(event.target.value))
+                          handleChange(
+                            event,
+                            parseInt(event.target.value)
+                          )
                         }
                         InputProps={{
                           type: 'number',
                           endAdornment: (
-                            <InputAdornment position='end'>in</InputAdornment>
+                            <InputAdornment position='end'>
+                              in
+                            </InputAdornment>
                           ),
                         }}
                       />
@@ -327,13 +388,18 @@ export default function ShipEngineCreateShipmentDialog() {
                         name='width'
                         value={createShipment?.width ?? ''}
                         onChange={(event) =>
-                          handleChange(event, tryParseInt(event.target.value))
+                          handleChange(
+                            event,
+                            tryParseInt(event.target.value)
+                          )
                         }
                         variant='standard'
                         InputProps={{
                           type: 'number',
                           endAdornment: (
-                            <InputAdornment position='end'>in</InputAdornment>
+                            <InputAdornment position='end'>
+                              in
+                            </InputAdornment>
                           ),
                         }}
                       />
@@ -345,13 +411,18 @@ export default function ShipEngineCreateShipmentDialog() {
                         fullWidth
                         value={createShipment?.height ?? ''}
                         onChange={(event) =>
-                          handleChange(event, tryParseInt(event.target.value))
+                          handleChange(
+                            event,
+                            tryParseInt(event.target.value)
+                          )
                         }
                         variant='standard'
                         InputProps={{
                           type: 'number',
                           endAdornment: (
-                            <InputAdornment position='end'>in</InputAdornment>
+                            <InputAdornment position='end'>
+                              in
+                            </InputAdornment>
                           ),
                         }}
                       />
@@ -364,12 +435,17 @@ export default function ShipEngineCreateShipmentDialog() {
                         variant='standard'
                         value={createShipment?.weight ?? ''}
                         onChange={(event) =>
-                          handleChange(event, tryParseInt(event.target.value))
+                          handleChange(
+                            event,
+                            tryParseInt(event.target.value)
+                          )
                         }
                         InputProps={{
                           type: 'number',
                           endAdornment: (
-                            <InputAdornment position='end'>lb</InputAdornment>
+                            <InputAdornment position='end'>
+                              lb
+                            </InputAdornment>
                           ),
                         }}
                       />
@@ -382,12 +458,17 @@ export default function ShipEngineCreateShipmentDialog() {
                         name='insured_value'
                         value={createShipment?.insured_value ?? ''}
                         onChange={(event) =>
-                          handleChange(event, parseInt(event.target.value))
+                          handleChange(
+                            event,
+                            parseInt(event.target.value)
+                          )
                         }
                         InputProps={{
                           type: 'number',
                           startAdornment: (
-                            <InputAdornment position='start'>$</InputAdornment>
+                            <InputAdornment position='start'>
+                              $
+                            </InputAdornment>
                           ),
                         }}
                       />
@@ -399,12 +480,17 @@ export default function ShipEngineCreateShipmentDialog() {
                 <Paper elevation={2} sx={{ padding: 2 }}>
                   <Grid container spacing={2}>
                     <Grid item lg={10}>
-                      <Typography component='h2' variant='h6' color='white'>
+                      <Typography
+                        component='h2'
+                        variant='h6'
+                        color='white'>
                         Carrier
                       </Typography>
                     </Grid>
                     <Grid item lg={2} align='right'>
-                      <Button variant='contained' onClick={handleGetRate}>
+                      <Button
+                        variant='contained'
+                        onClick={handleGetRate}>
                         Quote
                       </Button>
                     </Grid>
@@ -444,9 +530,13 @@ export default function ShipEngineCreateShipmentDialog() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleCreateShipment}>Create Shipment</Button>
+          <Button onClick={handleCreateShipment}>
+            Create Shipment
+          </Button>
         </DialogActions>
       </Dialog>
     </>
   );
-}
+};
+
+export { ShipEngineCreateShipmentDialog };

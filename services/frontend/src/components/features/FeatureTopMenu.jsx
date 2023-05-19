@@ -1,9 +1,12 @@
 import { Grid } from '@mui/material';
 import Button from '@mui/material/Button';
 import { useDispatch } from 'react-redux';
-import { dialogType, openDialog } from '../../store/dialog/dialogSlice';
+import {
+  dialogType,
+  openDialog,
+} from '../../store/dialog/dialogSlice';
 
-export default function FeatureTopMenu() {
+const FeatureTopMenu = () => {
   const dispatch = useDispatch();
 
   const handleCreateFeature = () => {
@@ -24,4 +27,6 @@ export default function FeatureTopMenu() {
       </Grid>
     </Grid>
   );
-}
+};
+
+export { FeatureTopMenu };

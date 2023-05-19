@@ -14,7 +14,7 @@ export default class ReverbApi extends ApiBase {
   }
 
   async createOrderShipment(orderNumber, orderDetail) {
-    this.send(
+    return this.send(
       `${this.baseUrl}/api/reverb/shipengine/shipments/${orderNumber}`,
       'POST',
       orderDetail

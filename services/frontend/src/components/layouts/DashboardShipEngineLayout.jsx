@@ -12,7 +12,10 @@ import {
 import { Box } from '@mui/system';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { dialogType, openDialog } from '../../store/dialog/dialogSlice';
+import {
+  dialogType,
+  openDialog,
+} from '../../store/dialog/dialogSlice';
 import {
   getBalances,
   getLookups,
@@ -20,17 +23,15 @@ import {
   updateShipEnginePagination,
 } from '../../store/shipEngine/shipEngineActions';
 import { setShowCanceledShipments } from '../../store/shipEngine/shipEngineSlice';
-import ShipEngineCreateShipmentDialog from '../shipEngine/ShipEngineCreateShipmentDialog';
-import ShipEngineShipmentTable from '../shipEngine/shipmentTable/ShipEngineShipmentTable';
 import Spinner from '../Spinner';
+import { ShipEngineCreateShipmentDialog } from '../shipEngine/ShipEngineCreateShipmentDialog';
+import ShipEngineShipmentTable from '../shipEngine/shipmentTable/ShipEngineShipmentTable';
 
 export default function DashboardShipEngineLayout() {
   const dispatch = useDispatch();
-  const pagination = useSelector((x) => x.shipEngine.pagination);
-  const shipmentsLoading = useSelector((x) => x.shipEngine.shipmentsLoading);
-  const showCanceledShipments = useSelector(
-    (x) => x.shipEngine.showCanceledShipments
-  );
+
+  const { pagination, shipmentsLoading, showCanceledShipments } =
+    useSelector((x) => x.shipEngine);
 
   const onPageChange = (event, pageNumber) => {
     dispatch(

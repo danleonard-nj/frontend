@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { handleGetScheduleWithLinks } from '../../../api/helpers/scheduleHelpers';
 import {
   dialogType,
   openDialog,
@@ -30,16 +31,6 @@ export default function ScheduleLinkList() {
     useSelector((store) => store.schedule) ?? {};
 
   const [schedulesWithLinks, setSchedulesWithLinks] = useState([]);
-
-  // Fetch and Populate schedule links
-  const handleGetScheduleWithLinks = (schedule, tasks) => {
-    // Get schedules and list of all tasks not
-    // linked to this task
-    const links = tasks.filter((x) =>
-      (schedule.links ?? []).includes(x.taskId)
-    );
-    return { ...schedule, links: links };
-  };
 
   // Add link handler
   const handleOpenAddScheduleLinkDialog = () => {
