@@ -20,16 +20,18 @@ import { setAlert } from '../../../store/alert/alertSlice';
 import { updateTaskState } from '../../../store/task/taskActions';
 import DashboardTitle from '../../dashboard/DashboardTitle';
 
+const getTaskJson = (task) => {
+  return JSON.stringify(task?.payload, null, '\t');
+};
+
 export default function JsonEditor() {
   const dispatch = useDispatch();
-  const task = useSelector((store) => store.task.task) ?? {};
+  const { task } = useSelector((store) => store.task) ?? {};
 
   const [json, setJson] = useState('');
 
   useEffect(() => {
-    if (task) {
-      setJson(JSON.stringify(task?.payload, null, '\t'));
-    }
+    setJson(getTaskJson(task));
   }, [task]);
 
   const handleChange = (value) => {

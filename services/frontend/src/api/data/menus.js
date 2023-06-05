@@ -10,6 +10,7 @@ const pages = [
   'Kubernetes',
   'Features',
   'Email',
+  'ChatGPT',
 ];
 
 export { pages };

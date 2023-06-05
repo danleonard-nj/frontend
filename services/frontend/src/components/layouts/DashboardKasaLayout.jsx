@@ -21,9 +21,9 @@ export default function DashboardKasaLayout() {
     dispatch(getDevices());
   }, [dispatch]);
 
-  function handleTabSelect(event, value) {
+  const handleTabSelect = (event, value) => {
     setTab(value);
-  }
+  };
 
   return (
     <Grid container spacing={3}>
@@ -60,7 +60,9 @@ export default function DashboardKasaLayout() {
           }}>
           {tab === 0 && <KasaPreset id='kasa-tab-content-preset' />}
           {tab === 1 && <KasaScene id='kasa-tab-content-scene' />}
-          {tab === 2 && <KasaDeviceLayout />}
+          {tab === 2 && (
+            <KasaDeviceLayout id='kasa-tab-content-device' />
+          )}
         </Paper>
       </Grid>
     </Grid>

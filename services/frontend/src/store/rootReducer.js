@@ -16,6 +16,7 @@ import locationSlice from './locations/locationSlice';
 import kubeLogsSlice from './kubeLogs/kubeLogSlice';
 import featureSlice from './features/featureSlice';
 import emailSlice from './email/emailSlice';
+import chatGptSlice from './chatgpt/chatGptSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -35,6 +36,7 @@ const rootReducer = combineReducers({
   kubeLogs: kubeLogsSlice,
   feature: featureSlice,
   email: emailSlice,
+  chatgpt: chatGptSlice,
 });
 
 export default rootReducer;
