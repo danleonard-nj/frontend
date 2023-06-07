@@ -13,6 +13,7 @@ const getLocalDateTimeFromTimestamp = (timestamp) => {
   }
   return new Date(timestamp * 1000).toLocaleString();
 };
+
 const toDateString = (date) => {
   return date.toISOString().split('T')[0];
 };
