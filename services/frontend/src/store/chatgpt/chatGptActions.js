@@ -1,18 +1,21 @@
 import autoBind from 'auto-bind';
 import ChatGptApi from '../../api/chatGptApi';
+import { toDateString } from '../../api/helpers/dateTimeUtils';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
   setConfigurationExpanded,
   setEngines,
   setEnginesLoading,
+  setHistoryEndpoints,
+  setHistoryEndpointsLoading,
   setImages,
   setPrediction,
   setPredictionLoading,
   setUsage,
   setUsageLoading,
 } from './chatGptSlice';
-import { toDateString } from '../../api/helpers/dateTimeUtils';
-import dashboardSlice from '../dashboard/dashboardSlice';
+import { setHistoryLoading } from './chatGptSlice';
+import { setHistory } from './chatGptSlice';
 
 const stripLeadingNewLineChars = (text) => {
   return text.replace(/^\n+/, '');
@@ -39,10 +42,19 @@ const formatUsageCents = (usageCents) => {
   return currencyFormatter.format(usageCents / 100);
 };
 
+const addDays = (date, days) => {
+  const modified = date.setDate(date.getDate() + days);
+  return new Date(modified);
+};
+
 const getDaysFromToday = (days) => {
   var date = new Date();
   date.setDate(date.getDate() + days);
   return date;
+};
+
+const getTimestampFromDateString = (date) => {
+  return new Date(date).getTime() / 1000;
 };
 
 export default class ChatGptActions {
@@ -140,8 +152,14 @@ export default class ChatGptActions {
           dispatch(popErrorMessage('Failed to fetch engine list'));
         } else {
           // Get the engine list
-          const result = data?.response?.body?.data;
-          dispatch(setEngines(result));
+          const engines = data?.response?.body?.data ?? [];
+
+          // Sort engines by name
+          const sortedEngines = engines.sort((a, b) =>
+            a.id.localeCompare(b.id)
+          );
+
+          dispatch(setEngines(sortedEngines));
         }
       };
 
@@ -196,7 +214,41 @@ export default class ChatGptActions {
       dispatch(setUsageLoading(false));
     };
   }
+
+  getHistory(daysBack, endpointFilter = null) {
+    return async (dispatch, getState) => {
+      const handleResponse = ({ status, data }) => {
+        if (status !== 200) {
+          dispatch(popErrorMessage('Failed to fetch history data'));
+        } else {
+          dispatch(setHistory(data ?? []));
+        }
+      };
+
+      // Calculate start timestamp from days back
+      const startDate = addDays(new Date(), parseInt(daysBack) * -1);
+      const startTimestamp = parseInt(startDate.getTime() / 1000);
+
+      // Set history loading flag
+      dispatch(setHistoryLoading(true));
+
+      const response = await this.chatGptApi.getHistoryEndpoints(
+        startTimestamp,
+        endpointFilter
+      );
+
+      handleResponse(response);
+
+      // Clear history loading flag
+      dispatch(setHistoryLoading(false));
+    };
+  }
 }
 
-export const { getPrediction, getImages, getEngines, getUsage } =
-  new ChatGptActions();
+export const {
+  getPrediction,
+  getImages,
+  getEngines,
+  getUsage,
+  getHistory,
+} = new ChatGptActions();

@@ -7,6 +7,7 @@ import ScheduleAddLinkDialog from './schedule/dialogs/ScheduleAddLinkDialog';
 import ScheduleDeleteConfirmDialog from './schedule/dialogs/ScheduleDeleteConfirmDialog';
 import { ScheduleHistoryViewDialog } from './schedule/dialogs/ScheduleHistoryViewDialog';
 import DeleteTaskConfirmationDialog from './task/dialogs/DeleteTaskConfirmationDialog';
+import { ChatGptHistoryViewDialog } from './chatgpt/dialogs/ChatGptHistoryViewDialog';
 
 export const DialogProvider = () => {
   return (
@@ -20,6 +21,7 @@ export const DialogProvider = () => {
       <ReverbOrderDetailDialog />
       <CreateFeatureDialog />
       <ScheduleHistoryViewDialog />
+      <ChatGptHistoryViewDialog />
     </>
   );
 };

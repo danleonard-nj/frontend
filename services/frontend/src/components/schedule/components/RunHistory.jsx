@@ -6,19 +6,17 @@ import {
   openDialog,
 } from '../../../store/dialog/dialogSlice';
 import DashboardTitle from '../../dashboard/DashboardTitle';
-
-import RunDisplayCard from './RunDisplayCard';
+import { RunDisplayCard } from './RunDisplayCard';
 
 const getDisplayTime = (timestamp) => {
-  console.log('Timestamp to convert: ', timestamp);
   const displayDate = new Date(timestamp * 1000).toLocaleString();
-  console.log('Display date: ', displayDate);
   return displayDate;
 };
 
-export default function ScheduleHistoryPanel() {
+const ScheduleHistoryPanel = () => {
   const dispatch = useDispatch();
-  const schedule = useSelector((x) => x.schedule?.schedule);
+
+  const { schedule = {} } = useSelector((x) => x.schedule);
 
   const handleOpenViewDialog = () => {
     dispatch(openDialog(dialogType.scheduleHistoryViewDialog));
@@ -58,4 +56,6 @@ export default function ScheduleHistoryPanel() {
       </Grid>
     </Grid>
   );
-}
+};
+
+export { ScheduleHistoryPanel };

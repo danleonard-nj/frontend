@@ -1,22 +1,54 @@
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Button,
+  FormControl,
   Grid,
-  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
-  Typography,
 } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { requestType } from '../../api/data/chatGpt';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import { imageSizes, requestType } from '../../api/data/chatGpt';
+import { getUsage } from '../../store/chatgpt/chatGptActions';
 import {
   setImageRepetitions,
+  setImageSize,
   setTokens,
 } from '../../store/chatgpt/chatGptSlice';
 import Spinner from '../Spinner';
 import { ChatGptEngineSelect } from './ChatGptEngineSelect';
 import { ChatGptRequestTypeSelect } from './ChatGptRequestTypeSelect';
-import { getUsage } from '../../store/chatgpt/chatGptActions';
+
+const ChatGptImageSizeSelect = () => {
+  const dispatch = useDispatch();
+
+  const { imageSize = '' } = useSelector((x) => x.chatgpt);
+
+  const handleImageSizeChange = (event) => {
+    dispatch(setImageSize(event.target.value));
+  };
+
+  return (
+    <FormControl fullWidth>
+      <InputLabel id='chat-gpt-image-size-select-label'>
+        Size
+      </InputLabel>
+      <Select
+        labelId='chat-gpt-image-size-select-label'
+        id='chat-gpt-image-size-select'
+        value={imageSize}
+        align='left'
+        label='Size'
+        onChange={handleImageSizeChange}>
+        {imageSizes.map((size) => (
+          <MenuItem value={size}>{size}</MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+};
 
 const ChatGptConfigurationContent = () => {
   const dispatch = useDispatch();
@@ -77,6 +109,12 @@ const ChatGptConfigurationContent = () => {
           />
         </Grid>
       )}
+      {selectedRequestType === requestType.image && (
+        <Grid item lg={12} xs={12}>
+          <ChatGptImageSizeSelect />
+        </Grid>
+      )}
+
       <Grid item lg={12} xs={12}>
         {usageLoading ? (
           <Spinner />

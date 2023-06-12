@@ -1,8 +1,8 @@
 import { Grid, Paper } from '@mui/material';
 import React from 'react';
 import ScheduleLinkList from '../components/LinkList';
-import RunHistory from '../components/RunHistory';
-import RunQueueTable from '../components/RunQueueTable';
+import { ScheduleHistoryPanel } from '../components/RunHistory';
+import { RunQueueTable } from '../components/RunQueueTable';
 import ScheduleDetail from '../components/ScheduleDetail';
 
 export default function ScheduleLayout() {
@@ -35,7 +35,7 @@ export default function ScheduleLayout() {
               sx={{
                 p: 2,
               }}>
-              <RunHistory />
+              <ScheduleHistoryPanel />
             </Paper>
           </Grid>
 

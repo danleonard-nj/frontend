@@ -19,9 +19,15 @@ import {
   setPreset,
 } from '../../../store/kasa/presetSlice';
 
+const getClonedPreset = (preset) => ({
+  ...preset,
+  preset_name: `${preset.preset_name} (Clone)`,
+  preset_id: null,
+});
+
 const KasaPresetToolbar = () => {
   const dispatch = useDispatch();
-  const preset = useSelector((x) => x.preset.preset);
+  const { preset = {} } = useSelector((x) => x.preset);
 
   const handleSavePreset = () => {
     dispatch(savePreset());
@@ -39,19 +45,17 @@ const KasaPresetToolbar = () => {
     );
   };
 
-  function handlePresetDelete() {
+  const handlePresetDelete = () => {
     dispatch(deletePreset());
-  }
+  };
 
-  function handlePresetClone() {
-    const clonedPreset = {
-      ...preset,
-      preset_name: `${preset.preset_name} (Clone)`,
-      preset_id: null,
-    };
+  const handlePresetClone = () => {
     dispatch(setNewPreset(true));
+
+    // Get cloned preset and save
+    const clonedPreset = getClonedPreset(preset);
     dispatch(savePreset(clonedPreset));
-  }
+  };
 
   return (
     <Grid container spacing={3}>

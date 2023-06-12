@@ -10,15 +10,17 @@ import {
   Paper,
   Popper,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { runScene } from '../../../store/kasa/actions/sceneActions';
 
 const KasaSceneButton = ({ scene }) => {
-  const regions = useSelector((x) => x.device.regions);
   const dispatch = useDispatch();
+
+  const { regions = {} } = useSelector((x) => x.device);
+
   const [open, setOpen] = useState(false);
-  const anchorRef = React.useRef(null);
+  const anchorRef = useRef(null);
 
   // Handle clicking the main button (fire a run scene call)
   const handleMainButtonClick = () => {
@@ -43,6 +45,7 @@ const KasaSceneButton = ({ scene }) => {
       anchorRef.current && anchorRef.current.contains(event.target)
     ) && setOpen(false);
   };
+
   return (
     <>
       <ButtonGroup

@@ -13,12 +13,66 @@ const chatGptInitialState = {
   usageLoading: true,
   images: [],
   engines: [],
-  selectedEngine: defaultEngine,
   enginesLoading: true,
+  history: [],
+  historyLoading: true,
+  historyEndpoints: [],
+  historyEndpointsLoading: true,
+  historyDaysBack: 7,
+  selectedHistoryEndpoint: '',
+  selectedEngine: defaultEngine,
   tokens: 2048,
   imageRepetitions: 2,
   imageSize: '1024x1024',
   isConfigurationExpanded: true,
+};
+
+const historyReducers = {
+  setHistory(state, { payload }) {
+    state.history = payload;
+  },
+  setHistoryLoading(state, { payload }) {
+    state.historyLoading = payload;
+  },
+  setHistoryEndpoints(state, { payload }) {
+    state.historyEndpoints = payload;
+    state.historyEndpointsLoading = false;
+  },
+  setHistoryEndpointsLoading(state, { payload }) {
+    state.historyEndpointsLoading = payload;
+  },
+  setSelectedHistoryEndpoint(state, { payload }) {
+    state.selectedHistoryEndpoint = payload;
+  },
+  setHistoryDaysBack(state, { payload }) {
+    state.historyDaysBack = payload;
+  },
+};
+
+const imageReducers = {
+  setImages(state, { payload }) {
+    state.images = payload;
+    state.predictionLoading = false;
+  },
+  setImageRepetitions(state, { payload }) {
+    state.imageRepetitions = payload;
+  },
+  setImageSize(state, { payload }) {
+    state.imageSize = payload;
+  },
+};
+
+const engineReducers = {
+  setEngines(state, { payload }) {
+    state.engines = payload;
+    state.enginesLoading = false;
+  },
+  setEnginesLoading(state, { payload }) {
+    state.enginesLoading = payload;
+  },
+  setSelectedEngine(state, { payload }) {
+    state.selectedEngine = payload;
+  },
 };
 
 const chatGptSlice = createSlice({
@@ -35,28 +89,11 @@ const chatGptSlice = createSlice({
     setPredictionLoading(state, { payload }) {
       state.predictionLoading = payload;
     },
-    setImages(state, { payload }) {
-      state.images = payload;
-      state.predictionLoading = false;
-    },
-    setEngines(state, { payload }) {
-      state.engines = payload;
-      state.enginesLoading = false;
-    },
-    setEnginesLoading(state, { payload }) {
-      state.enginesLoading = payload;
-    },
-    setSelectedEngine(state, { payload }) {
-      state.selectedEngine = payload;
-    },
     setTokens(state, { payload }) {
       state.tokens = payload;
     },
     setSelectedRequestType(state, { payload }) {
       state.selectedRequestType = payload;
-    },
-    setImageRepetitions(state, { payload }) {
-      state.imageRepetitions = payload;
     },
     setUsage(state, { payload }) {
       state.usage = payload;
@@ -68,6 +105,9 @@ const chatGptSlice = createSlice({
     setConfigurationExpanded(state, { payload }) {
       state.isConfigurationExpanded = payload;
     },
+    ...historyReducers,
+    ...imageReducers,
+    ...engineReducers,
   },
 });
 
@@ -83,9 +123,16 @@ export const {
   setTokens,
   setSelectedRequestType,
   setImageRepetitions,
+  setImageSize,
   setUsage,
   setUsageLoading,
   setConfigurationExpanded,
+  setHistory,
+  setHistoryLoading,
+  setHistoryEndpoints,
+  setHistoryEndpointsLoading,
+  setSelectedHistoryEndpoint,
+  setHistoryDaysBack,
 } = chatGptSlice.actions;
 
 export default chatGptSlice.reducer;

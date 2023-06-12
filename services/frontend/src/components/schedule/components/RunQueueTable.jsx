@@ -6,6 +6,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  styled,
 } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
@@ -13,13 +14,18 @@ import { getScheduleHistoryDisplayDateTime } from '../../../api/helpers/schedule
 import DashboardTitle from '../../dashboard/DashboardTitle';
 import Spinner from '../../Spinner';
 
-export default function RunQueueTable() {
-  const scheduleFetching = useSelector((x) => x.schedule.scheduleFetching);
-  const scheduleQueue = useSelector((x) => x.schedule?.schedule?.queue) ?? [];
+const QueueTablePaper = styled(Paper)({
+  minHeight: '16rem',
+});
+
+const RunQueueTable = () => {
+  const { scheduleFetching = false, schedule = {} } = useSelector(
+    (x) => x.schedule
+  );
 
   return (
     <>
-      <Paper sx={{ minHeight: '16rem' }}>
+      <QueueTablePaper>
         <>
           <Box>
             <DashboardTitle>Queue</DashboardTitle>
@@ -34,8 +40,8 @@ export default function RunQueueTable() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {scheduleQueue &&
-                  scheduleQueue?.map((runtime, index) => (
+                {schedule?.queue &&
+                  schedule?.queue?.map((runtime, index) => (
                     <TableRow hover key={index}>
                       <TableCell>
                         {getScheduleHistoryDisplayDateTime(runtime)}
@@ -46,7 +52,9 @@ export default function RunQueueTable() {
             </Table>
           )}
         </>
-      </Paper>
+      </QueueTablePaper>
     </>
   );
-}
+};
+
+export { RunQueueTable };

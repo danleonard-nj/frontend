@@ -1,8 +1,7 @@
 import { Card, CardContent, Typography } from '@mui/material';
 import React from 'react';
-import { getLocalDateTimeFromString } from '../../../api/helpers/dateTimeUtils';
 
-export default function RunDisplayCard({ title, runtime }) {
+const RunDisplayCard = ({ title, runtime }) => {
   return (
     <Card elevation={3} id='schedule-runtime-card'>
       <CardContent id='schedule-runtime-card-content'>
@@ -22,4 +21,6 @@ export default function RunDisplayCard({ title, runtime }) {
       </CardContent>
     </Card>
   );
-}
+};
+
+export { RunDisplayCard };

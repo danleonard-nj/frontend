@@ -10,6 +10,7 @@ const KasaPreset = () => {
   const { device_type: deviceType, presetLoading } = useSelector(
     (x) => x.preset.preset
   );
+
   return (
     <>
       <KasaSelectDeviceTypeDialog />

@@ -1,17 +1,20 @@
 import { Button, ButtonGroup, Grid } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { dialogType, openDialog } from '../../../store/dialog/dialogSlice';
+import {
+  dialogType,
+  openDialog,
+} from '../../../store/dialog/dialogSlice';
 import {
   runSchedule,
   saveSchedule,
 } from '../../../store/schedule/scheduleActions';
 import DashboardTitle from '../../dashboard/DashboardTitle';
 
-export default function ScheduleToolbar() {
+const ScheduleToolbar = () => {
   const dispatch = useDispatch();
-  const schedule = useSelector((store) => store.schedule?.schedule);
-  const scheduleLoading = useSelector((x) => x.schedule.scheduleLoading);
+
+  const { schedule } = useSelector((x) => x.schedule);
 
   const handleRunSchedule = () => {
     dispatch(runSchedule(schedule.scheduleId));
@@ -38,7 +41,6 @@ export default function ScheduleToolbar() {
             item
             lg={6}
             xs={8}
-            // align='right'
             id='schedule-save-delete-button-group-container'>
             <ButtonGroup
               fullWidth
@@ -68,4 +70,6 @@ export default function ScheduleToolbar() {
       </Grid>
     </Grid>
   );
-}
+};
+
+export { ScheduleToolbar };

@@ -18,6 +18,7 @@ export const dialogType = {
   kasaDeviceClientResponse: 'kasaDeviceClientResponse',
   createFeatureDialog: 'createFeatureDialog',
   scheduleHistoryViewDialog: 'scheduleHistoryViewDialog',
+  chatGptViewHistoryDialog: 'chatGptViewHistoryDialog',
 };
 
 const getInitialState = () => {

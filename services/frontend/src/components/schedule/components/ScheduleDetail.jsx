@@ -9,12 +9,14 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateScheduleState } from '../../../store/schedule/scheduleActions';
 import Spinner from '../../Spinner';
-import ScheduleToolbar from './ScheduleToolbar';
+import { ScheduleToolbar } from './ScheduleToolbar';
 
 export default function ScheduleDetail() {
   const dispatch = useDispatch();
   const schedule = useSelector((store) => store.schedule?.schedule);
-  const scheduleLoading = useSelector((x) => x.schedule.scheduleLoading);
+  const scheduleLoading = useSelector(
+    (x) => x.schedule.scheduleLoading
+  );
 
   const handleSecondsCheckboxChange = (event) => {
     dispatch(
@@ -72,7 +74,10 @@ export default function ScheduleDetail() {
                     label='Schedule Name'
                     value={schedule?.scheduleName ?? ''}
                     onChange={(event) =>
-                      handleChange(event.target.value, event.target.name)
+                      handleChange(
+                        event.target.value,
+                        event.target.name
+                      )
                     }
                     fullWidth
                     variant='standard'
@@ -93,7 +98,11 @@ export default function ScheduleDetail() {
                     }
                   />
                 </Grid>
-                <Grid item lg xs={4} id='schedule-seconds-checkbox-container'>
+                <Grid
+                  item
+                  lg
+                  xs={4}
+                  id='schedule-seconds-checkbox-container'>
                   <FormControlLabel
                     id='schedule-seconds-checkbox-form-control'
                     control={
@@ -108,7 +117,11 @@ export default function ScheduleDetail() {
                     labelPlacement='end'
                   />
                 </Grid>
-                <Grid item lg xs={4} id='schedule-active-checkbox-container'>
+                <Grid
+                  item
+                  lg
+                  xs={4}
+                  id='schedule-active-checkbox-container'>
                   <FormControlLabel
                     id='schedule-active-checkbox-form-control'
                     control={

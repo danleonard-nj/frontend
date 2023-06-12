@@ -54,4 +54,18 @@ export default class ChatGptApi extends ApiBase {
 
     return await this.send(endpoint.toString(), 'GET');
   }
+
+  async getHistoryEndpoints(startTimestamp, endpointFilter = null) {
+    const endpoint = new URL(
+      `${this.baseUrl}/api/tools/chatgpt/history`
+    );
+
+    endpoint.searchParams.append('start_timestamp', startTimestamp);
+
+    if (endpointFilter) {
+      endpoint.searchParams.append('endpoint', endpointFilter);
+    }
+
+    return await this.send(endpoint.toString(), 'GET');
+  }
 }

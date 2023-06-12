@@ -25,6 +25,10 @@ import Spinner from '../Spinner';
 import { ChatGptConfigurationContent } from '../chatgpt/ChatGptConfigurationContent';
 import { ChatGptPageTitle } from '../chatgpt/ChatGptPageTitle';
 import { ChatGptResult } from '../chatgpt/ChatGptResult';
+import {
+  dialogType,
+  openDialog,
+} from '../../store/dialog/dialogSlice';
 
 const DashboardChatGPTLayout = () => {
   const dispatch = useDispatch();
@@ -53,6 +57,10 @@ const DashboardChatGPTLayout = () => {
 
   const handleConfigurationExpand = () => {
     dispatch(setConfigurationExpanded(!isConfigurationExpanded));
+  };
+
+  const handleOpenHistoryDialog = () => {
+    dispatch(openDialog(dialogType.chatGptViewHistoryDialog));
   };
 
   useEffect(() => {
@@ -86,6 +94,12 @@ const DashboardChatGPTLayout = () => {
                 variant='outlined'
                 onClick={handleSubmitPrediction}>
                 Send
+              </Button>
+              <Button
+                variant='outlined'
+                onClick={handleOpenHistoryDialog}
+                sx={{ marginLeft: '1rem' }}>
+                History
               </Button>
             </Grid>
           </Grid>

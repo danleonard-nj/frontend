@@ -13,8 +13,8 @@ import Spinner from '../../Spinner';
 
 const KasaPresetList = () => {
   const dispatch = useDispatch();
-  const presets = useSelector((x) => x.preset.presets);
-  const presetsLoading = useSelector((x) => x.preset.presetsLoading);
+
+  const { presets, presetsLoading } = useSelector((x) => x.preset);
 
   const handlePresetSelect = (preset) => {
     dispatch(getPreset(preset.preset_id));

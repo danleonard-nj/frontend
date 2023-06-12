@@ -11,7 +11,8 @@ import { setPreset } from '../../../store/kasa/presetSlice';
 
 const KasaPresetPlug = () => {
   const dispatch = useDispatch();
-  const preset = useSelector((x) => x.preset.preset);
+
+  const { preset = {} } = useSelector((x) => x.preset);
 
   const onSwitchChange = (event) => {
     dispatch(
