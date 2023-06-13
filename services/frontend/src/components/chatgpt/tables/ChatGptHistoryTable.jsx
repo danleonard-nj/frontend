@@ -12,40 +12,46 @@ import {
   Paper,
   Typography,
   TextField,
+  ListItemButton,
+  ListItemText,
 } from '@mui/material';
 import * as React from 'react';
 import { useState } from 'react';
 import { getLocalDateTimeFromTimestamp } from '../../../api/helpers/dateTimeUtils';
 import { chatGptEndpoints } from '../../../api/data/chatGpt';
 
-const ImageContent = ({ images }) => {
+const ExpandedImageList = ({ images }) => {
   return (
     <List>
       {images.map((image, index) => (
-        <h1>{image}</h1>
+        <ListItemButton href={image?.url} target='_blank'>
+          <ListItemText primary={image?.url} />
+        </ListItemButton>
       ))}
     </List>
   );
 };
 
-const ExpandedImageContent = ({ row }) => {
-  <Table>
-    <TableHead>
-      <TableCell>Endpoint</TableCell>
-      <TableCell>Count</TableCell>
-      <TableCell>Size</TableCell>
-    </TableHead>
-    <TableBody>
-      <TableRow hover key={row.history_id}>
-        <TableCell>{row.endpoint}</TableCell>
-        <TableCell>{row.response.request.body.n}</TableCell>
-        <TableCell>{row.response.request.body.n}</TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>;
+const ExpandedImageContentTable = ({ row }) => {
+  return (
+    <Table>
+      <TableHead>
+        <TableCell>Endpoint</TableCell>
+        <TableCell>Count</TableCell>
+        <TableCell>Size</TableCell>
+      </TableHead>
+      <TableBody>
+        <TableRow hover key={row.history_id}>
+          <TableCell>{row.endpoint}</TableCell>
+          <TableCell>{row.response.request.body.n}</TableCell>
+          <TableCell>{row.response.request.body.n}</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  );
 };
 
-const ExpandedCompletionContent = ({ row }) => {
+const ExpandedCompletionContentTable = ({ row }) => {
   return (
     <Table>
       <TableHead>
@@ -81,7 +87,6 @@ const ExpandedCompletionContent = ({ row }) => {
 };
 
 const ChatGptHistoryTable = ({ history }) => {
-  console.log('history', history);
   const [expanded, setExpanded] = useState('');
 
   const ExpandButton = ({ isExpanded, row }) => {
@@ -144,11 +149,12 @@ const ChatGptHistoryTable = ({ history }) => {
                   in={row.history_id === expanded}
                   timeout='auto'
                   unmountOnExit>
-                  {row.endpoint === '/v1/images/generations' && (
+                  {row.endpoint ===
+                    chatGptEndpoints.imageGenerations && (
                     <Paper
                       elevation={3}
                       sx={{ margin: '1rem', padding: 2 }}>
-                      <ExpandedImageContent row={row} />
+                      <ExpandedImageContentTable row={row} />
                       <TextField
                         label='Prompt'
                         fullWidth
@@ -156,16 +162,8 @@ const ChatGptHistoryTable = ({ history }) => {
                         inputProps={{ readOnly: false }}
                         sx={{ marginTop: '2rem' }}
                       />
-                      <TextField
-                        label='Response'
-                        fullWidth
-                        multiline
-                        value={
-                          row?.response?.response?.body?.choices[0]
-                            ?.text
-                        }
-                        inputProps={{ readOnly: false }}
-                        sx={{ marginTop: '1rem' }}
+                      <ExpandedImageList
+                        images={row?.response?.response?.body?.data}
                       />
                     </Paper>
                   )}
@@ -173,7 +171,7 @@ const ChatGptHistoryTable = ({ history }) => {
                     <Paper
                       elevation={3}
                       sx={{ margin: '1rem', padding: 2 }}>
-                      <ExpandedCompletionContent row={row} />
+                      <ExpandedCompletionContentTable row={row} />
                       <TextField
                         label='Prompt'
                         fullWidth
