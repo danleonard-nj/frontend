@@ -37,10 +37,7 @@ export default class KasaPresetActions {
       dispatch(setPresetsLoading(true));
       const response = await this.presetApi.getPresets();
 
-      const sortedPresets = sortBy(
-        response?.data?.presets,
-        'preset_name'
-      );
+      const sortedPresets = sortBy(response?.data, 'preset_name');
 
       response.status === 200
         ? dispatch(setPresets(sortedPresets))
@@ -53,15 +50,10 @@ export default class KasaPresetActions {
       const state = getState();
       const presetId = state.preset.preset.preset_id;
 
-      if (!presetId) {
-        throw new Error('No preset is currently selected');
-      }
-
       dispatch(setPresetsLoading(true));
       await this.presetApi.deletePreset(presetId);
 
-      const presets = await this.presetApi.getPresets();
-      dispatch(setPresets(presets?.data?.presets));
+      dispatch(this.getPresets());
     };
   }
 
@@ -77,8 +69,7 @@ export default class KasaPresetActions {
         await this.presetApi.updatePreset(preset);
       }
 
-      const presets = await this.presetApi.getPresets();
-      dispatch(setPresets(presets?.data?.presets));
+      dispatch(this.getPresets());
     };
   }
 }

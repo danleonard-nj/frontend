@@ -6,12 +6,7 @@ import {
   Typography,
 } from '@mui/material';
 import * as React from 'react';
-import { chatGptEndpoints } from '../../api/data/chatGpt';
-import {
-  ChatGptHistoryImageTable,
-  ChatGptHistoryTable,
-} from './tables/ChatGptHistoryTable';
-import { ChatGptHistoryGenericTable } from './tables/ChatGptHistoryGenericTable';
+import { ChatGptHistoryTable } from './tables/ChatGptHistoryTable';
 
 const ChatGptAccordianHistoryTable = ({
   expanded,

@@ -12,6 +12,7 @@ import {
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { chatGptEndpoints } from '../../../api/data/chatGpt';
 import { getHistory } from '../../../store/chatgpt/chatGptActions';
 import {
   setHistoryDaysBack,
@@ -21,10 +22,8 @@ import {
   closeDialog,
   dialogType,
 } from '../../../store/dialog/dialogSlice';
-import { ChatGptHistoryDaysBackSlider } from '../ChatGptHistoryDaysBackSlider';
-import { ChatGptHistoryEndpointSelect } from '../ChatGptHistoryEndpointSelect';
 import { ChatGptAccordianHistoryTable } from '../ChatGptAccordionHistoryTable';
-import { chatGptEndpoints } from '../../../api/data/chatGpt';
+import { ChatGptHistoryDaysBackSlider } from '../ChatGptHistoryDaysBackSlider';
 
 const ChatGptHistoryViewDialog = () => {
   const dispatch = useDispatch();
@@ -57,13 +56,10 @@ const ChatGptHistoryViewDialog = () => {
   };
 
   useEffect(() => {
-    console.log('changed', historyDaysBack, selectedHistoryEndpoint);
     if (!history?.length) {
       dispatch(getHistory(historyDaysBack));
     }
   }, [historyDaysBack, selectedHistoryEndpoint]);
-
-  console.log('history', history);
 
   const handleAccordionExpand = (endpoint) => {
     dispatch(

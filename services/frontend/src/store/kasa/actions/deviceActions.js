@@ -1,5 +1,8 @@
 import autoBind from 'auto-bind';
-import { sortBy } from '../../../api/helpers/apiHelpers';
+import {
+  getErrorMessage,
+  sortBy,
+} from '../../../api/helpers/apiHelpers';
 import DeviceApi from '../../../api/kasa/deviceApi';
 import {
   popErrorMessage,
@@ -48,37 +51,44 @@ export default class KasaDeviceActions {
   updateDevice = () => {
     return async (dispatch, getState) => {
       const state = getState();
-
       const device = state.device.device;
-      if (!device) {
-        throw new Error('Device cannot be null');
-      }
+
+      const handleSuccess = ({ status, data }) => {
+        // On update success
+        dispatch(popMessage('Device updated successfully'));
+        dispatch(this.getDevices());
+      };
 
       const response = await this.deviceApi.updateDevice(device);
 
-      dispatch(
-        response.status === 200
-          ? popMessage('Device updated successfully')
-          : popErrorMessage('Failed to update device')
-      );
+      response.status === 200
+        ? handleSuccess(response)
+        : dispatch(
+            popErrorMessage(
+              `Failed to update device: ${getErrorMessage(
+                response?.data
+              )}`
+            )
+          );
     };
   };
 
   getDevices = () => {
     return async (dispatch, getState) => {
-      const handleErrorResponse = () => {
-        dispatch(popErrorMessage('Failed to fetch device list'));
+      const handleErrorResponse = ({ status, data }) => {
+        dispatch(
+          popErrorMessage(
+            `Failed to fetch device list: ${getErrorMessage(data)}`
+          )
+        );
       };
 
       const response = await this.deviceApi.getDevices();
-      console.log('Device call:', response);
-
       const sortedDevices = sortBy(response.data, 'device_name');
-      console.log('Sorted:', sortedDevices);
 
       response.status === 200
         ? dispatch(setDevices(sortedDevices))
-        : handleErrorResponse();
+        : handleErrorResponse(response);
     };
   };
 
