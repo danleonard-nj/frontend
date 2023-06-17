@@ -11,6 +11,7 @@ const pages = [
   'Features',
   'Email',
   'ChatGPT',
+  'Nest',
 ];
 
 export { pages };

@@ -13,6 +13,7 @@ import DashboardShipEngineLayout from '../layouts/DashboardShipEngineLayout';
 import DashboardTaskLayout from '../layouts/DashboardTaskLayout';
 import { DashoardEmailRuleLayout } from '../layouts/DashboardEmailRuleLayout';
 import { DashboardChatGPTLayout } from '../layouts/DashboardChatGPTLayout';
+import { DashboardNestLayout } from '../layouts/DashboardNestLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -40,6 +41,7 @@ export default function Dashboard() {
       {dashboardPage === 'features' && <DashboardFeatureLayout />}
       {dashboardPage === 'email' && <DashoardEmailRuleLayout />}
       {dashboardPage === 'chatgpt' && <DashboardChatGPTLayout />}
+      {dashboardPage === 'nest' && <DashboardNestLayout />}
     </Container>
   );
 }
