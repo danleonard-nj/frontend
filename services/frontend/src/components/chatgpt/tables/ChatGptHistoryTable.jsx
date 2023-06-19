@@ -24,8 +24,8 @@ const ExpandedImageList = ({ images }) => {
   return (
     <List>
       {images.map((image, index) => (
-        <ListItemButton href={image?.url} target='_blank'>
-          <ListItemText primary={image?.url} />
+        <ListItemButton href={image} target='_blank'>
+          <ListItemText primary={image} />
         </ListItemButton>
       ))}
     </List>
@@ -108,7 +108,6 @@ const ChatGptHistoryTable = ({ history }) => {
     row.history_id === expanded
       ? setExpanded('')
       : setExpanded(row.history_id);
-    console.log('row', row);
   };
 
   return (
@@ -162,9 +161,7 @@ const ChatGptHistoryTable = ({ history }) => {
                         inputProps={{ readOnly: false }}
                         sx={{ marginTop: '2rem' }}
                       />
-                      <ExpandedImageList
-                        images={row?.response?.response?.body?.data}
-                      />
+                      <ExpandedImageList images={row?.images ?? []} />
                     </Paper>
                   )}
                   {row.endpoint === chatGptEndpoints.completions && (

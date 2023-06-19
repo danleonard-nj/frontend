@@ -64,7 +64,7 @@ const DashboardNestLayout = () => {
 
   const { selectedSensor = {} } = useSelector((x) => x.nest);
 
-  const [sideNav, setSideNav] = useState('thermostat');
+  const [sideNav, setSideNav] = useState('sensor-info');
 
   console.log('Selected sensor', selectedSensor);
   console.log('Side nav', sideNav);
