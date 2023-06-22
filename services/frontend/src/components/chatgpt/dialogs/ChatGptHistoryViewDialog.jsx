@@ -56,7 +56,7 @@ const ChatGptHistoryViewDialog = () => {
   };
 
   useEffect(() => {
-    if (!history?.length) {
+    if (!history?.length && isOpen) {
       dispatch(getHistory(historyDaysBack));
     }
   }, [historyDaysBack, selectedHistoryEndpoint]);

@@ -6,8 +6,8 @@ export default class ChatGptApi extends ApiBase {
     super(serviceScopes.kubeTools);
   }
 
-  getCompletionRequestBody = (prompt, tokens) => ({
-    model: 'text-davinci-003',
+  getCompletionRequestBody = (prompt, tokens, model) => ({
+    model: model ?? 'text-davinci-003',
     prompt: prompt,
     max_tokens: tokens,
     temperature: 0.7,
@@ -19,11 +19,11 @@ export default class ChatGptApi extends ApiBase {
     size: size ?? '1024x1024',
   });
 
-  async getPrediction(prompt, tokens) {
+  async getPrediction(prompt, tokens, engine) {
     return await this.send(
       `${this.baseUrl}/api/tools/chatgpt/completions`,
       'POST',
-      this.getCompletionRequestBody(prompt, tokens)
+      this.getCompletionRequestBody(prompt, tokens, engine)
     );
   }
 

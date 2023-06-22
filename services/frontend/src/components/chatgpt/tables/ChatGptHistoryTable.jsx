@@ -1,30 +1,29 @@
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
+  Collapse,
   IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
+  Paper,
   Table,
   TableBody,
   TableCell,
-  Collapse,
   TableHead,
   TableRow,
-  List,
-  Paper,
-  Typography,
   TextField,
-  ListItemButton,
-  ListItemText,
 } from '@mui/material';
 import * as React from 'react';
 import { useState } from 'react';
-import { getLocalDateTimeFromTimestamp } from '../../../api/helpers/dateTimeUtils';
 import { chatGptEndpoints } from '../../../api/data/chatGpt';
+import { getLocalDateTimeFromTimestamp } from '../../../api/helpers/dateTimeUtils';
 
 const ExpandedImageList = ({ images }) => {
   return (
     <List>
       {images.map((image, index) => (
-        <ListItemButton href={image} target='_blank'>
+        <ListItemButton key={index} href={image} target='_blank'>
           <ListItemText primary={image} />
         </ListItemButton>
       ))}
@@ -89,6 +88,12 @@ const ExpandedCompletionContentTable = ({ row }) => {
 const ChatGptHistoryTable = ({ history }) => {
   const [expanded, setExpanded] = useState('');
 
+  const handleExpandRow = (row) => {
+    row.history_id === expanded
+      ? setExpanded('')
+      : setExpanded(row.history_id);
+  };
+
   const ExpandButton = ({ isExpanded, row }) => {
     return (
       <IconButton
@@ -102,12 +107,6 @@ const ChatGptHistoryTable = ({ history }) => {
         )}
       </IconButton>
     );
-  };
-
-  const handleExpandRow = (row) => {
-    row.history_id === expanded
-      ? setExpanded('')
-      : setExpanded(row.history_id);
   };
 
   return (

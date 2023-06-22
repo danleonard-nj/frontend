@@ -16,6 +16,37 @@ const nestInitialState = {
     endTimestamp: 0,
   },
   selectedSensor: {},
+  thermostat: {},
+  thermostatLoading: true,
+  commands: [],
+  commandsLoading: true,
+  commandParameters: {
+    heat_degrees_fahrenheit: 78,
+    cool_degrees_fahrenheit: 72,
+  },
+};
+
+const commandReducers = {
+  setCommands(state, { payload }) {
+    state.commands = payload;
+    state.commandsLoading = false;
+  },
+  setCommandsLoading(state, { payload }) {
+    state.commandsLoading = payload;
+  },
+  setCommandParameters(state, { payload }) {
+    state.commandParameters = payload;
+  },
+};
+
+const thermostatReducers = {
+  setThermosat(state, { payload }) {
+    state.thermostat = payload;
+    state.thermostatLoading = false;
+  },
+  setThermosatLoading(state, { payload }) {
+    state.thermostatLoading = payload;
+  },
 };
 
 const sensorReducers = {
@@ -46,6 +77,8 @@ const nestSlice = createSlice({
   initialState: nestInitialState,
   reducers: {
     ...sensorReducers,
+    ...thermostatReducers,
+    ...commandReducers,
   },
 });
 
@@ -56,6 +89,11 @@ export const {
   setSensorInfo,
   setSensorInfoLoading,
   setSelectedSensor,
+  setThermosat,
+  setThermosatLoading,
+  setCommands,
+  setCommandsLoading,
+  setCommandParameters,
 } = nestSlice.actions;
 
 export default nestSlice.reducer;

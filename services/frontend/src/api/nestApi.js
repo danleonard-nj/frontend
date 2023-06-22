@@ -33,4 +33,28 @@ export default class NestApi extends ApiBase {
 
     return await this.send(endpoint.toString(), 'GET');
   }
+
+  async getThermostat() {
+    const endpoint = new URL(
+      `${this.baseUrl}/api/tools/nest/thermostat`
+    );
+
+    return await this.send(endpoint.toString(), 'GET');
+  }
+
+  async getThermostatCommands() {
+    const endpoint = new URL(
+      `${this.baseUrl}/api/tools/nest/command`
+    );
+
+    return await this.send(endpoint.toString(), 'GET');
+  }
+
+  async postThermostatCommand(command) {
+    const endpoint = new URL(
+      `${this.baseUrl}/api/tools/nest/command`
+    );
+
+    return await this.send(endpoint.toString(), 'POST', command);
+  }
 }

@@ -1,4 +1,11 @@
-import { Button, Grid, Paper } from '@mui/material';
+import {
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Paper,
+  Slider,
+  Switch,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSensorInfo } from '../../store/nest/nestActions';
@@ -7,57 +14,9 @@ import { GenericJsonEditor } from '../GenericJsonEditor';
 import Spinner from '../Spinner';
 import { SensorInfoCard } from '../nest/NestSensorCard';
 import { NestSideNav } from '../nest/NestSideNav';
-
-const NestSensorInfoPage = () => {
-  const dispatch = useDispatch();
-  const { sensorInfo, sensorInfoLoading, selectedSensor } =
-    useSelector((x) => x.nest);
-
-  const handleViewSensor = (sensor) => {
-    dispatch(setSelectedSensor(sensor));
-  };
-
-  const handleRefreshSensorInfo = () => {
-    dispatch(getSensorInfo());
-  };
-
-  return (
-    <Grid container spacing={3}>
-      <Grid item lg={6}>
-        {sensorInfoLoading ? (
-          <Spinner />
-        ) : (
-          <Grid container spacing={2}>
-            {sensorInfo.map((sensor) => (
-              <Grid item lg={6}>
-                <SensorInfoCard
-                  sensor={sensor}
-                  onViewClick={() => handleViewSensor(sensor)}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        )}
-      </Grid>
-      <Grid item lg={6}>
-        <Grid container spacing={2}>
-          <Grid item lg={12} align='right'>
-            <Button
-              variant='contained'
-              onClick={handleRefreshSensorInfo}>
-              Refresh
-            </Button>
-          </Grid>
-          <Grid item lg={12}>
-            <GenericJsonEditor
-              value={JSON.stringify(selectedSensor, null, 2)}
-            />
-          </Grid>
-        </Grid>
-      </Grid>
-    </Grid>
-  );
-};
+import { NestThermostatPage } from '../nest/NestThermostatPage';
+import { getFormattedCelsius } from '../../api/helpers/nestHelpers';
+import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
 
 const DashboardNestLayout = () => {
   const dispatch = useDispatch();
@@ -124,6 +83,7 @@ const DashboardNestLayout = () => {
           <Grid container spacing={2}>
             <Grid item lg={12}>
               {sideNav === 'sensor-info' && <NestSensorInfoPage />}
+              {sideNav === 'thermostat' && <NestThermostatPage />}
             </Grid>
           </Grid>
         </Grid>

@@ -65,8 +65,12 @@ export default class ChatGptActions {
 
   getPrediction() {
     return async (dispatch, getState) => {
-      const { prompt, tokens, isConfigurationExpanded } =
-        getState().chatgpt;
+      const {
+        prompt,
+        tokens,
+        selectedEngine,
+        isConfigurationExpanded,
+      } = getState().chatgpt;
 
       const handleResponse = ({ status, data }) => {
         if (status !== 200) {
@@ -99,7 +103,8 @@ export default class ChatGptActions {
 
       const response = await this.chatGptApi.getPrediction(
         prompt,
-        tokens
+        tokens,
+        selectedEngine
       );
 
       handleResponse(response);
