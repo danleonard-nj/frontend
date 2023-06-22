@@ -7,7 +7,7 @@ export default class ChatGptApi extends ApiBase {
   }
 
   getCompletionRequestBody = (prompt, tokens, model) => ({
-    model: model ?? 'text-davinci-003',
+    model: 'text-davinci-003',
     prompt: prompt,
     max_tokens: tokens,
     temperature: 0.7,
