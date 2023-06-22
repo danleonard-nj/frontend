@@ -1,8 +1,8 @@
-import { Box, Grid, Slider, Typography } from '@mui/material';
+import { Box, Grid, Slider } from '@mui/material';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { rangeMarks } from '../../api/data/nest';
 import { getFormattedCelsius } from '../../api/helpers/nestHelpers';
-import { nestCommandKeys, rangeMarks } from '../../api/data/nest';
 import { setCommandParameters } from '../../store/nest/nestSlice';
 
 const NestThermostatSetRange = () => {
@@ -16,8 +16,6 @@ const NestThermostatSetRange = () => {
   ]);
 
   const handleValueCapture = (event, value) => {
-    console.log(value);
-    console.log(event);
     dispatch(
       setCommandParameters({
         ...commandParameters,
@@ -33,7 +31,7 @@ const NestThermostatSetRange = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item lg={6}>
+      <Grid item lg={6} xs={12}>
         <Slider
           getAriaLabel={() => 'Temperature range'}
           value={value}
@@ -44,10 +42,11 @@ const NestThermostatSetRange = () => {
           min={60}
           max={90}
           marks={rangeMarks}
+          fullWidth
         />
       </Grid>
       <Grid item lg={6}>
-        <Box marginLeft='1rem'>
+        <Box>
           Cool: {value[0]}&deg;F
           <br />
           Heat: {value[1]}&deg;F
@@ -81,7 +80,7 @@ const NestThermostatSetCool = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item lg={6}>
+      <Grid item lg={6} xs={12}>
         <Slider
           getAriaLabel={() => 'Temperature range'}
           value={value}
@@ -94,8 +93,8 @@ const NestThermostatSetCool = () => {
           marks={rangeMarks}
         />
       </Grid>
-      <Grid item lg={6}>
-        <Box marginLeft='1rem'>Cool: {value}&deg;F</Box>
+      <Grid item lg={6} xs={12}>
+        <Box>Cool: {value}&deg;F</Box>
       </Grid>
     </Grid>
   );
@@ -125,7 +124,7 @@ const NestThermostatSetHeat = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item lg={6}>
+      <Grid item lg={6} xs={12}>
         <Slider
           getAriaLabel={() => 'Temperature range'}
           value={value}
@@ -139,14 +138,14 @@ const NestThermostatSetHeat = () => {
         />
       </Grid>
       <Grid item lg={6}>
-        <Box marginLeft='1rem'>Heat: {value}&deg;F</Box>
+        <Box>Heat: {value}&deg;F</Box>
       </Grid>
     </Grid>
   );
 };
 
 export {
-  NestThermostatSetRange,
   NestThermostatSetCool,
   NestThermostatSetHeat,
+  NestThermostatSetRange,
 };

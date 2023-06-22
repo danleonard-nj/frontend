@@ -134,7 +134,7 @@ const NestThermostatPage = () => {
 
   return (
     <Grid container spacing={3}>
-      <Grid item lg={6}>
+      <Grid item lg={6} xs={12}>
         {thermostatLoading ? (
           <Spinner />
         ) : (
@@ -162,14 +162,15 @@ const NestThermostatPage = () => {
           </Paper>
         )}
       </Grid>
-      <Grid item lg={6}>
+      <Grid item lg={6} xs={12}>
         <Grid container spacing={2}>
-          <Grid item lg={12}>
-            <Typography>
-              {getFormattedCommandName(selectedCommand.command)}
+          <Grid item lg={12} xs={12}>
+            <Typography variant='h5'>
+              {selectedCommand &&
+                getFormattedCommandName(selectedCommand.command)}
             </Typography>
           </Grid>
-          <Grid item lg={12}>
+          <Grid item lg={12} xs={12}>
             {selectedCommand?.key === nestCommandKeys.setRange && (
               <NestThermostatSetRange />
             )}
@@ -180,7 +181,7 @@ const NestThermostatPage = () => {
               <NestThermostatSetHeat />
             )}
           </Grid>
-          <Grid item lg={12}>
+          <Grid item lg={12} xs={12}>
             <Button
               variant='contained'
               onClick={() => handleSendCommand(selectedCommand?.key)}>
@@ -189,7 +190,7 @@ const NestThermostatPage = () => {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item lg={6}>
+      <Grid item lg={6} xs={12}>
         <Paper elevation={3}>
           {thermostatLoading ? <Spinner /> : <ThermostatCard />}
         </Paper>
