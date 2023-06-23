@@ -99,13 +99,7 @@ export default class TaskActions {
         handleResultMessage(updateResult?.status);
       }
 
-      // Fetch updated task list
-      const response = await this.scheduleApi.getTasks();
-
-      // Update task list state on successful request
-      if (response?.status === 200) {
-        dispatch(setTasks(response?.data));
-      }
+      dispatch(this.getTasks());
     };
   }
 

@@ -10,11 +10,14 @@ const NestThermostatSetRange = () => {
 
   const { commandParameters } = useSelector((x) => x.nest);
 
-  const [value, setValue] = useState([
+  // Local state for slider for chage
+  const [rangeValue, setRangeValue] = useState([
     commandParameters?.cool_degrees_fahrenheit ?? 72,
     commandParameters?.heat_degrees_fahrenheit ?? 65,
   ]);
 
+  // Captue the range value and set the thermostat
+  // command params
   const handleValueCapture = (event, value) => {
     dispatch(
       setCommandParameters({
@@ -25,8 +28,9 @@ const NestThermostatSetRange = () => {
     );
   };
 
+  // Handle the slider change
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    setRangeValue(newValue);
   };
 
   return (
@@ -34,7 +38,7 @@ const NestThermostatSetRange = () => {
       <Grid item lg={6} xs={12}>
         <Slider
           getAriaLabel={() => 'Temperature range'}
-          value={value}
+          value={rangeValue}
           onChange={handleChange}
           onChangeCommitted={handleValueCapture}
           valueLabelDisplay='auto'
@@ -47,9 +51,9 @@ const NestThermostatSetRange = () => {
       </Grid>
       <Grid item lg={6}>
         <Box>
-          Cool: {value[0]}&deg;F
+          Cool: {rangeValue[0]}&deg;F
           <br />
-          Heat: {value[1]}&deg;F
+          Heat: {rangeValue[1]}&deg;F
         </Box>
       </Grid>
     </Grid>
@@ -59,12 +63,15 @@ const NestThermostatSetRange = () => {
 const NestThermostatSetCool = () => {
   const dispatch = useDispatch();
 
+  // Parameters for sending the thermostat command
   const { commandParameters } = useSelector((x) => x.nest);
 
-  const [value, setValue] = useState(
+  // Local state for slider
+  const [coolValue, setCoolValue] = useState(
     commandParameters?.cool_degrees_fahrenheit ?? 68
   );
 
+  // Capture the temp and set the thermostat command params
   const handleValueCapture = (value) => {
     dispatch(
       setCommandParameters({
@@ -74,8 +81,9 @@ const NestThermostatSetCool = () => {
     );
   };
 
+  // Handle the slider change
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    setCoolValue(newValue);
   };
 
   return (
@@ -83,7 +91,7 @@ const NestThermostatSetCool = () => {
       <Grid item lg={6} xs={12}>
         <Slider
           getAriaLabel={() => 'Temperature range'}
-          value={value}
+          value={coolValue}
           onChange={handleChange}
           onChangeCommitted={(e, v) => handleValueCapture(v)}
           valueLabelDisplay='auto'
@@ -94,7 +102,7 @@ const NestThermostatSetCool = () => {
         />
       </Grid>
       <Grid item lg={6} xs={12}>
-        <Box>Cool: {value}&deg;F</Box>
+        <Box>Cool: {coolValue}&deg;F</Box>
       </Grid>
     </Grid>
   );

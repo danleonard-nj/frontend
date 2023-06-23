@@ -30,7 +30,7 @@ const GenericJsonEditor = ({
       showPrintMargin={true}
       showGutter={true}
       highlightActiveLine={true}
-      value={value ?? '{}'}
+      value={value}
       onChange={onChange}
     />
   );

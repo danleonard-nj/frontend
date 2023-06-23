@@ -9,11 +9,20 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTask } from '../../../store/task/taskSlice';
 import DashboardTitle from '../../dashboard/DashboardTitle';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { sortBy } from 'lodash';
 
 const IdentityClient = () => {
   const dispatch = useDispatch();
-  const task = useSelector((store) => store.task.task) ?? {};
-  const clients = useSelector((x) => x.task.clients) ?? [];
+
+  const {
+    task = {},
+    clients = [],
+    clientsLoading = true,
+  } = useSelector((x) => x.task);
+
+  const [clientList, setClientList] = useState([]);
 
   const handleClientStateChange = (event) => {
     dispatch(
@@ -23,6 +32,10 @@ const IdentityClient = () => {
       })
     );
   };
+
+  useEffect(() => {
+    setClientList(sortBy(clients, (x) => x.application_name));
+  }, [clients]);
 
   return (
     <>
@@ -38,9 +51,9 @@ const IdentityClient = () => {
               id='demo-simple-select'
               name='identityClientId'
               value={task?.identityClientId ?? ''}
-              label='Client'
+              label='Active Directory App'
               onChange={handleClientStateChange}>
-              {clients.map((client) => (
+              {clientList.map((client) => (
                 <MenuItem
                   key={client.application_id}
                   value={client.default_scope}>
