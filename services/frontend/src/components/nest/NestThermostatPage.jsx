@@ -1,3 +1,4 @@
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Button,
   Card,
@@ -5,8 +6,8 @@ import {
   CardContent,
   Grid,
   List,
-  ListItem,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
   Paper,
   Typography,
@@ -51,19 +52,21 @@ const InfoLine = ({ label, value }) => {
 const NestThermostatPage = () => {
   const dispatch = useDispatch();
 
-  const { thermostat, thermostatLoading, commands, commandsLoading } =
-    useSelector((x) => x.nest);
+  const {
+    thermostat = false,
+    thermostatLoading = false,
+    commands = [],
+    commandLoading = false,
+    commandsLoading = false,
+  } = useSelector((x) => x.nest);
 
   const [selectedCommand, setSelectedCommand] = useState({
-    command: '',
-    key: '',
+    command: 'SetRange',
+    key: nestCommandKeys.setRange,
   });
 
   const handleSelectCommand = (command) => {
-    setSelectedCommand({
-      command: command.command,
-      key: command.key,
-    });
+    setSelectedCommand(command);
   };
 
   const handleRefresh = () => {
@@ -132,37 +135,9 @@ const NestThermostatPage = () => {
     );
   };
 
-  return (
-    <Grid container spacing={3}>
-      <Grid item lg={6} xs={12}>
-        {thermostatLoading ? (
-          <Spinner />
-        ) : (
-          <Paper elevation={3}>
-            <Typography variant='h5' sx={{ padding: 2 }}>
-              Command
-            </Typography>
-            <List>
-              {commands.map((command) => (
-                <ListItem>
-                  <ListItemButton
-                    selected={
-                      selectedCommand.command === command.command
-                    }
-                    onClick={() => handleSelectCommand(command)}>
-                    <ListItemText
-                      primary={getFormattedCommandName(
-                        command.command
-                      )}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
-        )}
-      </Grid>
-      <Grid item lg={6} xs={12}>
+  const CommandPanel = () => {
+    return (
+      <Paper elevation={3} sx={{ p: 2 }}>
         <Grid container spacing={2}>
           <Grid item lg={12} xs={12}>
             <Typography variant='h5'>
@@ -171,22 +146,57 @@ const NestThermostatPage = () => {
             </Typography>
           </Grid>
           <Grid item lg={12} xs={12}>
-            {selectedCommand?.key === nestCommandKeys.setRange && (
-              <NestThermostatSetRange />
-            )}
-            {selectedCommand?.key === nestCommandKeys.setCool && (
-              <NestThermostatSetCool />
-            )}
-            {selectedCommand?.key === nestCommandKeys.setHeat && (
-              <NestThermostatSetHeat />
-            )}
+            {selectedCommand?.key === nestCommandKeys.setRange &&
+              !commandsLoading && <NestThermostatSetRange />}
+            {selectedCommand?.key === nestCommandKeys.setCool &&
+              !commandsLoading && <NestThermostatSetCool />}
+            {selectedCommand?.key === nestCommandKeys.setHeat &&
+              !commandsLoading && <NestThermostatSetHeat />}
           </Grid>
           <Grid item lg={12} xs={12}>
             <Button
               variant='contained'
-              onClick={() => handleSendCommand(selectedCommand?.key)}>
+              onClick={() => handleSendCommand(selectedCommand?.key)}
+              disabled={commandLoading}>
               Send Command
             </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+    );
+  };
+
+  const CommandList = () => {
+    return (
+      <Paper elevation={3} sx={{ p: 2 }}>
+        <Typography variant='h5'>Thermostat Commands</Typography>
+        <List dense>
+          {commands.map((command) => (
+            <ListItemButton
+              selected={selectedCommand.command === command.command}
+              onClick={() => handleSelectCommand(command)}>
+              <ListItemIcon>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary={getFormattedCommandName(command.command)}
+              />
+            </ListItemButton>
+          ))}
+        </List>
+      </Paper>
+    );
+  };
+
+  return (
+    <Grid container spacing={3}>
+      <Grid item lg={6} xs={12}>
+        <Grid container spacing={3}>
+          <Grid item lg={12} xs={12}>
+            {commandsLoading ? <Spinner /> : <CommandList />}
+          </Grid>
+          <Grid item lg={12} xs={12}>
+            {!commandsLoading && <CommandPanel />}
           </Grid>
         </Grid>
       </Grid>
@@ -195,6 +205,7 @@ const NestThermostatPage = () => {
           {thermostatLoading ? <Spinner /> : <ThermostatCard />}
         </Paper>
       </Grid>
+      <Grid item lg={6} xs={12}></Grid>
     </Grid>
   );
 };

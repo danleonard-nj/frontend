@@ -24,6 +24,7 @@ const nestInitialState = {
     heat_degrees_fahrenheit: 78,
     cool_degrees_fahrenheit: 72,
   },
+  commandLoading: false,
 };
 
 const commandReducers = {
@@ -36,6 +37,9 @@ const commandReducers = {
   },
   setCommandParameters(state, { payload }) {
     state.commandParameters = payload;
+  },
+  setCommandLoading(state, { payload }) {
+    state.commandLoading = payload;
   },
 };
 
@@ -94,6 +98,7 @@ export const {
   setCommands,
   setCommandsLoading,
   setCommandParameters,
+  setCommandLoading,
 } = nestSlice.actions;
 
 export default nestSlice.reducer;

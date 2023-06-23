@@ -1,27 +1,17 @@
-import {
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  Paper,
-  Slider,
-  Switch,
-} from '@mui/material';
+import { Grid, Paper } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSensorInfo } from '../../store/nest/nestActions';
-import { setSelectedSensor } from '../../store/nest/nestSlice';
-import { GenericJsonEditor } from '../GenericJsonEditor';
-import Spinner from '../Spinner';
-import { SensorInfoCard } from '../nest/NestSensorCard';
+import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
 import { NestSideNav } from '../nest/NestSideNav';
 import { NestThermostatPage } from '../nest/NestThermostatPage';
-import { getFormattedCelsius } from '../../api/helpers/nestHelpers';
-import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
 
 const DashboardNestLayout = () => {
   const dispatch = useDispatch();
 
-  const { selectedSensor = {} } = useSelector((x) => x.nest);
+  const { selectedSensor = {}, commandLoading = false } = useSelector(
+    (x) => x.nest
+  );
 
   const [sideNav, setSideNav] = useState('sensor-info');
 
