@@ -7,7 +7,7 @@ import { KubernetesPodTab } from '../kubelogs/KubernetesPodTab';
 
 const DashboardKubernetesLogLayout = () => {
   const dispatch = useDispatch();
-  const selectedLogsTab = useSelector((x) => x.kubeLogs.selectedLogsTab);
+  const { selectedLogsTab } = useSelector((x) => x.kubeLogs);
 
   const handleTabChange = (tab) => {
     dispatch(setSelectedLogsTab(tab));

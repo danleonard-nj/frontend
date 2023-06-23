@@ -15,14 +15,15 @@ import { setLogTail } from '../../store/kubeLogs/kubeLogSlice';
 
 const KubernetesLogs = () => {
   const dispatch = useDispatch();
-  const logs = useSelector((x) => x.kubeLogs.logs);
-  const logTail = useSelector((x) => x.kubeLogs.logTail);
-  const selectedPod = useSelector((x) => x.kubeLogs.selectedPod);
-  const selectedNamespace = useSelector((x) => x.kubeLogs.selectedNamespace);
+
+  const { logs, logTail, selectedPod, selectedNamespace } =
+    useSelector((x) => x.kubeLogs);
 
   const [slider, setSlider] = useState(logTail ?? 0);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState({});
+  const [podLogs, setPodLogs] = useState([]);
+  const [filterValue, setFilterValue] = useState('');
 
   const handleSliderChangeCommited = (value) => {
     dispatch(setLogTail(value));
@@ -48,9 +49,21 @@ const KubernetesLogs = () => {
     }
   };
 
+  const handleSearchChangeCommitted = (event) => {
+    console.log(event.target.value);
+  };
+
   useEffect(() => {
     dispatch(getLogs(selectedNamespace, selectedPod));
   }, [logTail]);
+
+  useEffect(() => {
+    if (filterValue) {
+      setPodLogs(logs.filter((x) => x.includes(filterValue)));
+    } else {
+      setPodLogs(logs);
+    }
+  }, [logs, filterValue]);
 
   return (
     <Grid container spacing={3} sx={{ marginTop: 3 }}>
@@ -101,11 +114,19 @@ const KubernetesLogs = () => {
       </Grid>
       <Grid item lg={12} xs={12} sm={12} md={12}>
         <TextField
+          fullWidth
+          label='Search'
+          onChange={(e) => setFilterValue(e.target.value)}
+          value={filterValue}
+        />
+      </Grid>
+      <Grid item lg={12} xs={12} sm={12} md={12}>
+        <TextField
           placeholder=''
           multiline
           rows={30}
           maxRows={30}
-          value={logs?.join('\n') ?? ''}
+          value={podLogs?.join('\n') ?? ''}
           fullWidth
           contentEditable={false}
           spellCheck={false}
