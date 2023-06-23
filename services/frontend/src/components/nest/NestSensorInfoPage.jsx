@@ -53,13 +53,29 @@ const NestSensorInfoPage = () => {
 
   return (
     <Grid container spacing={3}>
+      <Grid item lg={12} align='right'>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                value={displayUnhealthySensors}
+                defaultChecked
+                onChange={(e, checked) =>
+                  handleSwitchDisabledFilter(checked)
+                }
+              />
+            }
+            label='Show Unhealthy'
+          />
+        </FormGroup>
+      </Grid>
       <Grid item lg={6}>
         {sensorInfoLoading ? (
           <Spinner />
         ) : (
           <Grid container spacing={2}>
             {filteredSensorData.map((sensor) => (
-              <Grid item lg={6}>
+              <Grid item lg={6} xs={12}>
                 <SensorInfoCard
                   sensor={sensor}
                   onViewClick={() => handleViewSensor(sensor)}
@@ -71,22 +87,6 @@ const NestSensorInfoPage = () => {
       </Grid>
       <Grid item lg={6}>
         <Grid container spacing={2}>
-          <Grid item lg={12} align='right'>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Switch
-                    value={displayUnhealthySensors}
-                    defaultChecked
-                    onChange={(e, checked) =>
-                      handleSwitchDisabledFilter(checked)
-                    }
-                  />
-                }
-                label='Show Unhealthy'
-              />
-            </FormGroup>
-          </Grid>
           <Grid item lg={12}>
             <GenericJsonEditor
               value={JSON.stringify(selectedSensor, null, 2)}

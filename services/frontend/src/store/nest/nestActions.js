@@ -2,6 +2,7 @@ import autoBind from 'auto-bind';
 import NestApi from '../../api/nestApi';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
+  setCommandLoading,
   setCommands,
   setCommandsLoading,
   setSensorHistory,
@@ -74,7 +75,7 @@ export default class NestActions {
 
   getThermostatCommands() {
     return async (dispatch, getState) => {
-      dispatch(setThermosatLoading(true));
+      dispatch(setCommandsLoading(true));
 
       const response = await this.nestApi.getThermostatCommands();
 
@@ -90,6 +91,8 @@ export default class NestActions {
 
   sendThermostatCommand(key) {
     return async (dispatch, getState) => {
+      dispatch(setCommandLoading(true));
+
       const { commandParameters } = getState().nest;
 
       const commandRequest = {
@@ -110,6 +113,8 @@ export default class NestActions {
               `Failed to send thermostat command: ${response.status}`
             )
           );
+
+      dispatch(setCommandLoading(false));
     };
   }
 }
