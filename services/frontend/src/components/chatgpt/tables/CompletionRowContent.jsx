@@ -19,7 +19,7 @@ const CompletionRowContent = ({ row }) => {
         label='Prompt'
         fullWidth
         value={row?.response?.request?.body?.prompt}
-        inputProps={{ readOnly: false }}
+        inputProps={{ readOnly: true }}
         sx={{ marginTop: '2rem' }}
       />
       <TextField
@@ -27,7 +27,7 @@ const CompletionRowContent = ({ row }) => {
         fullWidth
         multiline
         value={getPredictionText(row)}
-        inputProps={{ readOnly: false }}
+        inputProps={{ readOnly: true }}
         sx={{ marginTop: '1rem' }}
       />
     </Paper>
