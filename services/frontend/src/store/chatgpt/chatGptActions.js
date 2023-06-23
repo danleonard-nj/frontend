@@ -16,10 +16,7 @@ import {
 } from './chatGptSlice';
 import { setHistoryLoading } from './chatGptSlice';
 import { setHistory } from './chatGptSlice';
-
-const stripLeadingNewLineChars = (text) => {
-  return text.replace(/^\n+/, '');
-};
+import { stripLeadingNewLineChars } from '../../api/helpers/chatGptHelpers';
 
 const getStartOfMonthDate = () => {
   const today = new Date();

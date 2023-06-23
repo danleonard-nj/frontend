@@ -4,6 +4,7 @@ import {
   Collapse,
   IconButton,
   List,
+  ListItem,
   ListItemButton,
   ListItemText,
   Paper,
@@ -18,72 +19,9 @@ import * as React from 'react';
 import { useState } from 'react';
 import { chatGptEndpoints } from '../../../api/data/chatGpt';
 import { getLocalDateTimeFromTimestamp } from '../../../api/helpers/dateTimeUtils';
-
-const ExpandedImageList = ({ images }) => {
-  return (
-    <List>
-      {images.map((image, index) => (
-        <ListItemButton key={index} href={image} target='_blank'>
-          <ListItemText primary={image} />
-        </ListItemButton>
-      ))}
-    </List>
-  );
-};
-
-const ExpandedImageContentTable = ({ row }) => {
-  return (
-    <Table>
-      <TableHead>
-        <TableCell>Endpoint</TableCell>
-        <TableCell>Count</TableCell>
-        <TableCell>Size</TableCell>
-      </TableHead>
-      <TableBody>
-        <TableRow hover key={row.history_id}>
-          <TableCell>{row.endpoint}</TableCell>
-          <TableCell>{row.response.request.body.n}</TableCell>
-          <TableCell>{row.response.request.body.n}</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  );
-};
-
-const ExpandedCompletionContentTable = ({ row }) => {
-  return (
-    <Table>
-      <TableHead>
-        <TableCell>Endpoint</TableCell>
-        <TableCell>Bk</TableCell>
-        <TableCell>Created</TableCell>
-        <TableCell>Model</TableCell>
-        <TableCell>Prompt Tokens</TableCell>
-        <TableCell>Completion Tokens</TableCell>
-        <TableCell>Total Tokens</TableCell>
-        <TableCell>Duration</TableCell>
-      </TableHead>
-      <TableBody>
-        <TableRow hover key={row.history_id}>
-          <TableCell>{row.endpoint}</TableCell>
-          <TableCell>{row.response.response.body.id}</TableCell>
-          <TableCell>{row.response.response.body.created}</TableCell>
-          <TableCell>{row.response.response.body.model}</TableCell>
-          <TableCell>
-            {row.response.response.body.usage.prompt_tokens}
-          </TableCell>
-          <TableCell>
-            {row.response.response.body.usage.completion_tokens}
-          </TableCell>
-          <TableCell>
-            {row.response.response.body.usage.total_tokens}
-          </TableCell>
-          <TableCell>{row.response.stats.duration}</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  );
-};
+import { stripLeadingNewLineChars } from '../../../api/helpers/chatGptHelpers';
+import { ImageRowContent } from './ImageRowContent';
+import { CompletionRowContent } from './CompletionRowContent';
 
 const ChatGptHistoryTable = ({ history }) => {
   const [expanded, setExpanded] = useState('');
@@ -149,44 +87,10 @@ const ChatGptHistoryTable = ({ history }) => {
                   unmountOnExit>
                   {row.endpoint ===
                     chatGptEndpoints.imageGenerations && (
-                    <Paper
-                      elevation={3}
-                      sx={{ margin: '1rem', padding: 2 }}>
-                      <ExpandedImageContentTable row={row} />
-                      <TextField
-                        label='Prompt'
-                        fullWidth
-                        value={row?.response?.request?.body?.prompt}
-                        inputProps={{ readOnly: false }}
-                        sx={{ marginTop: '2rem' }}
-                      />
-                      <ExpandedImageList images={row?.images ?? []} />
-                    </Paper>
+                    <ImageRowContent row={row} />
                   )}
                   {row.endpoint === chatGptEndpoints.completions && (
-                    <Paper
-                      elevation={3}
-                      sx={{ margin: '1rem', padding: 2 }}>
-                      <ExpandedCompletionContentTable row={row} />
-                      <TextField
-                        label='Prompt'
-                        fullWidth
-                        value={row?.response?.request?.body?.prompt}
-                        inputProps={{ readOnly: false }}
-                        sx={{ marginTop: '2rem' }}
-                      />
-                      <TextField
-                        label='Response'
-                        fullWidth
-                        multiline
-                        value={
-                          row?.response?.response?.body?.choices[0]
-                            ?.text
-                        }
-                        inputProps={{ readOnly: false }}
-                        sx={{ marginTop: '1rem' }}
-                      />
-                    </Paper>
+                    <CompletionRowContent row={row} />
                   )}
                 </Collapse>
               </TableCell>
