@@ -92,7 +92,8 @@ const DashboardChatGPTLayout = () => {
             <Grid item lg={12} xs={12}>
               <Button
                 variant='outlined'
-                onClick={handleSubmitPrediction}>
+                onClick={handleSubmitPrediction}
+                disabled={!predictionLoading}>
                 Send
               </Button>
               <Button

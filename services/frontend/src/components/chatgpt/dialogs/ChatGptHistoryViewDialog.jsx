@@ -49,6 +49,7 @@ const ChatGptHistoryViewDialog = () => {
 
   const handleSetHistoryDaysBack = (value) => {
     dispatch(setHistoryDaysBack(value));
+    dispatch(getHistory(value));
   };
 
   const handleClearSelectedEndpoint = () => {
