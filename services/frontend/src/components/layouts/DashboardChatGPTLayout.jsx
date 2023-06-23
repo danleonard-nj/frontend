@@ -93,7 +93,7 @@ const DashboardChatGPTLayout = () => {
               <Button
                 variant='outlined'
                 onClick={handleSubmitPrediction}
-                disabled={!predictionLoading}>
+                disabled={predictionLoading}>
                 Send
               </Button>
               <Button
