@@ -1,56 +1,44 @@
 import {
   Button,
-  Checkbox,
-  FormControlLabel,
   FormGroup,
   Grid,
-  Slider,
   TextField,
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getLogs } from '../../store/kubeLogs/kubeLogActions';
+import Spinner from '../Spinner';
 import { setLogTail } from '../../store/kubeLogs/kubeLogSlice';
+
+const filterPodLogs = (logs, filterValue, setLogs) => {
+  return filterValue
+    ? setLogs(logs.filter((x) => x.includes(filterValue)))
+    : setLogs(logs);
+};
 
 const KubernetesLogs = () => {
   const dispatch = useDispatch();
 
-  const { logs, logTail, selectedPod, selectedNamespace } =
-    useSelector((x) => x.kubeLogs);
+  const {
+    logs,
+    logsLoading,
+    logTail,
+    selectedPod,
+    selectedNamespace,
+  } = useSelector((x) => x.kubeLogs);
 
-  const [slider, setSlider] = useState(logTail ?? 0);
-  const [autoRefresh, setAutoRefresh] = useState(false);
-  const [refreshInterval, setRefreshInterval] = useState({});
   const [podLogs, setPodLogs] = useState([]);
+  const [logLines, setLogLines] = useState(logTail ?? 0);
   const [filterValue, setFilterValue] = useState('');
-
-  const handleSliderChangeCommited = (value) => {
-    dispatch(setLogTail(value));
-  };
-
-  const handleSliderChange = (value) => {
-    setSlider(value);
-  };
 
   const handleRefresh = () => {
     dispatch(getLogs(selectedNamespace, selectedPod));
   };
 
-  const handleSetAutoRefresh = (value) => {
-    if (!value && autoRefresh) {
-      clearInterval(refreshInterval);
-      setAutoRefresh(false);
-    }
-    if (value && !autoRefresh) {
-      const interval = setInterval(handleRefresh, 1000);
-      setAutoRefresh(true);
-      setRefreshInterval(interval);
-    }
-  };
-
-  const handleSearchChangeCommitted = (event) => {
-    console.log(event.target.value);
+  const handleLogLineValueChange = (event) => {
+    setLogLines(event.target.value);
+    dispatch(setLogTail(event.target.value));
   };
 
   useEffect(() => {
@@ -58,58 +46,43 @@ const KubernetesLogs = () => {
   }, [logTail]);
 
   useEffect(() => {
-    if (filterValue) {
-      setPodLogs(logs.filter((x) => x.includes(filterValue)));
-    } else {
-      setPodLogs(logs);
-    }
+    filterPodLogs(logs, filterValue, setPodLogs);
   }, [logs, filterValue]);
+
+  const LogContainer = () =>
+    logsLoading ? (
+      <Spinner />
+    ) : (
+      <TextField
+        placeholder=''
+        multiline
+        rows={30}
+        maxRows={30}
+        value={podLogs?.join('\n') ?? ''}
+        fullWidth
+        contentEditable={false}
+        spellCheck={false}
+      />
+    );
 
   return (
     <Grid container spacing={3} sx={{ marginTop: 3 }}>
-      <Grid item lg={12} xs={12} sm={12} md={12}>
-        <Grid container spacing={3}>
-          <Grid item lg={1} xs={12} sm={6}>
-            <Typography>Lines</Typography>
-          </Grid>
-          <Grid item lg={3} xs={12} sm={6}>
-            <Slider
-              aria-label='Miles'
-              value={slider}
-              valueLabelDisplay='auto'
-              onChangeCommitted={(event, value) =>
-                handleSliderChangeCommited(value)
-              }
-              onChange={(event, value) => handleSliderChange(value)}
-              step={250}
-              marks
-              min={250}
-              max={5000}
-            />
-          </Grid>
-          <Grid item lg={3} xs={6} sm={6}>
-            <Button
-              variant='filled'
-              sx={{ margin: 'auto' }}
-              onClick={handleRefresh}>
-              Refresh
-            </Button>
-          </Grid>
-          <Grid item lg={3}>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    value={autoRefresh}
-                    onChange={(event) =>
-                      handleSetAutoRefresh(event.target.checked)
-                    }
-                  />
-                }
-                label='Auto-Refresh'
-              />
-            </FormGroup>
-          </Grid>
+      <Grid item lg={6}>
+        <Typography id='input-label' gutterBottom>
+          Logs
+        </Typography>
+        <TextField
+          type='number'
+          value={logLines}
+          size='small'
+          aria-labelledby='input-label'
+          onChange={handleLogLineValueChange}
+        />
+        <Button variant='outlined' onClick={handleRefresh}>
+          Refresh
+        </Button>
+        <Grid item lg={3}>
+          <FormGroup></FormGroup>
         </Grid>
       </Grid>
       <Grid item lg={12} xs={12} sm={12} md={12}>
@@ -121,16 +94,7 @@ const KubernetesLogs = () => {
         />
       </Grid>
       <Grid item lg={12} xs={12} sm={12} md={12}>
-        <TextField
-          placeholder=''
-          multiline
-          rows={30}
-          maxRows={30}
-          value={podLogs?.join('\n') ?? ''}
-          fullWidth
-          contentEditable={false}
-          spellCheck={false}
-        />
+        <LogContainer />
       </Grid>
     </Grid>
   );

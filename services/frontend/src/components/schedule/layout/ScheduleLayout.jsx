@@ -5,6 +5,18 @@ import { ScheduleHistoryPanel } from '../components/RunHistory';
 import { RunQueueTable } from '../components/RunQueueTable';
 import ScheduleDetail from '../components/ScheduleDetail';
 
+const SchedulePaper = ({ children }) => (
+  <Paper
+    sx={{
+      p: 2,
+      minHeight: '8rem',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+    {children}
+  </Paper>
+);
+
 export default function ScheduleLayout() {
   return (
     <Grid container spacing={3}>
@@ -16,14 +28,9 @@ export default function ScheduleLayout() {
             lg={12}
             xs={12}
             id='grid-item-schedule-link-list'>
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-              }}>
+            <SchedulePaper>
               <ScheduleLinkList />
-            </Paper>
+            </SchedulePaper>
           </Grid>
         </Grid>
       </Grid>
@@ -31,22 +38,15 @@ export default function ScheduleLayout() {
       <Grid item lg={4} xs={12}>
         <Grid container spacing={3}>
           <Grid item lg={12} xs={12}>
-            <Paper
-              sx={{
-                p: 2,
-              }}>
+            <SchedulePaper>
               <ScheduleHistoryPanel />
-            </Paper>
+            </SchedulePaper>
           </Grid>
 
           <Grid item lg={12} xs={12}>
-            <Paper
-              sx={{
-                p: 2,
-                minHeight: 240,
-              }}>
+            <SchedulePaper>
               <RunQueueTable />
-            </Paper>
+            </SchedulePaper>
           </Grid>
         </Grid>
       </Grid>

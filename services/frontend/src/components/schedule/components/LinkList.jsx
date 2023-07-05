@@ -18,121 +18,116 @@ import {
   dialogType,
   openDialog,
 } from '../../../store/dialog/dialogSlice';
-import { updateScheduleState } from '../../../store/schedule/scheduleActions';
+import { removeSelectedScheduleLink } from '../../../store/schedule/scheduleActions';
 import DashboardTitle from '../../dashboard/DashboardTitle';
+import Spinner from '../../Spinner';
+
+const handleGetScheduleWithLinks = (schedule, tasks) => {
+  const links = tasks.filter((x) =>
+    (schedule.links ?? []).includes(x.taskId)
+  );
+  return { ...schedule, links: links };
+};
+
+// Background for schedule list items
+const ScheduleLinkListPaper = ({ children }) => (
+  <Paper
+    id='schedule-link-list-paper'
+    elevation={1}
+    sx={{ minHeight: '2rem' }}>
+    {children}
+  </Paper>
+);
 
 export default function ScheduleLinkList() {
+  const [scheduleLinks, setScheduleLinks] = useState([]);
   const dispatch = useDispatch();
 
-  // Task and schedule list
-  const tasks = useSelector((x) => x.task.tasks) ?? [];
-  const { schedule, scheduleLoading } =
-    useSelector((store) => store.schedule) ?? {};
-
-  const [schedulesWithLinks, setSchedulesWithLinks] = useState([]);
-
-  // Fetch and Populate schedule links
-  const handleGetScheduleWithLinks = (schedule, tasks) => {
-    // Get schedules and list of all tasks not
-    // linked to this task
-    const links = tasks.filter((x) =>
-      (schedule.links ?? []).includes(x.taskId)
-    );
-    return { ...schedule, links: links };
-  };
+  const {
+    task: { tasks = [] },
+    schedule: { schedule = {}, scheduleLoading = true },
+  } = useSelector((x) => x);
 
   // Add link handler
-  const handleOpenAddScheduleLinkDialog = () => {
+  const handleAddScheduleOnClick = () => {
     dispatch(openDialog(dialogType.addLink));
   };
 
-  // Delete task handler
-  const handleDelete = (taskId) => {
-    dispatch(
-      updateScheduleState((schedule) => ({
-        ...schedule,
-        links: schedule.links.filter((id) => id !== taskId),
-      }))
-    );
+  const handleDeleteOnClick = (taskId) => {
+    dispatch(removeSelectedScheduleLink(taskId));
   };
 
   useEffect(() => {
     !scheduleLoading &&
-      setSchedulesWithLinks(
-        handleGetScheduleWithLinks(schedule, tasks)
-      );
-  }, [schedule?.links]);
+      setScheduleLinks(handleGetScheduleWithLinks(schedule, tasks));
+  }, [schedule]);
+
+  const ScheduleLinkListItem = ({ task, index }) => (
+    <ListItem
+      disablePadding
+      key={index}
+      id={`schedule-list-item-${index}`}
+      secondaryAction={
+        <IconButton
+          id={`schedule-list-item-${index}-icon-button`}
+          edge='end'
+          aria-label='comments'
+          onClick={() => handleDeleteOnClick(task.taskId)}>
+          <DeleteIcon
+            id={`schedule-list-item-${index}-delete-button`}
+          />
+        </IconButton>
+      }>
+      <ListItemButton sx={{ wudth: '100%' }}>
+        <ListItemIcon>
+          <LinkIcon />
+        </ListItemIcon>
+        <ListItemText primary={task?.taskName} />
+      </ListItemButton>
+    </ListItem>
+  );
+
+  const ScheduleLinkList = () => (
+    <List>
+      {scheduleLinks?.links?.map((task, index) => (
+        <ScheduleLinkListItem task={task} index={index} />
+      ))}
+    </List>
+  );
+
+  const LinkBoxHeader = ({ onClick }) => (
+    <Box sx={{ marginBottom: 1 }}>
+      <Grid container>
+        <Grid item lg={10} xs={6}>
+          <DashboardTitle>Links</DashboardTitle>
+        </Grid>
+        <Grid item lg={2} xs={6} align='right'>
+          <Button variant='text' onClick={handleAddScheduleOnClick}>
+            Link
+          </Button>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+
+  const LinkBoxContent = () => (
+    <Paper elevation={2} sx={{ p: 2 }}>
+      <Grid container sx={{ height: '100%' }}>
+        <Grid item lg={12} md={12} sm={12} xs={12}>
+          <Box sx={{ marginTop: 2 }}>
+            <ScheduleLinkListPaper>
+              {scheduleLoading ? <Spinner /> : <ScheduleLinkList />}
+            </ScheduleLinkListPaper>
+          </Box>
+        </Grid>
+      </Grid>
+    </Paper>
+  );
 
   return (
-    <>
-      <Box sx={{ marginBottom: 1 }}>
-        <Grid container id='schedule-link-list-header-grid'>
-          <Grid
-            item
-            lg={10}
-            xs={6}
-            id='schedule-link-list-header-container'>
-            <DashboardTitle>Links</DashboardTitle>
-          </Grid>
-          <Grid
-            item
-            lg={2}
-            xs={6}
-            align='right'
-            id='schedule-link-add-link-button-container'>
-            <Button
-              id='schedule-link-add-link-button'
-              variant='text'
-              onClick={handleOpenAddScheduleLinkDialog}>
-              Link
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
-      <Paper elevation={2} sx={{ p: 2 }}>
-        <>
-          <Grid
-            id='schedule-link-list-grid'
-            container
-            sx={{ height: '100%' }}>
-            <Grid item lg={12} md={12} sm={12} xs={12}>
-              <Box sx={{ marginTop: 2 }}>
-                <Paper
-                  id='schedule-link-list-paper'
-                  elevation={1}
-                  sx={{ minHeight: '2rem' }}>
-                  <List id='schedule-link-list'>
-                    {schedulesWithLinks?.links?.map((task, index) => (
-                      <ListItem
-                        disablePadding
-                        key={index}
-                        id={`schedule-list-item-${index}`}
-                        secondaryAction={
-                          <IconButton
-                            id={`schedule-list-item-${index}-icon-button`}
-                            edge='end'
-                            aria-label='comments'
-                            onClick={() => handleDelete(task.taskId)}>
-                            <DeleteIcon
-                              id={`schedule-list-item-${index}-delete-button`}
-                            />
-                          </IconButton>
-                        }>
-                        <ListItemButton sx={{ wudth: '100%' }}>
-                          <ListItemIcon>
-                            <LinkIcon />
-                          </ListItemIcon>
-                          <ListItemText primary={task?.taskName} />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Paper>
-              </Box>
-            </Grid>
-          </Grid>
-        </>
-      </Paper>
-    </>
+    <div>
+      <LinkBoxHeader />
+      <LinkBoxContent />
+    </div>
   );
 }
