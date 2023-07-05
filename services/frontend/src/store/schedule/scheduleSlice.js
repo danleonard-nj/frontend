@@ -1,5 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { scheduleState, scheduleTemplate } from '../../api/data/schedule';
+import {
+  scheduleState,
+  scheduleTemplate,
+} from '../../api/data/schedule';
 
 const scheduleSlice = createSlice({
   name: 'schedule',
@@ -16,7 +19,7 @@ const scheduleSlice = createSlice({
       state.schedule = payload;
     },
     setScheduleLoading(state, { payload }) {
-      state.scheduleLoading = true;
+      state.scheduleLoading = payload;
     },
     setSchedules(state, { payload }) {
       state.schedulesLoading = false;
@@ -35,6 +38,9 @@ const scheduleSlice = createSlice({
     setLinkOptions(state, { payload }) {
       state.linkOptions = payload;
     },
+    setSelectedSchedule(state, { payload }) {
+      state.selectedSchedule = payload;
+    },
   },
 });
 
@@ -48,6 +54,7 @@ export const {
   setIsNew,
   setScheduleHistory,
   setScheduleHistoryLoading,
+  setSelectedSchedule,
 } = scheduleSlice.actions;
 
 export default scheduleSlice.reducer;

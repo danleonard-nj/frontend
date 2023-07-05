@@ -12,54 +12,65 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeDialog, dialogType } from '../../../store/dialog/dialogSlice';
 import {
-  addLink,
-  getLinkOptions,
-} from '../../../store/schedule/scheduleActions';
+  closeDialog,
+  dialogType,
+} from '../../../store/dialog/dialogSlice';
+import { addLink } from '../../../store/schedule/scheduleActions';
+
+const getAvailableLinkOptions = (tasks, links) =>
+  tasks.filter((x) => !links.includes(x.taskId));
 
 export default function ScheduleAddLinkDialog() {
+  const [selectedLink, setSelectedLink] = useState('');
+  const [linkOptions, setLinkOptions] = useState([]);
+
   const dispatch = useDispatch();
-  const linkOptions = useSelector((x) => x.schedule.linkOptions);
+
+  const {
+    task: { tasks = [] },
+    schedule: { schedule },
+  } = useSelector((x) => x);
+
   const isVisible = useSelector((x) => x.dialog[dialogType.addLink]);
-  const schedule = useSelector((x) => x.schedule.schedule);
 
-  const [selected, setSelected] = useState('');
-
-  const handleChange = (event) => {
-    setSelected(event.target.value);
+  const handleChangeEvent = (event) => {
+    setSelectedLink(event.target.value);
   };
 
-  const handleClose = () => {
+  const handleCloseDialogOnClick = () => {
     dispatch(closeDialog(dialogType.addLink));
   };
 
-  const handleAddLink = () => {
-    dispatch(addLink(selected));
-    handleClose();
+  const handleAddLinkOnClick = () => {
+    dispatch(addLink(selectedLink));
+    handleCloseDialogOnClick();
   };
 
   useEffect(() => {
-    dispatch(getLinkOptions());
+    setLinkOptions(
+      getAvailableLinkOptions(tasks, schedule.links ?? [])
+    );
   }, [schedule.scheduleId]);
 
   return (
-    <Dialog onClose={handleClose} open={isVisible} maxWidth='sm' fullWidth>
+    <Dialog
+      onClose={handleCloseDialogOnClick}
+      open={isVisible}
+      maxWidth='sm'
+      fullWidth>
       <DialogTitle>Add Link</DialogTitle>
       <DialogContent>
         <Box sx={{ marginTop: 1 }}>
           <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Task</InputLabel>
+            <InputLabel id='task-input-label'>Task</InputLabel>
             <Select
               variant='standard'
-              labelId='demo-simple-select-label'
-              value={selected ?? ''}
-              onChange={handleChange}>
+              labelId='task-input-label'
+              value={selectedLink ?? ''}
+              onChange={handleChangeEvent}>
               {linkOptions?.map((option, index) => (
-                <MenuItem
-                  key={index}
-                  id={`schedule-add-link-select-task-${index}`}
-                  value={option.taskId}>
+                <MenuItem key={index} value={option.taskId}>
                   {option.taskName}
                 </MenuItem>
               ))}
@@ -68,8 +79,8 @@ export default function ScheduleAddLinkDialog() {
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleAddLink}>Add</Button>
+        <Button onClick={handleCloseDialogOnClick}>Cancel</Button>
+        <Button onClick={handleAddLinkOnClick}>Add</Button>
       </DialogActions>
     </Dialog>
   );

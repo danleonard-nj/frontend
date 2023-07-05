@@ -3,6 +3,7 @@ import KubeLogsApi from '../../api/kubeLogsApi';
 import { popErrorMessage } from '../alert/alertActions';
 import {
   setLogs,
+  setLogsLoading,
   setNamespaces,
   setPods,
   setSelectedNamespacePods,
@@ -65,6 +66,8 @@ export default class KubeLogActions {
 
   getLogs(namespace, pod) {
     return async (dispatch, getState) => {
+      dispatch(setLogsLoading(true));
+
       const handleResponse = ({ status, data }) => {
         if (status !== 200) {
           dispatch(popErrorMessage('Failed to fetch logs for pod'));
@@ -73,14 +76,22 @@ export default class KubeLogActions {
         }
       };
 
-      const state = getState();
       // Get the number of log tail lines to fetch
-      const logTail = state.kubeLogs.logTail;
+      const {
+        kubeLogs: { logTail = 0 },
+      } = getState();
 
-      const response = await this.kubeLogsApi.getLogs(namespace, pod, logTail);
+      const response = await this.kubeLogsApi.getLogs(
+        namespace,
+        pod,
+        logTail
+      );
+
       handleResponse(response);
+      dispatch(setLogsLoading(false));
     };
   }
 }
 
-export const { getPods, getLogs, filterPodsByNamespace } = new KubeLogActions();
+export const { getPods, getLogs, filterPodsByNamespace } =
+  new KubeLogActions();

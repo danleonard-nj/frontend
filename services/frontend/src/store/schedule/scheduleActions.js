@@ -7,9 +7,13 @@ import {
   setSchedule,
   setScheduleHistory,
   setScheduleHistoryLoading,
+  setScheduleLoading,
   setSchedules,
 } from './scheduleSlice';
-import { sortBy } from '../../api/helpers/apiHelpers';
+import {
+  getErrorMessage,
+  sortBy,
+} from '../../api/helpers/apiHelpers';
 import ScheduleApi from '../../api/scheduleApi';
 
 export default class ScheduleActions {
@@ -84,15 +88,35 @@ export default class ScheduleActions {
 
   addLink(taskId) {
     return async (dispatch, getState) => {
-      const state = getState();
+      dispatch(setScheduleLoading(true));
 
-      const updatedSchedule = {
-        ...state.schedule.schedule,
-        links: [...state.schedule.schedule.links, taskId],
+      const {
+        schedule: { schedule },
+      } = getState();
+
+      const handleErrorResponse = ({ status, data }) => {
+        dispatch(
+          popErrorMessage(
+            `Failed to add task to schedule: ${getErrorMessage(
+              data
+            )} `
+          )
+        );
       };
 
-      dispatch(setSchedule(updatedSchedule));
-      await this.scheduleApi.updateSchedule(updatedSchedule);
+      // Add new link to schedule
+      const response = await this.scheduleApi.updateSchedule({
+        ...schedule,
+        links: [...schedule.links, taskId],
+      });
+
+      response.status > 200
+        ? handleErrorResponse(response)
+        : dispatch(popMessage('Task added to schedule'));
+
+      // Refresh the schedule list
+      dispatch(this.getSchedules());
+      dispatch(setScheduleLoading(false));
     };
   }
 
@@ -160,51 +184,60 @@ export default class ScheduleActions {
 
   saveSchedule() {
     return async (dispatch, getState) => {
-      const state = getState();
+      const {
+        schedule: { schedule, isNew },
+      } = getState();
 
-      const schedule = state.schedule.schedule;
-      const validTasks = removeInvalidTasks(
-        state.task.tasks,
-        schedule
-      );
-      const updatedSchedule = { ...schedule, links: validTasks };
+      dispatch(setScheduleLoading(true));
 
-      const handleResultMessage = (status) => {
+      // const schedule = state.schedule.schedule;
+      // const validTasks = removeInvalidTasks(
+      //   state.task.tasks,
+      //   schedule
+      // );
+      // const updatedSchedule = { ...schedule, links: validTasks };
+
+      // Handle success/failure messages
+      const handleResultMessage = ({ status, data }) => {
         if (status === 200) {
           dispatch(popMessage(`Schedule updated successfully`));
         } else {
-          dispatch(popErrorMessage('Failed to update schedule'));
+          dispatch(
+            popErrorMessage(
+              `Failed to update schedule: ${getErrorMessage(data)}`
+            )
+          );
         }
       };
 
       // If schedule is new, insert else update
-      if (!state.schedule.isNew) {
+      if (!isNew) {
         const updateResponse = await this.scheduleApi.updateSchedule(
-          updatedSchedule
+          schedule
         );
-        // Pop result message
-        handleResultMessage(updateResponse.status);
+
+        handleResultMessage(updateResponse);
       } else {
         dispatch(setIsNew(false));
         const insertResponse = await this.scheduleApi.insertSchedule(
-          updatedSchedule
+          schedule
         );
         // Pop result message
-        handleResultMessage(insertResponse.status);
+        handleResultMessage(insertResponse);
       }
 
       // Refresh the schedule list
-      var response = await this.scheduleApi.getSchedules();
-      dispatch(setSchedules(response?.data));
+      dispatch(this.getSchedules());
+      dispatch(setScheduleLoading(false));
     };
   }
 
-  updateScheduleState(func) {
+  updateScheduleState(innerReducer) {
     return (dispatch, getState) => {
       const state = getState();
       const schedule = state.schedule.schedule;
 
-      dispatch(setSchedule(func(schedule)));
+      dispatch(setSchedule(innerReducer(schedule)));
     };
   }
 
@@ -223,6 +256,29 @@ export default class ScheduleActions {
       handleResultMessage(response?.status);
     };
   }
+
+  removeSelectedScheduleLink(taskId) {
+    return (dispatch, getState) => {
+      const {
+        schedule: { schedule },
+      } = getState();
+
+      // If the schedule doesn't contain the task, return
+      if (!schedule.links.includes(taskId)) {
+        return;
+      }
+
+      // Remove the task from the schedule
+      dispatch(
+        setSchedule({
+          ...schedule,
+          links: schedule.links.filter((x) => x !== taskId),
+        })
+      );
+
+      dispatch(popMessage('Task removed from schedule'));
+    };
+  }
 }
 
 export const {
@@ -237,4 +293,5 @@ export const {
   getAvailableTasks,
   getSchedules,
   getScheduleHistory,
+  removeSelectedScheduleLink,
 } = new ScheduleActions();
