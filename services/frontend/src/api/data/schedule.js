@@ -29,6 +29,7 @@ const scheduleState = {
   isNew: false,
   scheduleHistoryLoading: true,
   scheduleHistory: [],
+  selectedSchedule: '',
 };
 
 export { scheduleTemplate, defaultSchedule, scheduleState };

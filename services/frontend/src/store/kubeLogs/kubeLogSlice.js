@@ -12,7 +12,7 @@ const kubeLogsInitalState = {
   selectedNamespace: '',
   selectedPod: '',
   selectedLogsTab: 0,
-  logTail: 250,
+  logTail: 5000,
 };
 
 const kubeLogsSlice = createSlice({
@@ -21,7 +21,9 @@ const kubeLogsSlice = createSlice({
   reducers: {
     setLogs(state, { payload }) {
       state.logs = payload;
-      state.logsLoading = false;
+    },
+    setLogsLoading(state, { payload }) {
+      state.logsLoading = payload;
     },
     setPods(state, { payload }) {
       state.pods = payload;
@@ -59,6 +61,7 @@ export const {
   setSelectedLogsTab,
   setLogTail,
   setSelectedPod,
+  setLogsLoading,
 } = kubeLogsSlice.actions;
 
 export default kubeLogsSlice.reducer;
