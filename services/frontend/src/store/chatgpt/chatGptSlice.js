@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { requestType } from '../../api/data/chatGpt';
 
-const defaultEngine = 'text-davinci-003';
+const defaultEngine = 'gpt-3.5-turbo';
 
 const chatGptInitialState = {
-  selectedRequestType: requestType.completion,
+  selectedRequestType: requestType.chat,
   prompt: '',
   prediction: '',
   message: '',
