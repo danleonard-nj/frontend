@@ -10,8 +10,11 @@ import {
   setEngines,
   setEnginesLoading,
   setHistory,
+  setHistoryChatIndex,
   setHistoryLoading,
+  setHistoryRecordMessages,
   setImages,
+  setIsHistoryViewEnabled,
   setMessage,
   setPrediction,
   setPredictionLoading,
@@ -61,6 +64,79 @@ export default class ChatGptActions {
   constructor() {
     this.chatGptApi = new ChatGptApi();
     autoBind(this);
+  }
+
+  rightHistoryDoubleArrowClick() {
+    return (dispatch, getState) => {
+      const { isHistoryViewEnabled, history } = getState().chatgpt;
+
+      !isHistoryViewEnabled &&
+        dispatch(setIsHistoryViewEnabled(true));
+
+      const historyRecord = history[history.length - 1];
+
+      dispatch(setHistoryChatIndex(history.length - 1));
+      dispatch(
+        setHistoryRecordMessages([
+          ...historyRecord?.response?.request?.body?.messages,
+          historyRecord?.response?.response?.body?.choices[0]
+            ?.message,
+        ])
+      );
+    };
+  }
+
+  rightHistoryArrowClick() {
+    return (dispatch, getState) => {
+      const { historyChatIndex, isHistoryViewEnabled, history } =
+        getState().chatgpt;
+
+      if (historyChatIndex === history?.length) {
+        return;
+      }
+
+      !isHistoryViewEnabled &&
+        dispatch(setIsHistoryViewEnabled(true));
+
+      const currentIndex = historyChatIndex + 1;
+      const historyRecord = history[currentIndex];
+
+      dispatch(setHistoryChatIndex(currentIndex));
+      dispatch(
+        setHistoryRecordMessages([
+          ...historyRecord?.response?.request?.body?.messages,
+          historyRecord?.response?.response?.body?.choices[0]
+            ?.message,
+        ])
+      );
+    };
+  }
+
+  leftHistoryArrowClick() {
+    return (dispatch, getState) => {
+      const { historyChatIndex, isHistoryViewEnabled, history } =
+        getState().chatgpt;
+
+      if (historyChatIndex === 0) {
+        return;
+      }
+
+      !isHistoryViewEnabled &&
+        dispatch(setIsHistoryViewEnabled(true));
+
+      const currentIndex = historyChatIndex - 1;
+      const historyRecord = history[currentIndex];
+
+      dispatch(setHistoryChatIndex(currentIndex));
+
+      dispatch(
+        setHistoryRecordMessages([
+          ...historyRecord?.response?.request?.body?.messages,
+          historyRecord?.response?.response?.body?.choices[0]
+            ?.message,
+        ])
+      );
+    };
   }
 
   getChat() {
@@ -334,4 +410,7 @@ export const {
   getUsage,
   getHistory,
   getChat,
+  leftHistoryArrowClick,
+  rightHistoryArrowClick,
+  rightHistoryDoubleArrowClick,
 } = new ChatGptActions();
