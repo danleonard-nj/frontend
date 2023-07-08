@@ -39,7 +39,22 @@ const ScheduleLinkListPaper = ({ children }) => (
   </Paper>
 );
 
-export default function ScheduleLinkList() {
+const LinkBoxHeader = ({ onAddScheduleClick }) => (
+  <Box sx={{ marginBottom: 1 }}>
+    <Grid container>
+      <Grid item lg={10} xs={6}>
+        <DashboardTitle>Links</DashboardTitle>
+      </Grid>
+      <Grid item lg={2} xs={6} align='right'>
+        <Button variant='text' onClick={onAddScheduleClick}>
+          Link
+        </Button>
+      </Grid>
+    </Grid>
+  </Box>
+);
+
+const ScheduleLinkList = ({ onScheduleClick }) => {
   const [scheduleLinks, setScheduleLinks] = useState([]);
   const dispatch = useDispatch();
 
@@ -78,7 +93,7 @@ export default function ScheduleLinkList() {
           />
         </IconButton>
       }>
-      <ListItemButton sx={{ wudth: '100%' }}>
+      <ListItemButton sx={{ width: '100%' }}>
         <ListItemIcon>
           <LinkIcon />
         </ListItemIcon>
@@ -93,21 +108,6 @@ export default function ScheduleLinkList() {
         <ScheduleLinkListItem task={task} index={index} />
       ))}
     </List>
-  );
-
-  const LinkBoxHeader = ({ onClick }) => (
-    <Box sx={{ marginBottom: 1 }}>
-      <Grid container>
-        <Grid item lg={10} xs={6}>
-          <DashboardTitle>Links</DashboardTitle>
-        </Grid>
-        <Grid item lg={2} xs={6} align='right'>
-          <Button variant='text' onClick={handleAddScheduleOnClick}>
-            Link
-          </Button>
-        </Grid>
-      </Grid>
-    </Box>
   );
 
   const LinkBoxContent = () => (
@@ -126,8 +126,10 @@ export default function ScheduleLinkList() {
 
   return (
     <div>
-      <LinkBoxHeader />
+      <LinkBoxHeader onAddScheduleClick={handleAddScheduleOnClick} />
       <LinkBoxContent />
     </div>
   );
-}
+};
+
+export { ScheduleLinkList };

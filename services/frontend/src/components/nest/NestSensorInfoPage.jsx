@@ -4,17 +4,13 @@ import {
   Grid,
   Switch,
 } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { nestCommandNameMapping } from '../../api/data/nest';
 import { getSensorInfo } from '../../store/nest/nestActions';
 import { setSelectedSensor } from '../../store/nest/nestSlice';
 import { GenericJsonEditor } from '../GenericJsonEditor';
 import Spinner from '../Spinner';
 import { SensorInfoCard } from '../nest/NestSensorCard';
-import { useState } from 'react';
-import { set } from 'lodash';
-import { useEffect } from 'react';
 
 const NestSensorInfoPage = () => {
   const dispatch = useDispatch();

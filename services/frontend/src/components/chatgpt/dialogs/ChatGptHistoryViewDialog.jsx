@@ -52,15 +52,9 @@ const ChatGptHistoryViewDialog = () => {
     dispatch(getHistory(value));
   };
 
-  const handleClearSelectedEndpoint = () => {
-    dispatch(setSelectedHistoryEndpoint(''));
-  };
-
-  useEffect(() => {
-    if (!history?.length && isOpen) {
-      dispatch(getHistory(historyDaysBack));
-    }
-  }, [historyDaysBack, selectedHistoryEndpoint]);
+  // const handleClearSelectedEndpoint = () => {
+  //   dispatch(setSelectedHistoryEndpoint(''));
+  // };
 
   const handleAccordionExpand = (endpoint) => {
     dispatch(
@@ -69,6 +63,16 @@ const ChatGptHistoryViewDialog = () => {
       )
     );
   };
+
+  const refreshOnClick = () => {
+    dispatch(getHistory(historyDaysBack));
+  };
+
+  useEffect(() => {
+    if (!history?.length && isOpen) {
+      dispatch(getHistory(historyDaysBack));
+    }
+  }, [historyDaysBack, selectedHistoryEndpoint]);
 
   return (
     <Dialog
@@ -121,6 +125,7 @@ const ChatGptHistoryViewDialog = () => {
         </Grid>
       </DialogContent>
       <DialogActions>
+        <Button onClick={refreshOnClick}>Refresh</Button>
         <Button onClick={handleClose}>Close</Button>
       </DialogActions>
     </Dialog>

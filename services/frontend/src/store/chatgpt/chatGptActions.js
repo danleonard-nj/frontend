@@ -1,22 +1,29 @@
 import autoBind from 'auto-bind';
 import ChatGptApi from '../../api/chatGptApi';
+import { stripLeadingNewLineChars } from '../../api/helpers/chatGptHelpers';
 import { toDateString } from '../../api/helpers/dateTimeUtils';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
+  setChatMessages,
+  setChatMessagesLoading,
   setConfigurationExpanded,
   setEngines,
   setEnginesLoading,
-  setHistoryEndpoints,
-  setHistoryEndpointsLoading,
+  setHistory,
+  setHistoryLoading,
   setImages,
+  setMessage,
   setPrediction,
   setPredictionLoading,
   setUsage,
   setUsageLoading,
 } from './chatGptSlice';
-import { setHistoryLoading } from './chatGptSlice';
-import { setHistory } from './chatGptSlice';
-import { stripLeadingNewLineChars } from '../../api/helpers/chatGptHelpers';
+
+const getBodyErrorMessage = (data) =>
+  data?.response?.body?.error?.message;
+const getBodyErrorType = (data) => data?.response?.body?.error?.tpe;
+const getTotalTokenUsage = (data) =>
+  data?.response?.body?.usage?.total_tokens;
 
 const getStartOfMonthDate = () => {
   const today = new Date();
@@ -50,14 +57,71 @@ const getDaysFromToday = (days) => {
   return date;
 };
 
-const getTimestampFromDateString = (date) => {
-  return new Date(date).getTime() / 1000;
-};
-
 export default class ChatGptActions {
   constructor() {
     this.chatGptApi = new ChatGptApi();
     autoBind(this);
+  }
+
+  getChat() {
+    return async (dispatch, getState) => {
+      const {
+        message,
+        chatMessages,
+        tokens,
+        selectedEngine,
+        isConfigurationExpanded,
+      } = getState().chatgpt;
+
+      // Handle success/failure toasts and formatting
+      const handleResponse = ({ status, data }) => {
+        if (status !== 200) {
+          dispatch(
+            popErrorMessage('Failed to fetch chat completion')
+          );
+          // Error message in response body
+        } else if (getBodyErrorMessage(data)) {
+          dispatch(
+            popErrorMessage(
+              `Failed to fetch prediction: ${getBodyErrorType(
+                data
+              )}: ${getBodyErrorMessage(data)}`
+            )
+          );
+        } else {
+          return true;
+        }
+      };
+
+      dispatch(setChatMessagesLoading(true));
+      // Clear the message input
+      dispatch(setMessage(''));
+
+      const chatMessage = {
+        role: 'user',
+        content: message,
+      };
+
+      const outgoingMessages = [...chatMessages, chatMessage];
+      dispatch(setChatMessages(outgoingMessages));
+
+      const response = await this.chatGptApi.getChat(
+        outgoingMessages,
+        tokens,
+        selectedEngine
+      );
+
+      if (handleResponse(response)) {
+        const responseMessage =
+          response?.data?.response?.body?.choices[0]?.message;
+
+        dispatch(
+          setChatMessages([...outgoingMessages, responseMessage])
+        );
+      }
+
+      dispatch(setChatMessagesLoading(false));
+    };
   }
 
   getPrediction() {
@@ -69,10 +133,24 @@ export default class ChatGptActions {
         isConfigurationExpanded,
       } = getState().chatgpt;
 
+      dispatch(setPredictionLoading(true));
+
+      // Handle success/failure toasts and formatting
       const handleResponse = ({ status, data }) => {
         if (status !== 200) {
           dispatch(popErrorMessage('Failed to fetch prediction'));
+          // Error message in response body
+        } else if (getBodyErrorMessage(data)) {
+          dispatch(
+            popErrorMessage(
+              `Failed to fetch prediction: ${getBodyErrorType(
+                data
+              )}: ${getBodyErrorMessage(data)}`
+            )
+          );
         } else {
+          // Result will usually lead with two new lines
+          // TODO: Remove this on the backend?
           const result = stripLeadingNewLineChars(
             data?.response?.body?.choices[0]?.text
           );
@@ -88,15 +166,11 @@ export default class ChatGptActions {
           // Display token usage for prediction
           dispatch(
             popMessage(
-              `Tokens used: ${
-                data?.response?.body?.usage?.total_tokens ?? 0
-              }`
+              `Tokens used: ${getTotalTokenUsage(data) ?? 0}`
             )
           );
         }
       };
-
-      dispatch(setPredictionLoading(true));
 
       const response = await this.chatGptApi.getPrediction(
         prompt,
@@ -107,6 +181,12 @@ export default class ChatGptActions {
       handleResponse(response);
       dispatch(setPredictionLoading(false));
     };
+  }
+
+  isErrorResponseContent(response) {
+    const message = response?.body?.error?.message;
+
+    return message ? `` : false;
   }
 
   getImages() {
@@ -253,4 +333,5 @@ export const {
   getEngines,
   getUsage,
   getHistory,
+  getChat,
 } = new ChatGptActions();
