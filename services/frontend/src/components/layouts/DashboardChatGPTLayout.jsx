@@ -1,17 +1,4 @@
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Button,
-  Chip,
-  Grid,
-  Paper,
-  TextField,
-  Typography,
-  styled,
-} from '@mui/material';
+import { Button, Grid, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { requestType } from '../../api/data/chatGpt';
@@ -22,113 +9,21 @@ import {
   getPrediction,
 } from '../../store/chatgpt/chatGptActions';
 import {
+  setChatMessages,
   setConfigurationExpanded,
-  setMessage,
   setPrompt,
 } from '../../store/chatgpt/chatGptSlice';
-import Spinner from '../Spinner';
-import { ChatGptConfigurationContent } from '../chatgpt/ChatGptConfigurationContent';
-import { ChatGptPageTitle } from '../chatgpt/ChatGptPageTitle';
-import { ChatGptResult } from '../chatgpt/ChatGptResult';
 import {
   dialogType,
   openDialog,
 } from '../../store/dialog/dialogSlice';
+import Spinner from '../Spinner';
+import { ChatGptChatContainer } from '../chatgpt/ChatGptChatContainer';
+import { ChatGptConfigurationAccordion } from '../chatgpt/ChatGptConfigurationAccordion';
+import { ChatGptPageTitle } from '../chatgpt/ChatGptPageTitle';
+import { ChatGptResult } from '../chatgpt/ChatGptResult';
+import { ChatGptStyledPaper } from '../chatgpt/ChatGptStyledPaper';
 
-const CustomChip = styled(Chip)(({ theme }) => ({
-  padding: theme.spacing(1),
-  height: '100%',
-  '& .MuiChip-label': {
-    overflowWrap: 'break-word',
-    whiteSpace: 'normal',
-    textOverflow: 'clip',
-  },
-}));
-
-const StyledPaper = ({ el, children }) => {
-  return (
-    <Paper
-      elevation={el}
-      sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-      {children}
-    </Paper>
-  );
-};
-
-const ChatContainer = ({
-  outgoingMessage,
-  setOutgoingMessage,
-  onKeyPress,
-}) => {
-  const { chatMessages = [], chatMessagesLoading } = useSelector(
-    (x) => x.chatgpt
-  );
-
-  const dispatch = useDispatch();
-
-  const handleUpdateOutgoingMessage = (event) => {
-    dispatch(setMessage(event.target.value));
-  };
-
-  return (
-    <StyledPaper el={3}>
-      <Grid container spacing={3}>
-        <Grid item lg={12} xs={12}>
-          <Grid container spacing={3}>
-            {chatMessages.map((message) => (
-              <Grid item lg={12}>
-                <CustomChip
-                  sx={{
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                  component='div'
-                  label={<section>{message?.content}</section>}
-                  color={
-                    message?.role === 'user' ? 'primary' : 'info'
-                  }
-                />
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
-        <Grid item lg={12} xs={12}>
-          {chatMessagesLoading ? (
-            <Grid container justifyContent='flex-end'>
-              <Spinner size={30} />
-            </Grid>
-          ) : (
-            <TextField
-              size='small'
-              label='message'
-              defaultValue='Write a chat message...'
-              fullWidth
-              value={outgoingMessage ?? ''}
-              onKeyPress={onKeyPress}
-              onChangeCapture={handleUpdateOutgoingMessage}
-              onChange={(e) => setOutgoingMessage(e.target.value)}
-            />
-          )}
-        </Grid>
-      </Grid>
-    </StyledPaper>
-  );
-};
-const ConfigurationAccordion = ({ isExpanded, expand }) => {
-  return (
-    <Accordion elevation={3} expanded={isExpanded} onChange={expand}>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
-        aria-controls='panel1a-content'
-        id='panel1a-header'>
-        <Typography>Configuration</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <ChatGptConfigurationContent />
-      </AccordionDetails>
-    </Accordion>
-  );
-};
 const DashboardChatGPTLayout = () => {
   const dispatch = useDispatch();
 
@@ -171,12 +66,16 @@ const DashboardChatGPTLayout = () => {
     dispatch(openDialog(dialogType.chatGptViewHistoryDialog));
   };
 
+  const handleClearChatOnClick = () => {
+    dispatch(setChatMessages([]));
+  };
+
   useEffect(() => {
     dispatch(getEngines());
   }, []);
 
   return (
-    <StyledPaper el={2}>
+    <ChatGptStyledPaper el={2}>
       <Grid container spacing={3} id='device-list-grid'>
         <Grid item lg={6} xs={12}>
           <Grid container spacing={3}>
@@ -187,7 +86,7 @@ const DashboardChatGPTLayout = () => {
             </Grid>
             <Grid item lg={12} xs={12}>
               {selectedRequestType === requestType.chat ? (
-                <ChatContainer
+                <ChatGptChatContainer
                   outgoingMessage={outgoingMessage}
                   setOutgoingMessage={setOutgoingMessage}
                   onKeyPress={handleKeyPress}
@@ -216,13 +115,21 @@ const DashboardChatGPTLayout = () => {
                 sx={{ marginLeft: '1rem' }}>
                 History
               </Button>
+              {selectedRequestType === requestType.chat && (
+                <Button
+                  variant='outlined'
+                  onClick={handleClearChatOnClick}
+                  sx={{ marginLeft: '1rem' }}>
+                  Clear
+                </Button>
+              )}
             </Grid>
           </Grid>
         </Grid>
         <Grid item lg={6} xs={12}>
           <Grid container spacing={3}>
             <Grid item lg={12} xs={12}>
-              <ConfigurationAccordion
+              <ChatGptConfigurationAccordion
                 isExpanded={isConfigurationExpanded}
                 expand={handleConfigurationExpand}
               />
@@ -233,7 +140,7 @@ const DashboardChatGPTLayout = () => {
           </Grid>
         </Grid>
       </Grid>
-    </StyledPaper>
+    </ChatGptStyledPaper>
   );
 };
 

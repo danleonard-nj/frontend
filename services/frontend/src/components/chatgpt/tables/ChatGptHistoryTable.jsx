@@ -15,6 +15,7 @@ import { chatGptEndpoints } from '../../../api/data/chatGpt';
 import { getLocalDateTimeFromTimestamp } from '../../../api/helpers/dateTimeUtils';
 import { CompletionRowContent } from './CompletionRowContent';
 import { ImageRowContent } from './ImageRowContent';
+import { ChatCompletionRowContent } from './ChatCompletionRowContent';
 
 const ChatGptHistoryTable = ({ history }) => {
   const [expanded, setExpanded] = useState('');
@@ -84,6 +85,10 @@ const ChatGptHistoryTable = ({ history }) => {
                   )}
                   {row.endpoint === chatGptEndpoints.completions && (
                     <CompletionRowContent row={row} />
+                  )}
+                  {row.endpoint ===
+                    chatGptEndpoints.chatCompletions && (
+                    <ChatCompletionRowContent row={row} />
                   )}
                 </Collapse>
               </TableCell>

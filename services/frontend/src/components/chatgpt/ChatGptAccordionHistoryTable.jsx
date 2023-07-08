@@ -14,6 +14,7 @@ const ChatGptAccordianHistoryTable = ({
   endpoint,
   history,
 }) => {
+  console.log(history);
   return (
     <Accordion
       elevation={4}

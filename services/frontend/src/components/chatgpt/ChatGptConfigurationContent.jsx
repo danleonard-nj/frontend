@@ -54,7 +54,7 @@ const ChatGptConfigurationContent = () => {
   const dispatch = useDispatch();
 
   const {
-    tokens = 2048,
+    tokens = 2000,
     selectedRequestType = '',
     usage = '',
     usageLoading = false,

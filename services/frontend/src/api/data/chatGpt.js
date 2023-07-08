@@ -10,6 +10,7 @@ const chatGptEndpoints = {
   engines: '/v1/engines',
   completions: '/v1/completions',
   imageGenerations: '/v1/images/generations',
+  chatCompletions: '/v1/chat/completions',
 };
 
 export { requestType, imageSizes, chatGptEndpoints };
