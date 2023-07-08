@@ -2,4 +2,8 @@ const stripLeadingNewLineChars = (text) => {
   return text.replace(/^\n+/, '');
 };
 
-export { stripLeadingNewLineChars };
+const getChatMessageColor = (role) => {
+  return role === 'user' ? 'primary' : 'info';
+};
+
+export { stripLeadingNewLineChars, getChatMessageColor };

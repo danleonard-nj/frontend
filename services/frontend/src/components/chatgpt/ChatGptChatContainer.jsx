@@ -1,42 +1,31 @@
+import ClearIcon from '@mui/icons-material/Clear';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import {
   ButtonGroup,
-  Chip,
   Grid,
   IconButton,
   TextField,
-  styled,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { getChatMessageColor } from '../../api/helpers/chatGptHelpers';
 import {
-  setChatMessages,
+  getHistory,
+  leftHistoryArrowClick,
+  rightHistoryArrowClick,
+  rightHistoryDoubleArrowClick,
+} from '../../store/chatgpt/chatGptActions';
+import {
   setHistoryChatIndex,
-  setHistoryRecordMessages,
   setIsHistoryViewEnabled,
   setMessage,
 } from '../../store/chatgpt/chatGptSlice';
 import Spinner from '../Spinner';
+import { ChatMessageChip } from './ChatGptChatMessageChip';
 import { ChatGptStyledPaper } from './ChatGptStyledPaper';
-import AlarmIcon from '@mui/icons-material/Alarm';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
-import ClearIcon from '@mui/icons-material/Clear';
-
-const getChatMessageColor = (role) => {
-  return role === 'user' ? 'primary' : 'info';
-};
-
-const ChatMessageChip = styled(Chip)(({ theme }) => ({
-  padding: theme.spacing(1),
-  height: '100%',
-  '& .MuiChip-label': {
-    overflowWrap: 'break-word',
-    whiteSpace: 'normal',
-    textOverflow: 'clip',
-  },
-}));
 
 const ChipMessage = ({ content }) => {
   return <span style={{ whiteSpace: 'pre-line' }}>{content}</span>;
@@ -56,15 +45,6 @@ const ChatGptChatContainer = ({
     isHistoryViewEnabled,
   } = useSelector((x) => x.chatgpt);
 
-  // const [historyChatIndex, setHistoryChatIndex] = useState(
-  //   history?.length
-  // );
-  // const [historyRecordMessages, setHistoryRecordMessages] = useState(
-  //   []
-  // );
-  // const [isHistoryViewEnabled, setIsHistoryViewEnabled] =
-  //   useState(false);
-
   const dispatch = useDispatch();
   console.log(historyChatIndex);
 
@@ -73,62 +53,15 @@ const ChatGptChatContainer = ({
   };
 
   const handleLeftHistoryArrowOnClick = () => {
-    if (historyChatIndex === 0) {
-      console.log('at zero');
-      return;
-    }
-
-    !isHistoryViewEnabled && dispatch(setIsHistoryViewEnabled(true));
-
-    const currentIndex = historyChatIndex - 1;
-    const historyRecord = history[currentIndex];
-
-    dispatch(setHistoryChatIndex(currentIndex));
-
-    dispatch(
-      setHistoryRecordMessages([
-        ...historyRecord?.response?.request?.body?.messages,
-        historyRecord?.response?.response?.body?.choices[0]?.message,
-      ])
-    );
-
-    console.log(historyRecordMessages);
+    dispatch(leftHistoryArrowClick());
   };
 
   const handleRightHistoryArrowOnClick = () => {
-    if (historyChatIndex === history?.length) {
-      console.log('maxed out');
-      return;
-    }
-
-    !isHistoryViewEnabled && dispatch(setIsHistoryViewEnabled(true));
-
-    const currentIndex = historyChatIndex + 1;
-    const historyRecord = history[currentIndex];
-
-    dispatch(setHistoryChatIndex(currentIndex));
-    dispatch(
-      setHistoryRecordMessages([
-        ...historyRecord?.response?.request?.body?.messages,
-        historyRecord?.response?.response?.body?.choices[0]?.message,
-      ])
-    );
-
-    console.log(historyRecordMessages);
+    dispatch(rightHistoryArrowClick());
   };
 
   const handleRightDoubleArrowOnClick = () => {
-    !isHistoryViewEnabled && dispatch(setIsHistoryViewEnabled(true));
-
-    const historyRecord = history[history.length - 1];
-
-    dispatch(setHistoryChatIndex(history.length));
-    dispatch(
-      setHistoryRecordMessages([
-        ...historyRecord?.response?.request?.body?.messages,
-        historyRecord?.response?.response?.body?.choices[0]?.message,
-      ])
-    );
+    dispatch(rightHistoryDoubleArrowClick());
   };
 
   const handleClearOnClick = () => {
@@ -145,6 +78,12 @@ const ChatGptChatContainer = ({
     }
   }, [history]);
 
+  useEffect(() => {
+    if (history?.length === 0) {
+      dispatch(getHistory(1));
+    }
+  }, []);
+
   return (
     <Grid container spacing={3}>
       <Grid item lg={12} align='right'>
@@ -158,12 +97,12 @@ const ChatGptChatContainer = ({
             <KeyboardArrowLeftIcon />
           </IconButton>
           <IconButton
-            disabled={historyChatIndex === history?.length}
+            disabled={historyChatIndex === history?.length - 1}
             onClick={handleRightHistoryArrowOnClick}>
             <KeyboardArrowRightIcon />
           </IconButton>
           <IconButton
-            disabled={historyChatIndex === history?.length}
+            disabled={historyChatIndex === history?.length - 1}
             onClick={handleRightDoubleArrowOnClick}>
             <KeyboardDoubleArrowRightIcon />
           </IconButton>
