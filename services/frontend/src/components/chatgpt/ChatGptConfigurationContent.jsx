@@ -61,7 +61,6 @@ const ChatGptConfigurationContent = () => {
   } = useSelector((x) => x.chatgpt);
 
   const handleTokenChangeCaptured = (event) => {
-    console.log(event.target.value);
     dispatch(setTokens(event.target.value));
   };
 
@@ -79,11 +78,14 @@ const ChatGptConfigurationContent = () => {
         <ChatGptRequestTypeSelect />
       </Grid>
 
-      {selectedRequestType === requestType.completion && (
+      {[requestType.completion, requestType.chat].includes(
+        selectedRequestType
+      ) && (
         <Grid item lg={12} xs={12}>
           <ChatGptEngineSelect />
         </Grid>
       )}
+
       {selectedRequestType === requestType.completion && (
         <Grid item lg={12} xs={12}>
           <TextField
@@ -97,6 +99,7 @@ const ChatGptConfigurationContent = () => {
           />
         </Grid>
       )}
+
       {selectedRequestType === requestType.image && (
         <Grid item lg={12} xs={12}>
           <TextField

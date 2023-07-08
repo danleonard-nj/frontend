@@ -7,9 +7,9 @@ export default class ChatGptApi extends ApiBase {
   }
 
   getCompletionRequestBody = (prompt, tokens, model) => ({
-    model: 'text-davinci-003',
+    model: model,
     prompt: prompt,
-    max_tokens: tokens,
+    max_tokens: parseInt(tokens),
     temperature: 0.7,
   });
 
@@ -18,6 +18,24 @@ export default class ChatGptApi extends ApiBase {
     n: repetitions ?? 2,
     size: size ?? '1024x1024',
   });
+
+  getChatRequestBody = (messages, tokens, model, n = 1) => ({
+    model: model,
+    messages: messages,
+    max_tokens: parseInt(tokens),
+    n: parseInt(n),
+    stream: false,
+    presence_penalty: 0,
+    frequency_penalty: 0,
+  });
+
+  async getChat(messages, tokens, model, n = 1) {
+    return await this.send(
+      `${this.baseUrl}/api/tools/chatgpt/chat/completions`,
+      'POST',
+      this.getChatRequestBody(messages, tokens, model, n)
+    );
+  }
 
   async getPrediction(prompt, tokens, engine) {
     return await this.send(

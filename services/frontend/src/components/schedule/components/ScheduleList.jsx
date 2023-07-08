@@ -41,7 +41,7 @@ const ScheduleListGrid = ({ children }) => (
   </Grid>
 );
 
-export default function ScheduleList() {
+const ScheduleList = ({ onScheduleClick }) => {
   const dispatch = useDispatch();
 
   const { schedules, schedulesLoading } =
@@ -49,6 +49,7 @@ export default function ScheduleList() {
 
   const handleScheduleSelectOnClick = (scheduleId) => {
     dispatch(getSchedule(scheduleId));
+    onScheduleClick();
   };
 
   const handleNewScheduleOnClick = () => {
@@ -103,4 +104,6 @@ export default function ScheduleList() {
       <ListBox />
     </div>
   );
-}
+};
+
+export { ScheduleList };

@@ -7,6 +7,9 @@ const chatGptInitialState = {
   selectedRequestType: requestType.completion,
   prompt: '',
   prediction: '',
+  message: '',
+  chatMessages: [],
+  chatMessagesLoading: false,
   predictionLoading: false,
   imagesLoading: false,
   usage: {},
@@ -25,6 +28,18 @@ const chatGptInitialState = {
   imageRepetitions: 2,
   imageSize: '1024x1024',
   isConfigurationExpanded: true,
+};
+
+const chatReducers = {
+  setChatMessages(state, { payload }) {
+    state.chatMessages = payload;
+  },
+  setChatMessagesLoading(state, { payload }) {
+    state.chatMessagesLoading = payload;
+  },
+  setMessage(state, { payload }) {
+    state.message = payload;
+  },
 };
 
 const historyReducers = {
@@ -108,6 +123,7 @@ const chatGptSlice = createSlice({
     ...historyReducers,
     ...imageReducers,
     ...engineReducers,
+    ...chatReducers,
   },
 });
 
@@ -133,6 +149,9 @@ export const {
   setHistoryEndpointsLoading,
   setSelectedHistoryEndpoint,
   setHistoryDaysBack,
+  setChatMessages,
+  setChatMessagesLoading,
+  setMessage,
 } = chatGptSlice.actions;
 
 export default chatGptSlice.reducer;

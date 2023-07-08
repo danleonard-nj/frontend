@@ -18,7 +18,8 @@ const ChatGptEngineSelect = () => {
     selectedEngine = '',
   } = useSelector((x) => x.chatgpt);
 
-  const handleEngineChangeCaptured = (event) => {
+  const handleEngineOnChange = (event) => {
+    console.log(event.target.value);
     dispatch(setSelectedEngine(event.target.value));
   };
 
@@ -26,16 +27,14 @@ const ChatGptEngineSelect = () => {
     <Spinner />
   ) : (
     <FormControl fullWidth>
-      <InputLabel id='chat-gpt-engine-select-label'>
-        Engine
-      </InputLabel>
+      <InputLabel id='cgpt-engine-select-label'>Engine</InputLabel>
       <Select
-        labelId='chat-gpt-engine-select-label'
-        id='chat-gpt-engine-select'
+        labelId='cgpt-engine-select-label'
+        id='cgpt-engine-select'
         value={selectedEngine}
         align='left'
         label='Engine'
-        onChange={handleEngineChangeCaptured}>
+        onChange={handleEngineOnChange}>
         {engines.map((e) => (
           <MenuItem value={e.id}>{e.id}</MenuItem>
         ))}

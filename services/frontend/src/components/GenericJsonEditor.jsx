@@ -4,6 +4,7 @@ import 'ace-builds/src-noconflict/theme-solarized_dark';
 import 'ace-builds/src-noconflict/theme-terminal';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/theme-twilight';
+import 'ace-builds/webpack-resolver';
 import React, { useEffect, useState } from 'react';
 import AceEditor from 'react-ace';
 
@@ -25,7 +26,6 @@ const GenericJsonEditor = ({
       width={width}
       height={height}
       minLines={minLines}
-      setOptions={{ useWorker: false }}
       fontSize={fontSize}
       showPrintMargin={true}
       showGutter={true}
