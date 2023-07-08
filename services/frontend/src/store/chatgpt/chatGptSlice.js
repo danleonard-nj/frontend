@@ -22,6 +22,9 @@ const chatGptInitialState = {
   historyEndpoints: [],
   historyEndpointsLoading: true,
   historyDaysBack: 7,
+  historyChatIndex: 0,
+  historyRecordMessages: [],
+  isHistoryViewEnabled: false,
   selectedHistoryEndpoint: '',
   selectedEngine: defaultEngine,
   tokens: 2048,
@@ -61,6 +64,15 @@ const historyReducers = {
   },
   setHistoryDaysBack(state, { payload }) {
     state.historyDaysBack = payload;
+  },
+  setHistoryChatIndex(state, { payload }) {
+    state.historyChatIndex = payload;
+  },
+  setHistoryRecordMessages(state, { payload }) {
+    state.historyRecordMessages = payload;
+  },
+  setIsHistoryViewEnabled(state, { payload }) {
+    state.isHistoryViewEnabled = payload;
   },
 };
 
@@ -152,6 +164,9 @@ export const {
   setChatMessages,
   setChatMessagesLoading,
   setMessage,
+  setHistoryChatIndex,
+  setHistoryRecordMessages,
+  setIsHistoryViewEnabled,
 } = chatGptSlice.actions;
 
 export default chatGptSlice.reducer;
