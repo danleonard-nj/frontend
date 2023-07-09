@@ -29,6 +29,7 @@ import {
 import Spinner from '../Spinner';
 import { ChatMessageChip } from './ChatGptChatMessageChip';
 import { ChatGptStyledPaper } from './ChatGptStyledPaper';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 const ChipMessage = ({ content }) => {
   return <span style={{ whiteSpace: 'pre-line' }}>{content}</span>;
@@ -77,6 +78,10 @@ const ChatGptChatContainer = ({
 
   const getMessages = () =>
     isHistoryViewEnabled ? historyRecordMessages : chatMessages;
+
+  const handleCopyOnClick = (content) => {
+    navigator.clipboard.writeText(content);
+  };
 
   useEffect(() => {
     if (historyChatIndex === 0) {
@@ -138,7 +143,22 @@ const ChatGptChatContainer = ({
                     <ChatMessageChip
                       component='div'
                       label={
-                        <ChipMessage content={message?.content} />
+                        <Grid container spacing={3}>
+                          <Grid item lg={12} xs={12}>
+                            <ChipMessage content={message?.content} />
+                          </Grid>
+                          {message.role === 'assistant' && (
+                            <Grid item lg={12} xs={12} align='right'>
+                              <IconButton
+                                size='small'
+                                onClick={() =>
+                                  handleCopyOnClick(message.content)
+                                }>
+                                <ContentCopyIcon fontSize='small' />
+                              </IconButton>
+                            </Grid>
+                          )}
+                        </Grid>
                       }
                       color={getChatMessageColor(
                         message?.role ?? 'user'
