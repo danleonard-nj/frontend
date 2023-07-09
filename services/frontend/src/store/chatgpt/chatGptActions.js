@@ -1,6 +1,9 @@
 import autoBind from 'auto-bind';
 import ChatGptApi from '../../api/chatGptApi';
-import { stripLeadingNewLineChars } from '../../api/helpers/chatGptHelpers';
+import {
+  getChatCompletionHistory,
+  stripLeadingNewLineChars,
+} from '../../api/helpers/chatGptHelpers';
 import { toDateString } from '../../api/helpers/dateTimeUtils';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
@@ -70,12 +73,14 @@ export default class ChatGptActions {
     return (dispatch, getState) => {
       const { isHistoryViewEnabled, history } = getState().chatgpt;
 
+      const chatHistory = getChatCompletionHistory(history);
+
       !isHistoryViewEnabled &&
         dispatch(setIsHistoryViewEnabled(true));
 
-      const historyRecord = history[history.length - 1];
+      const historyRecord = chatHistory[chatHistory.length - 1];
 
-      dispatch(setHistoryChatIndex(history.length - 1));
+      dispatch(setHistoryChatIndex(chatHistory.length - 1));
       dispatch(
         setHistoryRecordMessages([
           ...historyRecord?.response?.request?.body?.messages,
@@ -91,7 +96,9 @@ export default class ChatGptActions {
       const { historyChatIndex, isHistoryViewEnabled, history } =
         getState().chatgpt;
 
-      if (historyChatIndex === history?.length) {
+      const chatHistory = getChatCompletionHistory(history);
+
+      if (historyChatIndex === chatHistory?.length) {
         return;
       }
 
@@ -99,7 +106,7 @@ export default class ChatGptActions {
         dispatch(setIsHistoryViewEnabled(true));
 
       const currentIndex = historyChatIndex + 1;
-      const historyRecord = history[currentIndex];
+      const historyRecord = chatHistory[currentIndex];
 
       dispatch(setHistoryChatIndex(currentIndex));
       dispatch(
@@ -121,11 +128,13 @@ export default class ChatGptActions {
         return;
       }
 
+      const chatHistory = getChatCompletionHistory(history);
+
       !isHistoryViewEnabled &&
         dispatch(setIsHistoryViewEnabled(true));
 
       const currentIndex = historyChatIndex - 1;
-      const historyRecord = history[currentIndex];
+      const historyRecord = chatHistory[currentIndex];
 
       dispatch(setHistoryChatIndex(currentIndex));
 

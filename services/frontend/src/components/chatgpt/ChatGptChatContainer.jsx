@@ -9,9 +9,12 @@ import {
   IconButton,
   TextField,
 } from '@mui/material';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getChatMessageColor } from '../../api/helpers/chatGptHelpers';
+import {
+  getChatCompletionHistory,
+  getChatMessageColor,
+} from '../../api/helpers/chatGptHelpers';
 import {
   getHistory,
   leftHistoryArrowClick,
@@ -54,13 +57,16 @@ const ChatGptChatContainer = ({
 
   const handleLeftHistoryArrowOnClick = () => {
     dispatch(leftHistoryArrowClick());
+    dispatch(leftHistoryArrowClick());
   };
 
   const handleRightHistoryArrowOnClick = () => {
     dispatch(rightHistoryArrowClick());
+    dispatch(rightHistoryArrowClick());
   };
 
   const handleRightDoubleArrowOnClick = () => {
+    dispatch(rightHistoryDoubleArrowClick());
     dispatch(rightHistoryDoubleArrowClick());
   };
 
@@ -74,7 +80,8 @@ const ChatGptChatContainer = ({
 
   useEffect(() => {
     if (historyChatIndex === 0) {
-      dispatch(setHistoryChatIndex(history?.length));
+      const chatHistory = getChatCompletionHistory(history ?? []);
+      dispatch(setHistoryChatIndex(chatHistory?.length));
     }
   }, [history]);
 
@@ -84,32 +91,42 @@ const ChatGptChatContainer = ({
     }
   }, []);
 
+  useEffect(() => {
+    if (history?.length === 0) {
+      dispatch(getHistory(1));
+    }
+  }, []);
+
+  const NavigationButtonSection = () => (
+    <ButtonGroup>
+      <IconButton>
+        <KeyboardDoubleArrowLeftIcon />
+      </IconButton>
+      <IconButton
+        disabled={history?.length === 0}
+        onClick={handleLeftHistoryArrowOnClick}>
+        <KeyboardArrowLeftIcon />
+      </IconButton>
+      <IconButton
+        disabled={historyChatIndex === history?.length - 1}
+        onClick={handleRightHistoryArrowOnClick}>
+        <KeyboardArrowRightIcon />
+      </IconButton>
+      <IconButton
+        disabled={historyChatIndex === history?.length - 1}
+        onClick={handleRightDoubleArrowOnClick}>
+        <KeyboardDoubleArrowRightIcon />
+      </IconButton>
+      <IconButton onClick={handleClearOnClick}>
+        <ClearIcon />
+      </IconButton>
+    </ButtonGroup>
+  );
+
   return (
     <Grid container spacing={3}>
       <Grid item lg={12} align='right'>
-        <ButtonGroup>
-          <IconButton>
-            <KeyboardDoubleArrowLeftIcon />
-          </IconButton>
-          <IconButton
-            disabled={history?.length === 0}
-            onClick={handleLeftHistoryArrowOnClick}>
-            <KeyboardArrowLeftIcon />
-          </IconButton>
-          <IconButton
-            disabled={historyChatIndex === history?.length - 1}
-            onClick={handleRightHistoryArrowOnClick}>
-            <KeyboardArrowRightIcon />
-          </IconButton>
-          <IconButton
-            disabled={historyChatIndex === history?.length - 1}
-            onClick={handleRightDoubleArrowOnClick}>
-            <KeyboardDoubleArrowRightIcon />
-          </IconButton>
-          <IconButton onClick={handleClearOnClick}>
-            <ClearIcon />
-          </IconButton>
-        </ButtonGroup>
+        <NavigationButtonSection />
       </Grid>
       <Grid item lg={12}>
         <ChatGptStyledPaper el={3}>

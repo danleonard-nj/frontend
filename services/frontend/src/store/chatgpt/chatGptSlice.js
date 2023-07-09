@@ -69,6 +69,7 @@ const historyReducers = {
     state.historyChatIndex = payload;
   },
   setHistoryRecordMessages(state, { payload }) {
+    console.log('set history record messages');
     state.historyRecordMessages = payload;
   },
   setIsHistoryViewEnabled(state, { payload }) {
