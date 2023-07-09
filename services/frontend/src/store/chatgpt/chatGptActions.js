@@ -24,7 +24,6 @@ import {
   setUsage,
   setUsageLoading,
 } from './chatGptSlice';
-import { chatGptEndpoints } from '../../api/data/chatGpt';
 
 const getBodyErrorMessage = (data) =>
   data?.response?.body?.error?.message;

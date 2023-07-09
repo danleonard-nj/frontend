@@ -9,7 +9,7 @@ import {
   IconButton,
   TextField,
 } from '@mui/material';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getChatCompletionHistory,
@@ -57,13 +57,16 @@ const ChatGptChatContainer = ({
 
   const handleLeftHistoryArrowOnClick = () => {
     dispatch(leftHistoryArrowClick());
+    dispatch(leftHistoryArrowClick());
   };
 
   const handleRightHistoryArrowOnClick = () => {
     dispatch(rightHistoryArrowClick());
+    dispatch(rightHistoryArrowClick());
   };
 
   const handleRightDoubleArrowOnClick = () => {
+    dispatch(rightHistoryDoubleArrowClick());
     dispatch(rightHistoryDoubleArrowClick());
   };
 
@@ -81,6 +84,12 @@ const ChatGptChatContainer = ({
       dispatch(setHistoryChatIndex(chatHistory?.length));
     }
   }, [history]);
+
+  useEffect(() => {
+    if (history?.length === 0) {
+      dispatch(getHistory(1));
+    }
+  }, []);
 
   useEffect(() => {
     if (history?.length === 0) {
