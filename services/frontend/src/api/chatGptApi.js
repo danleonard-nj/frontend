@@ -3,7 +3,7 @@ import ApiBase from './apiBase';
 
 export default class ChatGptApi extends ApiBase {
   constructor() {
-    super(serviceScopes.kubeTools);
+    super(serviceScopes.chatGpt);
   }
 
   getCompletionRequestBody = (prompt, tokens, model) => ({

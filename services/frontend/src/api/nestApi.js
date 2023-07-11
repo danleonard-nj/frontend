@@ -3,7 +3,7 @@ import ApiBase from './apiBase';
 
 export default class NestApi extends ApiBase {
   constructor() {
-    super(serviceScopes.kubeTools);
+    super(serviceScopes.nest);
   }
 
   async getSensorInfo() {
