@@ -35,7 +35,7 @@ const NestThermostatSetRange = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item lg={6} xs={12}>
+      <Grid item lg={9} xs={12}>
         <Slider
           getAriaLabel={() => 'Temperature range'}
           value={rangeValue}
@@ -44,12 +44,12 @@ const NestThermostatSetRange = () => {
           valueLabelDisplay='auto'
           getAriaValueText={getFormattedCelsius}
           min={60}
-          max={90}
+          max={80}
           marks={rangeMarks}
           fullWidth
         />
       </Grid>
-      <Grid item lg={6}>
+      <Grid item lg={3} align='right'>
         <Box>
           Cool: {rangeValue[0]}&deg;F
           <br />
@@ -87,8 +87,8 @@ const NestThermostatSetCool = () => {
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item lg={6} xs={12}>
+    <Grid container spacing={3}>
+      <Grid item lg={9} xs={12}>
         <Slider
           getAriaLabel={() => 'Temperature range'}
           value={coolValue}
@@ -96,12 +96,13 @@ const NestThermostatSetCool = () => {
           onChangeCommitted={(e, v) => handleValueCapture(v)}
           valueLabelDisplay='auto'
           getAriaValueText={getFormattedCelsius}
-          min={62}
-          max={82}
+          min={60}
+          max={80}
           marks={rangeMarks}
+          fullWidth
         />
       </Grid>
-      <Grid item lg={6} xs={12}>
+      <Grid item lg={3} xs={12} align='right'>
         <Box>Cool: {coolValue}&deg;F</Box>
       </Grid>
     </Grid>
@@ -132,7 +133,7 @@ const NestThermostatSetHeat = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item lg={6} xs={12}>
+      <Grid item lg={9} xs={12}>
         <Slider
           getAriaLabel={() => 'Temperature range'}
           value={value}
@@ -141,11 +142,11 @@ const NestThermostatSetHeat = () => {
           valueLabelDisplay='auto'
           getAriaValueText={getFormattedCelsius}
           min={60}
-          max={90}
+          max={80}
           marks={rangeMarks}
         />
       </Grid>
-      <Grid item lg={6}>
+      <Grid item lg={3} align='right'>
         <Box>Heat: {value}&deg;F</Box>
       </Grid>
     </Grid>

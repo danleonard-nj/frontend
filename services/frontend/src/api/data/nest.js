@@ -15,23 +15,51 @@ const nestCommandNameMapping = {
   },
 };
 
+const thermostatModeNameMapping = {
+  OFF: 'Off',
+  COOL: 'Cool',
+  HEAT: 'Heat',
+};
+
+const thermostatConnectivityMapping = {
+  ONLINE: 'Online',
+  OFFLINE: 'Offline',
+};
+
+const hvacStatusNameMapping = {
+  OFF: 'Off',
+  COOLING: 'Cooling',
+  HEATING: 'Heating',
+};
+
 const rangeMarks = [
   {
-    value: 65,
-    label: '65°C',
+    value: 60,
+    label: '60°C',
   },
   {
-    value: 70,
+    value: 68,
     label: '68°C',
   },
   {
-    value: 75,
-    label: '70°C',
+    value: 72,
+    label: '72°C',
+  },
+  {
+    value: 76,
+    label: '76°C',
   },
   {
     value: 80,
-    label: '72°C',
+    label: '80°C',
   },
 ];
 
-export { nestCommandNameMapping, nestCommandKeys, rangeMarks };
+export {
+  nestCommandNameMapping,
+  nestCommandKeys,
+  rangeMarks,
+  thermostatModeNameMapping,
+  thermostatConnectivityMapping,
+  hvacStatusNameMapping,
+};

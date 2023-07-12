@@ -1,9 +1,11 @@
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
+  Box,
   Button,
   Card,
   CardActions,
   CardContent,
+  Divider,
   Grid,
   List,
   ListItemButton,
@@ -14,7 +16,17 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { nestCommandKeys } from '../../api/data/nest';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import AcUnitIcon from '@mui/icons-material/AcUnit';
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import SensorsIcon from '@mui/icons-material/Sensors';
+import SensorsOffIcon from '@mui/icons-material/SensorsOff';
+import {
+  hvacStatusNameMapping,
+  nestCommandKeys,
+  thermostatConnectivityMapping,
+  thermostatModeNameMapping,
+} from '../../api/data/nest';
 import { getFormattedCommandName } from '../../api/helpers/nestHelpers';
 import {
   getThermostat,
@@ -36,17 +48,116 @@ const formatPercent = (percent) => {
   return percent ? `${percent}%` : percent;
 };
 
-const InfoLine = ({ label, value }) => {
-  return (
-    <>
-      <Typography sx={{ fontSize: 12 }} color='text.secondary'>
-        {label}
-      </Typography>
-      <Typography variant='body2' gutterBottom>
-        {value ?? ''}
-      </Typography>
-    </>
-  );
+const getMappedNameOrDefault = (key, map, defaultValue = null) => {
+  if (key in map) {
+    return map[key];
+  }
+
+  return defaultValue ?? key;
+};
+
+const iconStyle = {
+  marginRight: '0.5rem',
+};
+
+const InfoLine = ({ label, value, icon = null }) => {
+  if (icon != null && icon != undefined) {
+    return (
+      <Box sx={{ marginBottom: '0.5rem' }}>
+        <Typography
+          sx={{
+            fontSize: 14,
+            verticalAlign: 'middle',
+          }}
+          color='text.secondary'>
+          {label}
+        </Typography>
+        <Typography variant='body2' gutterBottom m='auto'>
+          <div style={{ display: 'flex' }}>
+            {icon} {value ?? ''}
+          </div>
+        </Typography>
+      </Box>
+    );
+  } else {
+    return (
+      <>
+        {' '}
+        <Typography
+          sx={{ fontSize: 12 }}
+          color='text.secondary'
+          gutterBottom>
+          {label}
+        </Typography>
+        <Typography variant='body2' gutterBottom>
+          {value ?? ''}
+        </Typography>
+      </>
+    );
+  }
+};
+
+const HvacStatusIcon = ({ status }) => {
+  switch (status) {
+    case 'HEATING': {
+      return <LocalFireDepartmentIcon color='error' sx={iconStyle} />;
+    }
+    case 'COOLING': {
+      return <AcUnitIcon color='info' sx={iconStyle} />;
+    }
+    default: {
+      return <PowerSettingsNewIcon color='disabled' sx={iconStyle} />;
+    }
+  }
+};
+
+const ConnectionStatusIcon = ({ status }) => {
+  switch (status) {
+    case 'ONLINE': {
+      return <SensorsIcon color='success' sx={iconStyle} />;
+    }
+    case 'OFFLINE': {
+      return <SensorsOffIcon color='error' sx={iconStyle} />;
+    }
+    default: {
+      return <></>;
+    }
+  }
+};
+
+const ModeStatusIcon = ({ mode }) => {
+  switch (mode) {
+    case 'HEAT': {
+      return <LocalFireDepartmentIcon color='error' sx={iconStyle} />;
+    }
+    case 'COOL': {
+      return <AcUnitIcon color='info' sx={iconStyle} />;
+    }
+    default: {
+      return <></>;
+    }
+  }
+};
+
+const CommandListButtonIcon = ({ command }) => {
+  switch (command.command) {
+    case 'SetHeat': {
+      return <LocalFireDepartmentIcon color='error' sx={iconStyle} />;
+    }
+    case 'SetCool': {
+      return <AcUnitIcon color='info' sx={iconStyle} />;
+    }
+    case 'SetPowerOff': {
+      return <PowerSettingsNewIcon color='disabled' sx={iconStyle} />;
+    }
+    default: {
+      return <SettingsIcon color='disabled' sx={iconStyle} />;
+    }
+  }
+};
+
+const SectionDivider = () => {
+  return <Divider sx={{ margin: '1rem' }} />;
 };
 
 const NestThermostatPage = () => {
@@ -95,26 +206,58 @@ const NestThermostatPage = () => {
             label='Name'
             value={thermostat?.thermostat_name}
           />
+          <SectionDivider />
           <InfoLine
             label='HVAC Status'
-            value={thermostat?.hvac_status}
+            icon={<HvacStatusIcon status={thermostat?.hvac_status} />}
+            value={getMappedNameOrDefault(
+              thermostat?.hvac_status,
+              hvacStatusNameMapping
+            )}
           />
           <InfoLine
             label='Connectivity'
-            value={thermostat?.thermostat_status}
+            icon={
+              <ConnectionStatusIcon
+                status={thermostat?.thermostat_status}
+              />
+            }
+            value={getMappedNameOrDefault(
+              thermostat?.thermostat_status,
+              thermostatConnectivityMapping
+            )}
           />
           <InfoLine
             label='Mode'
-            value={thermostat?.thermostat_mode}
+            icon={
+              <ModeStatusIcon mode={thermostat?.thermostat_mode} />
+            }
+            value={getMappedNameOrDefault(
+              thermostat?.thermostat_mode,
+              thermostatModeNameMapping
+            )}
           />
-          <InfoLine
-            label='Cool'
-            value={formatDegrees(thermostat?.cool_fahrenheit)}
-          />
-          <InfoLine
-            label='Heat'
-            value={formatDegrees(thermostat?.heat_fahrenheit)}
-          />
+          <SectionDivider />
+          {thermostat?.cool_fahrenheit != 0 && (
+            <InfoLine
+              label='Cool'
+              icon={<AcUnitIcon color='info' sx={iconStyle} />}
+              value={formatDegrees(thermostat?.cool_fahrenheit)}
+            />
+          )}
+          {thermostat?.heat_fahrenheit != 0 && (
+            <InfoLine
+              label='Heat'
+              icon={
+                <LocalFireDepartmentIcon
+                  color='error'
+                  sx={iconStyle}
+                />
+              }
+              value={formatDegrees(thermostat?.heat_fahrenheit)}
+            />
+          )}
+          <SectionDivider />
           <InfoLine
             label='Ambient Temperature'
             value={formatDegrees(
@@ -166,22 +309,31 @@ const NestThermostatPage = () => {
     );
   };
 
+  const CommandListItem = ({ command }) => {
+    return (
+      <ListItemButton
+        selected={selectedCommand.command === command.command}
+        onClick={() => handleSelectCommand(command)}>
+        <ListItemIcon>
+          <CommandListButtonIcon command={command} />
+        </ListItemIcon>
+        <ListItemText
+          primary={getFormattedCommandName(command.command)}
+        />
+      </ListItemButton>
+    );
+  };
+
   const CommandList = () => {
     return (
       <Paper elevation={3} sx={{ p: 2 }}>
         <Typography variant='h5'>Thermostat Commands</Typography>
         <List dense>
           {commands.map((command) => (
-            <ListItemButton
-              selected={selectedCommand.command === command.command}
-              onClick={() => handleSelectCommand(command)}>
-              <ListItemIcon>
-                <SettingsIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={getFormattedCommandName(command.command)}
-              />
-            </ListItemButton>
+            <CommandListItem
+              key={command.command}
+              command={command}
+            />
           ))}
         </List>
       </Paper>
