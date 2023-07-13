@@ -9,6 +9,18 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSideMenu } from '../../store/dashboard/dashboardSlice';
 import { useMsal } from '@azure/msal-react';
+import {
+  getBalance,
+  getBalances,
+} from '../../store/bank/bankActions';
+import { useEffect } from 'react';
+import { formatCurrency } from '../../api/helpers/bankHelpers';
+import { Card, CardContent, Divider, Tooltip } from '@mui/material';
+import { GenericJsonEditor } from '../GenericJsonEditor';
+import {
+  toDateString,
+  toLocalDateTime,
+} from '../../api/helpers/dateTimeUtils';
 
 const capitalize = (value) => {
   return value
@@ -17,11 +29,13 @@ const capitalize = (value) => {
     .join('');
 };
 
-export default function TopMenu() {
-  const { instance } = useMsal();
+const TopMenu = () => {
+  const { page: title } = useSelector((x) => x.dashboard);
+  const { balance, balanceLoading, balances, balancesLoading } =
+    useSelector((x) => x.bank);
 
+  const { instance } = useMsal();
   const dispatch = useDispatch();
-  const title = useSelector((x) => x.dashboard.page);
 
   function openSidebar() {
     dispatch(setSideMenu(true));
@@ -33,12 +47,49 @@ export default function TopMenu() {
     });
   };
 
+  useEffect(() => {
+    dispatch(getBalances());
+    dispatch(getBalance('wells-fargo'));
+  }, []);
+
+  const formatTimestamp = (timestamp) =>
+    new Date((timestamp ?? 0) * 1000).toLocaleString();
+
+  const BankInfoDivider = () => {
+    return <Divider sx={{ marginTop: 1, marginBottom: 1 }} />;
+  };
+
+  const BalancesCard = () => {
+    console.log(JSON.stringify(balances));
+    return (
+      <Card>
+        <CardContent>
+          {balancesLoading ? (
+            'Loading...'
+          ) : (
+            <div style={{ display: 'flex' }}>
+              {balances.map((balance) => (
+                <Typography variant='body2' gutterBottom>
+                  <b>Timestamp:</b>{' '}
+                  {formatTimestamp(balance.timestamp)}
+                  <BankInfoDivider />
+                  <b>Bank Key:</b> {balance.bank_key}
+                  <BankInfoDivider />
+                  <b>Balance:</b> {formatCurrency(balance.balance)}:
+                </Typography>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }} id='top-menu-flex'>
       <AppBar position='static' id='top-menu-bar'>
         <Toolbar id='top-menu-toolbar'>
           <IconButton
-            id='top-menu-hamburger-button'
             size='large'
             edge='start'
             color='inherit'
@@ -50,18 +101,33 @@ export default function TopMenu() {
           <Typography
             variant='h6'
             component='div'
-            sx={{ flexGrow: 1 }}
-            id='top-menu-page-title'>
+            sx={{ flexGrow: 1 }}>
             {capitalize(title)}
           </Typography>
-          <Button
-            color='inherit'
-            onClick={handleLogout}
-            id='top-menu-logout-button'>
+          <Tooltip
+            placement='bottom-end'
+            title={
+              <>
+                <BalancesCard />
+              </>
+            }>
+            <Typography
+              variant='body2'
+              component='div'
+              sx={{ float: 'right', marginRight: '1rem' }}>
+              WF:{' '}
+              {balanceLoading
+                ? 'Loading...'
+                : formatCurrency(balance.balance)}
+            </Typography>
+          </Tooltip>
+          <Button color='inherit' onClick={handleLogout}>
             Logout
           </Button>
         </Toolbar>
       </AppBar>
     </Box>
   );
-}
+};
+
+export { TopMenu };

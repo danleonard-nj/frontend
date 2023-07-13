@@ -11,7 +11,7 @@ import Login from './components/auth/Login';
 import Dashboard from './components/dashboard/Dashboard';
 import { DialogProvider } from './components/DialogProvider';
 import SideMenu from './components/menus/SideMenu';
-import TopMenu from './components/menus/TopMenu';
+import { TopMenu } from './components/menus/TopMenu';
 
 var theme = createTheme({
   palette: {

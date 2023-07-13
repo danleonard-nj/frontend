@@ -1,7 +1,14 @@
 import autoBind from 'auto-bind';
 import ChatGptApi from '../../api/chatGptApi';
 import {
+  addDays,
+  formatCurrency,
+  getBodyErrorMessage,
+  getBodyErrorType,
   getChatCompletionHistory,
+  getDaysFromToday,
+  getStartOfMonthDate,
+  getTotalTokenUsage,
   stripLeadingNewLineChars,
 } from '../../api/helpers/chatGptHelpers';
 import { toDateString } from '../../api/helpers/dateTimeUtils';
@@ -24,44 +31,6 @@ import {
   setUsage,
   setUsageLoading,
 } from './chatGptSlice';
-
-const getBodyErrorMessage = (data) =>
-  data?.response?.body?.error?.message;
-const getBodyErrorType = (data) => data?.response?.body?.error?.tpe;
-const getTotalTokenUsage = (data) =>
-  data?.response?.body?.usage?.total_tokens;
-
-const getStartOfMonthDate = () => {
-  const today = new Date();
-  const startOfMonth = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    1
-  );
-
-  return toDateString(startOfMonth);
-};
-
-const formatUsageCents = (usageCents) => {
-  const currencyFormatter = Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 4,
-  });
-
-  return currencyFormatter.format(usageCents / 100);
-};
-
-const addDays = (date, days) => {
-  const modified = date.setDate(date.getDate() + days);
-  return new Date(modified);
-};
-
-const getDaysFromToday = (days) => {
-  var date = new Date();
-  date.setDate(date.getDate() + days);
-  return date;
-};
 
 export default class ChatGptActions {
   constructor() {
@@ -270,7 +239,6 @@ export default class ChatGptActions {
 
   isErrorResponseContent(response) {
     const message = response?.body?.error?.message;
-
     return message ? `` : false;
   }
 
@@ -348,7 +316,7 @@ export default class ChatGptActions {
           dispatch(popErrorMessage('Failed to fetch usage data'));
         } else {
           // Get the usage data formatted as currency
-          const totalUsage = formatUsageCents(
+          const totalUsage = formatCurrency(
             data?.response?.body?.total_usage ?? 0
           );
 
