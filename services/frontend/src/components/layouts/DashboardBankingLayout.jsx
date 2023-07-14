@@ -31,40 +31,24 @@ const DashboardBankingLayout = () => {
     dispatch(getBalances());
   }, []);
 
-  // const NestPageHeader = () => {
-  //   return (
-  //     <Grid container>
-  //       <Grid item lg={10}>
-  //         <Typography variant='h5' gutterBottom>
-  //           Sensor Info
-  //         </Typography>
-  //       </Grid>
-  //       <Grid item lg={2} align='right'>
-  //         <Button
-  //           variant='contained'
-  //           onClick={handleRefreshSensorInfo}
-  //           sx={{ float: 'right' }}>
-  //           Refresh
-  //         </Button>
-  //       </Grid>
-  //     </Grid>
-  //   );
-  // };
-
   const BalanceTable = () => {
     return (
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>ID</TableCell>
             <TableCell>Bank</TableCell>
             <TableCell>Balance</TableCell>
             <TableCell>Sync Date</TableCell>
             <TableCell>Message BK</TableCell>
+            <TableCell>GPT</TableCell>
+            <TableCell>Tokens Used</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {balances.map((balance) => (
-            <TableRow key={balance.bank_key}>
+            <TableRow key={balance.balance_id}>
+              <TableCell>{balance.balance_id}</TableCell>
               <TableCell>{balance.bank_key}</TableCell>
               <TableCell>
                 {formatCurrency(balance.balance ?? 0)}
@@ -78,6 +62,12 @@ const DashboardBankingLayout = () => {
                   {balance.message_bk}
                 </Link>
               </TableCell>
+              <TableCell>
+                {balance.gpt_tokens > 0 ? 'true' : 'false'}
+              </TableCell>
+              <TableCell>
+                {balance.gpt_tokens > 0 && balance.gpt_tokens}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -90,16 +80,8 @@ const DashboardBankingLayout = () => {
       elevation={2}
       sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
       <Grid container spacing={2}>
-        <Grid item lg={3} xs={12} sm={12}>
+        <Grid item lg={12} xs={12} sm={12}>
           {balancesLoading ? <Spinner /> : <BalanceTable />}
-        </Grid>
-        <Grid item lg={9}>
-          <Grid container spacing={2}>
-            {/* <Grid item lg={12}>
-              {sideNav === 'sensor-info' && <NestSensorInfoPage />}
-              {sideNav === 'thermostat' && <NestThermostatPage />}
-            </Grid> */}
-          </Grid>
         </Grid>
       </Grid>
     </Paper>
