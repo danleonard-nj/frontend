@@ -1,12 +1,17 @@
 import { useMsal } from '@azure/msal-react';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Card, CardContent, Divider, Tooltip } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Divider,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatCurrency } from '../../api/helpers/bankHelpers';
@@ -15,6 +20,7 @@ import {
   getBalances,
 } from '../../store/bank/bankActions';
 import { setSideMenu } from '../../store/dashboard/dashboardSlice';
+import version from '../../version.json';
 
 const capitalize = (value) => {
   return value
@@ -25,8 +31,12 @@ const capitalize = (value) => {
 
 const TopMenu = () => {
   const { page: title } = useSelector((x) => x.dashboard);
-  const { balance, balanceLoading, balances, balancesLoading } =
-    useSelector((x) => x.bank);
+  const {
+    balance,
+    balanceLoading,
+    balances: { balances },
+    balancesLoading,
+  } = useSelector((x) => x.bank);
 
   const { instance } = useMsal();
   const dispatch = useDispatch();
@@ -97,6 +107,12 @@ const TopMenu = () => {
             component='div'
             sx={{ flexGrow: 1 }}>
             {capitalize(title)}
+          </Typography>
+          <Typography
+            variant='body2'
+            component='div'
+            sx={{ float: 'right', marginRight: '1rem' }}>
+            Version: {version.buildId}
           </Typography>
           <Tooltip
             placement='bottom-end'
