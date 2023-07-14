@@ -12,6 +12,7 @@ const pages = [
   'Email',
   'ChatGPT',
   'Nest',
+  'Banking',
 ];
 
 export { pages };

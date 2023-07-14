@@ -1,26 +1,20 @@
-import React from 'react';
+import { useMsal } from '@azure/msal-react';
+import MenuIcon from '@mui/icons-material/Menu';
+import { Card, CardContent, Divider, Tooltip } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSideMenu } from '../../store/dashboard/dashboardSlice';
-import { useMsal } from '@azure/msal-react';
+import { formatCurrency } from '../../api/helpers/bankHelpers';
 import {
   getBalance,
   getBalances,
 } from '../../store/bank/bankActions';
-import { useEffect } from 'react';
-import { formatCurrency } from '../../api/helpers/bankHelpers';
-import { Card, CardContent, Divider, Tooltip } from '@mui/material';
-import { GenericJsonEditor } from '../GenericJsonEditor';
-import {
-  toDateString,
-  toLocalDateTime,
-} from '../../api/helpers/dateTimeUtils';
+import { setSideMenu } from '../../store/dashboard/dashboardSlice';
 
 const capitalize = (value) => {
   return value
@@ -60,7 +54,7 @@ const TopMenu = () => {
   };
 
   const BalancesCard = () => {
-    console.log(JSON.stringify(balances));
+    console.log(JSON.stringify(balances ?? {}));
     return (
       <Card>
         <CardContent>

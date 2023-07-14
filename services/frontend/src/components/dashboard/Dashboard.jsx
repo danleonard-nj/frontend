@@ -14,6 +14,7 @@ import DashboardTaskLayout from '../layouts/DashboardTaskLayout';
 import { DashoardEmailRuleLayout } from '../layouts/DashboardEmailRuleLayout';
 import { DashboardChatGPTLayout } from '../layouts/DashboardChatGPTLayout';
 import { DashboardNestLayout } from '../layouts/DashboardNestLayout';
+import { DashboardBankingLayout } from '../layouts/DashboardBankingLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -42,6 +43,7 @@ export default function Dashboard() {
       {dashboardPage === 'email' && <DashoardEmailRuleLayout />}
       {dashboardPage === 'chatgpt' && <DashboardChatGPTLayout />}
       {dashboardPage === 'nest' && <DashboardNestLayout />}
+      {dashboardPage === 'banking' && <DashboardBankingLayout />}
     </Container>
   );
 }
