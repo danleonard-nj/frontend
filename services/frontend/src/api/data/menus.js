@@ -13,6 +13,7 @@ const pages = [
   'ChatGPT',
   'Nest',
   'Banking',
+  'PfSense',
 ];
 
 export { pages };

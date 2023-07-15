@@ -21,6 +21,13 @@ const NestSideNav = ({ selected, onChange }) => {
           </ListItem>
           <ListItem disablePadding>
             <ListItemButton
+              selected={selected === 'weather'}
+              onClick={() => onChange('weather')}>
+              <ListItemText primary='Weather' />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
               selected={selected === 'thermostat'}
               onClick={() => onChange('thermostat')}>
               <ListItemText primary='Thermostat' />
