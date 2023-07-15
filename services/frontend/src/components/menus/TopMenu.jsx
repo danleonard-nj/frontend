@@ -90,7 +90,9 @@ const TopMenu = () => {
   };
 
   const getBalanceDisplay = () => {
-    return balance === 0 ? 'N/A' : formatCurrency(balance);
+    return balance?.balance === 0
+      ? 'N/A'
+      : formatCurrency(balance?.balance);
   };
 
   return (
