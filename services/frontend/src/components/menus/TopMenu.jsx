@@ -32,10 +32,10 @@ const capitalize = (value) => {
 const TopMenu = () => {
   const { page: title } = useSelector((x) => x.dashboard);
   const {
-    balance,
-    balanceLoading,
-    balances: { balances },
-    balancesLoading,
+    balance = 0,
+    balanceLoading = true,
+    balances: { balances = [] },
+    balancesLoading = true,
   } = useSelector((x) => x.bank);
 
   const { instance } = useMsal();
@@ -89,6 +89,10 @@ const TopMenu = () => {
     );
   };
 
+  const getBalanceDisplay = () => {
+    return balance === 0 ? 'N/A' : formatCurrency(balance);
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }} id='top-menu-flex'>
       <AppBar position='static' id='top-menu-bar'>
@@ -108,12 +112,14 @@ const TopMenu = () => {
             sx={{ flexGrow: 1 }}>
             {capitalize(title)}
           </Typography>
-          <Typography
-            variant='body2'
-            component='div'
-            sx={{ float: 'right', marginRight: '1rem' }}>
-            Version: {version.buildId}
-          </Typography>
+          {window.innerWidth > 500 && (
+            <Typography
+              variant='body2'
+              component='div'
+              sx={{ float: 'right', marginRight: '1rem' }}>
+              Version: {version.buildId}
+            </Typography>
+          )}
           <Tooltip
             placement='bottom-end'
             title={
@@ -128,7 +134,7 @@ const TopMenu = () => {
               WF:{' '}
               {balanceLoading
                 ? 'Loading...'
-                : formatCurrency(balance.balance)}
+                : getBalanceDisplay(balance?.balance)}
             </Typography>
           </Tooltip>
           <Button color='inherit' onClick={handleLogout}>
