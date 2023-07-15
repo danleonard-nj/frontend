@@ -7,6 +7,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Typography,
 } from '@mui/material';
 import React from 'react';
 import { useEffect } from 'react';
@@ -36,9 +37,9 @@ const DashboardBankingLayout = () => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>ID</TableCell>
             <TableCell>Bank</TableCell>
             <TableCell>Balance</TableCell>
+            <TableCell>Sync Type</TableCell>
             <TableCell>Sync Date</TableCell>
             <TableCell>Message BK</TableCell>
             <TableCell>GPT</TableCell>
@@ -48,26 +49,28 @@ const DashboardBankingLayout = () => {
         <TableBody>
           {balances.map((balance) => (
             <TableRow key={balance.balance_id}>
-              <TableCell>{balance.balance_id}</TableCell>
               <TableCell>{balance.bank_key}</TableCell>
               <TableCell>
                 {formatCurrency(balance.balance ?? 0)}
               </TableCell>
+              <TableCell>{balance.sync_type}</TableCell>
               <TableCell>
                 {balance.timestamp &&
                   new Date(balance.timestamp * 1000).toLocaleString()}
               </TableCell>
               <TableCell>
-                <Link href={getGmailLink(balance.message_bk)}>
-                  {balance.message_bk}
-                </Link>
+                {balance?.sync_type === 'email' ? (
+                  <Link href={getGmailLink(balance.message_bk)}>
+                    {balance.message_bk}
+                  </Link>
+                ) : (
+                  <Typography variant='body2'>N/A</Typography>
+                )}
               </TableCell>
               <TableCell>
                 {balance.gpt_tokens > 0 ? 'true' : 'false'}
               </TableCell>
-              <TableCell>
-                {balance.gpt_tokens > 0 && balance.gpt_tokens}
-              </TableCell>
+              <TableCell>{balance?.gpt_tokens ?? 0}</TableCell>
             </TableRow>
           ))}
         </TableBody>
