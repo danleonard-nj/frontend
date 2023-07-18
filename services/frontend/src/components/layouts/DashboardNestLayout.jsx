@@ -1,11 +1,17 @@
 import {
+  Box,
+  Card,
+  CardContent,
+  Divider,
   Grid,
   Paper,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  Tabs,
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
@@ -14,14 +20,24 @@ import { getSensorInfo } from '../../store/nest/nestActions';
 import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
 import { NestSideNav } from '../nest/NestSideNav';
 import { NestThermostatPage } from '../nest/NestThermostatPage';
-import { getWeather } from '../../store/weather/weatherActions';
+import {
+  getForecast,
+  getWeather,
+} from '../../store/weather/weatherActions';
 import Spinner from '../Spinner';
+import {
+  formatForecastDay,
+  getFormattedFahrenheit,
+  getFormattedPercent,
+  getLocation,
+  getWindInfo,
+} from '../../api/helpers/nestHelpers';
 
 const formatDate = (timestamp) => {
   return new Date(timestamp * 1000).toLocaleString();
 };
 
-const getMinMax = (weather) => {
+const DailyMinMaxDisplay = (weather) => {
   return (
     <Grid container spacing={1}>
       <Grid item lg={12}>
@@ -34,7 +50,7 @@ const getMinMax = (weather) => {
   );
 };
 
-const getLatLong = (weather) => {
+const DailyLatLongDisplay = (weather) => {
   return (
     <Grid container spacing={1}>
       <Grid item lg={12}>
@@ -47,7 +63,7 @@ const getLatLong = (weather) => {
   );
 };
 
-const getSunriseSunset = (weather) => {
+const DailySunriseSunsetDisplay = (weather) => {
   return (
     <Grid container spacing={1}>
       <Grid item lg={12}>
@@ -60,78 +76,158 @@ const getSunriseSunset = (weather) => {
   );
 };
 
-const getLocation = (weather) => {
-  return `${weather.location_name}, ${weather.location_zipcode}`;
+const FieldData = ({ label, value }) => {
+  return (
+    <>
+      <Typography sx={{ fontSize: 14 }} color='text.secondary'>
+        {label}
+      </Typography>
+      <Typography variant='body2' gutterBottom>
+        {value}
+      </Typography>
+    </>
+  );
 };
 
-const getWindInfo = (weather) => {
-  return `${weather?.wind_speed ?? 'N/A'}mph @ ${
-    weather?.wind_degrees ?? 'N/A'
-  } degrees`;
+const ForecastDayCard = ({ forecast }) => {
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant='h6' align='center' gutterBottom>
+          {formatForecastDay(forecast?.date)}
+        </Typography>
+        <FieldData
+          label='High'
+          value={getFormattedFahrenheit(forecast?.temperature_max)}
+        />
+        <FieldData
+          label='Low'
+          value={getFormattedFahrenheit(forecast?.temperature_min)}
+        />
+        <FieldData
+          label='Humidity'
+          value={getFormattedPercent(forecast?.humidity)}
+        />
+        <FieldData
+          label='Feels Like'
+          value={getFormattedFahrenheit(forecast?.feels_like)}
+        />
+      </CardContent>
+    </Card>
+  );
+};
+
+const ForecastPage = () => {
+  const { forecast, forecastLoading } = useSelector((x) => x.weather);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getForecast());
+  }, []);
+
+  const ForecastPageContent = () => {
+    return (
+      <Grid container spacing={3}>
+        {forecast?.map((day) => (
+          <Grid item lg={3}>
+            <ForecastDayCard forecast={day} />
+          </Grid>
+        ))}
+      </Grid>
+    );
+  };
+
+  return forecastLoading ? <Spinner /> : <ForecastPageContent />;
 };
 
 const WeatherPage = () => {
+  const [value, setValue] = useState(0);
   const {
     weather: { weather },
     weatherLoading,
-    zipCode,
   } = useSelector((x) => x.weather);
 
   const WeatherTable = () => (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell></TableCell>
-          <TableCell></TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        <TableRow>
-          <TableCell>Location</TableCell>
-          <TableCell>{getLocation(weather)}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Temperature</TableCell>
-          <TableCell>{weather?.temperature ?? 'N/A'} °F</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Hi/Lo</TableCell>
-          <TableCell>{getMinMax(weather)}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Feels Like</TableCell>
-          <TableCell>{weather.feels_like} °F</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Humidity</TableCell>
-          <TableCell>{weather.humidity}%</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Wind</TableCell>
-          <TableCell>{getWindInfo(weather)}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Pressure</TableCell>
-          <TableCell>{weather.pressure}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Sunrise / Sunset</TableCell>
-          <TableCell>{getSunriseSunset(weather)}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Lat/Long</TableCell>
-          <TableCell>{getLatLong(weather)}</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+    <Grid container spacing={3}>
+      <Grid item lg={6}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>Location</TableCell>
+              <TableCell>{getLocation(weather)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Temperature</TableCell>
+              <TableCell>
+                {weather?.temperature ?? 'N/A'} °F
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Hi/Lo</TableCell>
+              <TableCell>{DailyMinMaxDisplay(weather)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Feels Like</TableCell>
+              <TableCell>{weather.feels_like} °F</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Humidity</TableCell>
+              <TableCell>{weather.humidity}%</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Wind</TableCell>
+              <TableCell>{getWindInfo(weather)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Pressure</TableCell>
+              <TableCell>{weather.pressure}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Sunrise / Sunset</TableCell>
+              <TableCell>
+                {DailySunriseSunsetDisplay(weather)}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Lat/Long</TableCell>
+              <TableCell>{DailyLatLongDisplay(weather)}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Grid>
+    </Grid>
   );
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   return weatherLoading ? (
     <Spinner />
   ) : (
     <Grid container spacing={3}>
-      <Grid item lg={6}>
-        <WeatherTable />
+      <Grid item lg={12}>
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={value} onChange={handleChange}>
+              <Tab label='Today' />
+              <Tab label='Forecast' />
+            </Tabs>
+          </Box>
+        </Box>
+      </Grid>
+      <Grid item lg={12}>
+        <>
+          {value === 0 && <WeatherTable />}
+          {value === 1 && <ForecastPage />}
+        </>
       </Grid>
     </Grid>
   );
@@ -167,38 +263,10 @@ const DashboardNestLayout = () => {
     }
   }, [dispatch, sideNav]);
 
-  // const NestPageHeader = () => {
-  //   return (
-  //     <Grid container>
-  //       <Grid item lg={10}>
-  //         <Typography variant='h5' gutterBottom>
-  //           Sensor Info
-  //         </Typography>
-  //       </Grid>
-  //       <Grid item lg={2} align='right'>
-  //         <Button
-  //           variant='contained'
-  //           onClick={handleRefreshSensorInfo}
-  //           sx={{ float: 'right' }}>
-  //           Refresh
-  //         </Button>
-  //       </Grid>
-  //     </Grid>
-  //   );
-  // };
-
   return (
     <Paper
       elevation={2}
       sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-      {/* <Drawer
-        variant='temporary'
-        anchor='right'
-        open={jsonSidebarOpen}
-        onClose={setJsonSidebarOpen(false)}> */}
-
-      {/* )
-      </Drawer> */}
       <Grid container spacing={2}>
         <Grid item lg={3} xs={12} sm={12}>
           <NestSideNav selected={sideNav} onChange={setSideNav} />

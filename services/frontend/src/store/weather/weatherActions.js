@@ -1,7 +1,12 @@
 import autoBind from 'auto-bind';
 import WeatherApi from '../../api/weatherApi';
 import { popErrorMessage } from '../alert/alertActions';
-import { setWeather, setWeatherLoading } from './weatherSlice';
+import {
+  setForecast,
+  setForecastLoading,
+  setWeather,
+  setWeatherLoading,
+} from './weatherSlice';
 
 export default class WeatherActions {
   constructor() {
@@ -16,9 +21,7 @@ export default class WeatherActions {
       // Handle success/failure toasts and formatting
       const handleErrorResponse = ({ status, data }) => {
         if (status !== 200) {
-          dispatch(
-            popErrorMessage('Failed to fetch chat weather info')
-          );
+          dispatch(popErrorMessage('Failed to fetch weather info'));
         }
       };
 
@@ -33,6 +36,31 @@ export default class WeatherActions {
       dispatch(setWeatherLoading(false));
     };
   }
+
+  getForecast() {
+    return async (dispatch, getState) => {
+      const { zipCode } = getState().weather;
+
+      // Handle success/failure toasts and formatting
+      const handleErrorResponse = ({ status, data }) => {
+        if (status !== 200) {
+          dispatch(
+            popErrorMessage('Failed to fetch weather forecast')
+          );
+        }
+      };
+
+      dispatch(setForecastLoading(true));
+
+      const response = await this.weatherApi.getForecast(zipCode);
+
+      response?.status === 200
+        ? dispatch(setForecast(response.data))
+        : handleErrorResponse(response);
+
+      dispatch(setForecastLoading(false));
+    };
+  }
 }
 
-export const { getWeather } = new WeatherActions();
+export const { getWeather, getForecast } = new WeatherActions();

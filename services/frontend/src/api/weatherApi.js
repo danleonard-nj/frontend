@@ -13,4 +13,14 @@ export default class WeatherApi extends ApiBase {
 
     return this.send(endpoint.toString(), 'GET');
   }
+
+  async getForecast(zipCode) {
+    const endpoint = new URL(
+      `${this.baseUrl}/api/tools/weather/forecast`
+    );
+
+    endpoint.searchParams.append('zip_code', zipCode);
+
+    return this.send(endpoint.toString(), 'GET');
+  }
 }

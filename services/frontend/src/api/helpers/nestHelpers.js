@@ -9,4 +9,44 @@ const getFormattedCelsius = (value) => {
   return `${value}°C`;
 };
 
-export { getFormattedCommandName, getFormattedCelsius };
+const getLocation = (weather) => {
+  return `${weather.location_name}, ${weather.location_zipcode}`;
+};
+
+const getWindInfo = (weather) => {
+  return `${weather?.wind_speed ?? 'N/A'}mph @ ${
+    weather?.wind_degrees ?? 'N/A'
+  } degrees`;
+};
+
+const formatForecastDay = (date) => {
+  const parsed = new Date(date);
+  const dateSegment = parsed.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const dayName = parsed.toLocaleDateString('en-US', {
+    weekday: 'long',
+  });
+
+  return `${dayName}, ${dateSegment}`;
+};
+
+const getFormattedFahrenheit = (temp) => {
+  return `${temp} °F`;
+};
+
+const getFormattedPercent = (value) => {
+  return `${value}%`;
+};
+
+export {
+  getFormattedCommandName,
+  getFormattedCelsius,
+  getLocation,
+  getWindInfo,
+  getFormattedFahrenheit,
+  getFormattedPercent,
+  formatForecastDay,
+};
