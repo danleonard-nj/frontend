@@ -39,26 +39,11 @@ const featureSlice = createSlice({
       state.featureLoading = true;
     },
     setFeatures(state, { payload }) {
-      state.featuresLoading = false;
       state.features = payload;
     },
     setFeaturesLoading(state, { payload }) {
-      state.featuresLoading = true;
+      state.featuresLoading = payload;
     },
-    // featureFetched(state, { payload }) {
-    //   state.featureFetched = true;
-    //   state.feature = payload;
-    // },
-    // featuresFetched(state, { payload }) {
-    //   state.featuresFetched = true;
-    //   state.features = payload;
-    // },
-    // featureFetching(state) {
-    //   state.featureFetched = false;
-    // },
-    // featuresFetching(state) {
-    //   state.featureFetched = false;
-    // },
     setCreateFeatureDialog(state, { payload }) {
       state.createFeatureOpen = payload;
     },
@@ -77,7 +62,9 @@ const featureSlice = createSlice({
     },
     updateFeatureListItem(state, { payload }) {
       state.features = state.features.map((feature) => {
-        return feature.feature_id == payload.feature_id ? payload : feature;
+        return feature.feature_id == payload.feature_id
+          ? payload
+          : feature;
       });
     },
   },

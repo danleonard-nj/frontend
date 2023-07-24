@@ -15,6 +15,12 @@ import { DailyMinMaxDisplay } from './DailyMinMaxDisplay';
 import { DailySunriseSunsetDisplay } from './DailySunriseSunsetDisplay';
 import { DailyLatLongDisplay } from './DailyLatLongDisplay';
 
+const formatDescription = (description) => {
+  const chars = description.split('');
+
+  return [...chars[0].toUpperCase(), ...chars.slice(1)].join('');
+};
+
 const WeatherTable = ({ weather }) => (
   <Grid container spacing={3}>
     <Grid item lg={6}>
@@ -34,6 +40,21 @@ const WeatherTable = ({ weather }) => (
             <TableCell>Temperature</TableCell>
             <TableCell>{weather?.temperature ?? 'N/A'} °F</TableCell>
           </TableRow>
+          <TableRow>
+            <TableCell>Description</TableCell>
+            <TableCell>
+              {formatDescription(weather?.weather_description) ??
+                'N/A'}
+            </TableCell>
+          </TableRow>
+          {weather?.response?.rain && (
+            <TableRow>
+              <TableCell>Rain</TableCell>
+              <TableCell>
+                {JSON.stringify(weather?.response?.rain, null, 4)}
+              </TableCell>
+            </TableRow>
+          )}
           <TableRow>
             <TableCell>Hi/Lo</TableCell>
             <TableCell>

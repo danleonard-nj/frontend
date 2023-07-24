@@ -13,7 +13,10 @@ import Switch from '@mui/material/Switch';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { featureType } from '../../../api/helpers/featureHelpers';
-import { dialogType } from '../../../store/dialog/dialogSlice';
+import {
+  closeDialog,
+  dialogType,
+} from '../../../store/dialog/dialogSlice';
 import { createFeature } from '../../../store/features/featureActions';
 import {
   setCreateFeatureDialog,
@@ -28,7 +31,7 @@ export default function CreateFeatureDialog() {
   );
 
   const handleClose = () => {
-    dispatch(setCreateFeatureDialog(false));
+    dispatch(closeDialog(dialogType.createFeatureDialog));
   };
 
   const handleChange = (event) => {

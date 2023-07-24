@@ -2,7 +2,12 @@ import autoBind from 'auto-bind';
 import FeatureApi from '../../api/features/featuresApi';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import { closeDialog, dialogType } from '../dialog/dialogSlice';
-import { setFeature, setFeatureLoading, setFeatures } from './featureSlice';
+import {
+  setFeature,
+  setFeatureLoading,
+  setFeatures,
+  setFeaturesLoading,
+} from './featureSlice';
 
 const handleErrorMessage = (message, data) => {
   return 'message' in data ? `${message}: ${data}` : message;
@@ -16,7 +21,7 @@ export default class FeatureActions {
 
   getFeatures = () => {
     return async (dispatch, getState) => {
-      dispatch(setFeatureLoading(true));
+      dispatch(setFeaturesLoading(true));
 
       const handleErrorResponse = ({ data }) => {
         // Pop an error message if we failed to fetch
@@ -33,6 +38,8 @@ export default class FeatureActions {
       response?.status === 200
         ? dispatch(setFeatures(response.data))
         : handleErrorResponse(response);
+
+      dispatch(setFeaturesLoading(false));
     };
   };
 
@@ -68,7 +75,9 @@ export default class FeatureActions {
 
       const handleSuccessResponse = ({ data, status }) => {
         // Pop a success message
-        dispatch(popMessage(`Feature '${data.feature_key}' created!`));
+        dispatch(
+          popMessage(`Feature '${data.feature_key}' created!`)
+        );
 
         // Close dialog and reload feature list
         dispatch(closeDialog(dialogType.createFeatureDialog));
@@ -98,10 +107,15 @@ export default class FeatureActions {
 
       const handleSuccessResponse = () => {
         // Pop a success message and reload feature list
-        dispatch(popMessage(`Feature '${featureKey}' updated successfully!`));
+        dispatch(
+          popMessage(`Feature '${featureKey}' updated successfully!`)
+        );
       };
 
-      const response = await this.featureApi.setFeature(featureKey, value);
+      const response = await this.featureApi.setFeature(
+        featureKey,
+        value
+      );
 
       response?.status === 200
         ? handleSuccessResponse()
@@ -110,5 +124,9 @@ export default class FeatureActions {
   };
 }
 
-export const { updateFeatureValue, createFeature, deleteFeature, getFeatures } =
-  new FeatureActions();
+export const {
+  updateFeatureValue,
+  createFeature,
+  deleteFeature,
+  getFeatures,
+} = new FeatureActions();
