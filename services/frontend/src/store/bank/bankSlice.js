@@ -5,6 +5,20 @@ const bankInitialState = {
   balances: [],
   balance: null,
   balanceLoading: true,
+  balanceHistory: [],
+  balanceHistoryLoading: true,
+  balanceHistoryParams: {
+    startDate: '',
+    endDate: '',
+  },
+  transactions: [],
+  transactionsLoading: true,
+  transactionsParams: {
+    startDate: '',
+    endDate: '',
+  },
+  selectedBankKey: '',
+  selectedTab: 'balances',
 };
 
 const bankSlice = createSlice({
@@ -23,6 +37,30 @@ const bankSlice = createSlice({
     setBalance(state, { payload }) {
       state.balance = payload;
     },
+    setBalanceHistoryLoading(state, { payload }) {
+      state.balanceHistoryLoading = payload;
+    },
+    setBalanceHistory(state, { payload }) {
+      state.balanceHistory = payload;
+    },
+    setTransactionsLoading(state, { payload }) {
+      state.transactionsLoading = payload;
+    },
+    setTransactions(state, { payload }) {
+      state.transactions = payload;
+    },
+    setSelectedBankKey(state, { payload }) {
+      state.selectedBankKey = payload;
+    },
+    setBalanceHistoryParams(state, { payload }) {
+      state.balanceHistoryParams = payload;
+    },
+    setTransactionParams(state, { payload }) {
+      state.transactionsParams = payload;
+    },
+    setSelectedTab(state, { payload }) {
+      state.selectedTab = payload;
+    },
   },
 });
 
@@ -31,6 +69,14 @@ export const {
   setBalancesLoading,
   setBalance,
   setBalanceLoading,
+  setBalanceHistory,
+  setBalanceHistoryLoading,
+  setTransactions,
+  setTransactionsLoading,
+  setSelectedTab,
+  setSelectedBankKey,
+  setBalanceHistoryParams,
+  setTransactionParams,
 } = bankSlice.actions;
 
 export default bankSlice.reducer;

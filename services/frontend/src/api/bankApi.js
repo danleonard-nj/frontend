@@ -19,4 +19,28 @@ export default class BankApi extends ApiBase {
       'GET'
     );
   }
+
+  async getBalanceHistory(startDate, endDate, keys = []) {
+    const url = new URL(
+      `${this.baseUrl}/api/tools/bank/balances/history`
+    );
+
+    url.searchParams.append('start_timestamp', startDate);
+    url.searchParams.append('end_timestamp', endDate);
+    keys.forEach((key) => url.searchParams.append('bank_key', key));
+
+    return await this.send(url.toString(), 'GET');
+  }
+
+  async getTransactions(startDate, endDate, keys = []) {
+    const url = new URL(
+      `${this.baseUrl}/api/tools/bank/transactions`
+    );
+
+    url.searchParams.append('start_timestamp', startDate);
+    url.searchParams.append('end_timestamp', endDate);
+    keys.forEach((key) => url.searchParams.append('bank_key', key));
+
+    return await this.send(url.toString(), 'GET');
+  }
 }

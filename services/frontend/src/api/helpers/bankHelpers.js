@@ -8,4 +8,29 @@ const formatCurrency = (usageCents) => {
   return currencyFormatter.format(usageCents);
 };
 
-export { formatCurrency };
+const getDefaultDateRange = (daysBack) => {
+  const now = new Date();
+
+  const startDate = new Date();
+  startDate.setDate(now.getDate() - daysBack);
+
+  return {
+    startDate: startDate,
+    endDate: now,
+  };
+};
+
+const dateParamsInitialized = (params) => {
+  return params.startDate !== '' && params.endDate !== '';
+};
+
+const getGmailLink = (messageBk) => {
+  return `https://mail.google.com/mail/u/0/#inbox/${messageBk}`;
+};
+
+export {
+  formatCurrency,
+  getDefaultDateRange,
+  dateParamsInitialized,
+  getGmailLink,
+};

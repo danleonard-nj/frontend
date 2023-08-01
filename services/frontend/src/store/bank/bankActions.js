@@ -7,7 +7,11 @@ import {
   setBalanceLoading,
   setBalances,
   setBalancesLoading,
+  setTransactions,
+  setTransactionsLoading,
 } from './bankSlice';
+
+const getISODate = (date) => date.toISOString().split('T')[0];
 
 export default class BankActions {
   constructor() {
@@ -62,6 +66,42 @@ export default class BankActions {
       dispatch(setBalanceLoading(false));
     };
   }
+
+  getTransactions() {
+    return async (dispatch, getState) => {
+      const {
+        transactionsParams: { startDate, endDate },
+        selectedBankKey,
+      } = getState().bank;
+
+      console.log('params', startDate, endDate, selectedBankKey);
+
+      const handleErrorResponse = ({ data, status }) => {
+        dispatch(
+          popErrorMessage(
+            `${status}: Failed to fetch transactions for bank key '${selectedBankKey}': ${getErrorMessage(
+              data
+            )}`
+          )
+        );
+      };
+
+      dispatch(setTransactionsLoading(true));
+
+      const response = await this.bankApi.getTransactions(
+        getISODate(startDate),
+        getISODate(endDate),
+        [selectedBankKey]
+      );
+
+      response.status === 200
+        ? dispatch(setTransactions(response.data))
+        : handleErrorResponse(response);
+
+      dispatch(setTransactionsLoading(false));
+    };
+  }
 }
 
-export const { getBalances, getBalance } = new BankActions();
+export const { getBalances, getBalance, getTransactions } =
+  new BankActions();

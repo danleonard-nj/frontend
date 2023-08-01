@@ -50,7 +50,6 @@ const ChatGptChatContainer = ({
   } = useSelector((x) => x.chatgpt);
 
   const dispatch = useDispatch();
-  console.log(historyChatIndex);
 
   const handleUpdateOutgoingMessage = (event) => {
     dispatch(setMessage(event.target.value));
@@ -89,12 +88,6 @@ const ChatGptChatContainer = ({
       dispatch(setHistoryChatIndex(chatHistory?.length));
     }
   }, [history]);
-
-  useEffect(() => {
-    if (history?.length === 0) {
-      dispatch(getHistory(1));
-    }
-  }, []);
 
   useEffect(() => {
     if (history?.length === 0) {
@@ -179,6 +172,7 @@ const ChatGptChatContainer = ({
                   label='message'
                   defaultValue='Write a chat message...'
                   fullWidth
+                  multiline
                   value={outgoingMessage ?? ''}
                   onKeyPress={onKeyPress}
                   onChangeCapture={handleUpdateOutgoingMessage}

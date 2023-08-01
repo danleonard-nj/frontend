@@ -1,80 +1,35 @@
-import {
-  Grid,
-  Link,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material';
-import React from 'react';
-import { useEffect } from 'react';
+import { Grid, Paper, Tab, Tabs } from '@mui/material';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getBalances } from '../../store/bank/bankActions';
+import { setSelectedTab } from '../../store/bank/bankSlice';
 import Spinner from '../Spinner';
-import { formatCurrency } from '../../api/helpers/bankHelpers';
-
-const getGmailLink = (messageBk) => {
-  return `https://mail.google.com/mail/u/0/#inbox/${messageBk}`;
-};
+import { BalanceTable } from '../bank/BalanceTable';
+import { TransactionsTab } from '../bank/TransactionsTab';
 
 const DashboardBankingLayout = () => {
   const {
     balances: { balances },
-    balancesLoading,
+    balancesLoading = true,
+    selectedBankKey = '',
+    selectedTab = 'balances',
   } = useSelector((x) => x.bank);
 
   const dispatch = useDispatch();
+
+  const handleSetSelectedTab = (tab) => {
+    dispatch(setSelectedTab(tab));
+  };
 
   useEffect(() => {
     dispatch(getBalances());
   }, []);
 
-  const BalanceTable = () => {
-    return (
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Bank</TableCell>
-            <TableCell>Balance</TableCell>
-            <TableCell>Sync Type</TableCell>
-            <TableCell>Sync Date</TableCell>
-            <TableCell>Message BK</TableCell>
-            <TableCell>GPT</TableCell>
-            <TableCell>Tokens Used</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {balances.map((balance) => (
-            <TableRow key={balance.balance_id}>
-              <TableCell>{balance.bank_key}</TableCell>
-              <TableCell>
-                {formatCurrency(balance.balance ?? 0)}
-              </TableCell>
-              <TableCell>{balance.sync_type}</TableCell>
-              <TableCell>
-                {balance.timestamp &&
-                  new Date(balance.timestamp * 1000).toLocaleString()}
-              </TableCell>
-              <TableCell>
-                {balance?.sync_type === 'email' ? (
-                  <Link href={getGmailLink(balance.message_bk)}>
-                    {balance.message_bk}
-                  </Link>
-                ) : (
-                  <Typography variant='body2'>N/A</Typography>
-                )}
-              </TableCell>
-              <TableCell>
-                {balance.gpt_tokens > 0 ? 'true' : 'false'}
-              </TableCell>
-              <TableCell>{balance?.gpt_tokens ?? 0}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+  const BalanceTab = () => {
+    return balancesLoading ? (
+      <Spinner />
+    ) : (
+      <BalanceTable balances={balances} />
     );
   };
 
@@ -84,7 +39,19 @@ const DashboardBankingLayout = () => {
       sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
       <Grid container spacing={2}>
         <Grid item lg={12} xs={12} sm={12}>
-          {balancesLoading ? <Spinner /> : <BalanceTable />}
+          <Tabs
+            sx={{ marginBottom: '1rem' }}
+            value={selectedTab}
+            onChange={(event, tab) => handleSetSelectedTab(tab)}>
+            <Tab label='Balances' value='balances' />
+            <Tab
+              label='Transactions'
+              value='transactions'
+              disabled={!selectedBankKey}
+            />
+          </Tabs>
+          {selectedTab === 'balances' && <BalanceTab />}
+          {selectedTab === 'transactions' && <TransactionsTab />}
         </Grid>
       </Grid>
     </Paper>
