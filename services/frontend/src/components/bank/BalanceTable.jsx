@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   setSelectedBankKey,
   setSelectedTab,
@@ -16,6 +16,8 @@ import {
 import { BalanceTableRow } from './BalanceTableRow';
 
 const BalanceTable = ({ balances }) => {
+  const { selectedBankKey } = useSelector((x) => x.bank);
+
   const dispatch = useDispatch();
 
   const handleBalanceRowClick = (balance) => {
@@ -41,6 +43,8 @@ const BalanceTable = ({ balances }) => {
           <BalanceTableRow
             balance={balance}
             handleBalanceRowClick={handleBalanceRowClick}
+            rowSelected={balance.bank_key === selectedBankKey}
+            key={balance.balance_id}
           />
         ))}
       </TableBody>

@@ -5,7 +5,11 @@ import {
   getGmailLink,
 } from '../../api/helpers/bankHelpers';
 
-const BalanceTableRow = ({ balance, handleBalanceRowClick }) => {
+const BalanceTableRow = ({
+  balance,
+  handleBalanceRowClick,
+  rowSelected,
+}) => {
   const handleGmailLinkClick = (e, messageBk) => {
     e.stopPropagation();
     e.preventDefault();
@@ -17,6 +21,7 @@ const BalanceTableRow = ({ balance, handleBalanceRowClick }) => {
       hover
       key={balance.balance_id}
       sx={{ cursor: 'pointer' }}
+      selected={rowSelected}
       onClick={() => handleBalanceRowClick(balance)}>
       <TableCell>{balance.bank_key}</TableCell>
       <TableCell>{formatCurrency(balance.balance ?? 0)}</TableCell>

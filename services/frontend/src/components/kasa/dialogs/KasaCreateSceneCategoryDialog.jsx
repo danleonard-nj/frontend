@@ -22,11 +22,12 @@ import {
 } from '../../../store/kasa/actions/sceneActions';
 
 const KasaCreateSceneCategoryDialog = () => {
+  const isVisible =
+    useSelector((x) => x.dialog[dialogType.sceneCategoryRemove]) ??
+    false;
+  const { filteredScenes } = useSelector((x) => x.scene);
+
   const dispatch = useDispatch();
-  const isVisible = useSelector(
-    (x) => x.dialog[dialogType.sceneCategoryRemove]
-  );
-  const filteredScenes = useSelector((x) => x.scene.filteredScenes);
 
   const [selected, setSelected] = useState('');
 
