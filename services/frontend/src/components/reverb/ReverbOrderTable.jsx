@@ -8,22 +8,20 @@ import {
   TableRow,
 } from '@mui/material';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { dialogType, openDialog } from '../../store/dialog/dialogSlice';
-import {
-  initialOrderDetail,
-  setSelectedOrder,
-  updateOrderDetail,
-} from '../../store/reverb/reverbSlice';
+import { useSelector } from 'react-redux';
 import { ReverbOrderTableRow } from './ReverbOrderTableRow';
 
-export default function ReverbOrderTable() {
-  const dispatch = useDispatch();
-  const orders = useSelector((x) => x.reverb.orders);
+const ReverbOrderTable = () => {
+  const { orders } = useSelector((x) => x.reverb);
 
   return (
-    <TableContainer component={Paper} id='reverb-order-table-container'>
-      <Table sx={{ border: 'none' }} size='small' id='reverb-order-table'>
+    <TableContainer
+      component={Paper}
+      id='reverb-order-table-container'>
+      <Table
+        sx={{ border: 'none' }}
+        size='small'
+        id='reverb-order-table'>
         <TableHead id='reverb-order-table-head'>
           <TableRow>
             <TableCell>Order Number</TableCell>
@@ -41,9 +39,13 @@ export default function ReverbOrderTable() {
         </TableHead>
         <TableBody id='reverb-order-table-body'>
           {orders?.length &&
-            orders.map((order) => <ReverbOrderTableRow order={order} />)}
+            orders.map((order) => (
+              <ReverbOrderTableRow order={order} />
+            ))}
         </TableBody>
       </Table>
     </TableContainer>
   );
-}
+};
+
+export { ReverbOrderTable };

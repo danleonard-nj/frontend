@@ -1,159 +1,48 @@
-import SettingsIcon from '@mui/icons-material/Settings';
+import AcUnitIcon from '@mui/icons-material/AcUnit';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import {
-  Box,
   Button,
   Card,
   CardActions,
   CardContent,
   Divider,
   Grid,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Paper,
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
-import AcUnitIcon from '@mui/icons-material/AcUnit';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import SensorsIcon from '@mui/icons-material/Sensors';
-import SensorsOffIcon from '@mui/icons-material/SensorsOff';
 import {
   hvacStatusNameMapping,
   nestCommandKeys,
   thermostatConnectivityMapping,
   thermostatModeNameMapping,
 } from '../../api/data/nest';
-import { getFormattedCommandName } from '../../api/helpers/nestHelpers';
+import {
+  getFormattedCommandName,
+  getFormattedFahrenheit,
+  getFormattedPercent,
+  getMappedNameOrDefault,
+} from '../../api/helpers/nestHelpers';
 import {
   getThermostat,
   getThermostatCommands,
   sendThermostatCommand,
 } from '../../store/nest/nestActions';
 import Spinner from '../Spinner';
+import { NestThermostatCardRow } from './NestThermostatCardRow';
+import { NestThermostatCommandList } from './NestThermostatCommandList';
 import {
   NestThermostatSetCool,
   NestThermostatSetHeat,
   NestThermostatSetRange,
 } from './NestThermostatSetRange';
-
-const formatDegrees = (degrees) => {
-  return degrees ? `${degrees}°F` : degrees;
-};
-
-const formatPercent = (percent) => {
-  return percent ? `${percent}%` : percent;
-};
-
-const getMappedNameOrDefault = (key, map, defaultValue = null) => {
-  if (key in map) {
-    return map[key];
-  }
-
-  return defaultValue ?? key;
-};
+import { ConnectionStatusIcon } from './icons/ConnectionStatusIcon';
+import { HvacStatusIcon } from './icons/HvacStatusIcon';
+import { ModeStatusIcon } from './icons/ModeStatusIcon';
 
 const iconStyle = {
   marginRight: '0.5rem',
-};
-
-const InfoLine = ({ label, value, icon = null }) => {
-  if (icon != null && icon != undefined) {
-    return (
-      <Box sx={{ marginBottom: '0.5rem' }}>
-        <Typography
-          sx={{
-            fontSize: 14,
-            verticalAlign: 'middle',
-          }}
-          color='text.secondary'>
-          {label}
-        </Typography>
-        <Typography variant='body2' gutterBottom m='auto'>
-          <div style={{ display: 'flex' }}>
-            {icon} {value ?? ''}
-          </div>
-        </Typography>
-      </Box>
-    );
-  } else {
-    return (
-      <>
-        {' '}
-        <Typography
-          sx={{ fontSize: 12 }}
-          color='text.secondary'
-          gutterBottom>
-          {label}
-        </Typography>
-        <Typography variant='body2' gutterBottom>
-          {value ?? ''}
-        </Typography>
-      </>
-    );
-  }
-};
-
-const HvacStatusIcon = ({ status }) => {
-  switch (status) {
-    case 'HEATING': {
-      return <LocalFireDepartmentIcon color='error' sx={iconStyle} />;
-    }
-    case 'COOLING': {
-      return <AcUnitIcon color='info' sx={iconStyle} />;
-    }
-    default: {
-      return <PowerSettingsNewIcon color='disabled' sx={iconStyle} />;
-    }
-  }
-};
-
-const ConnectionStatusIcon = ({ status }) => {
-  switch (status) {
-    case 'ONLINE': {
-      return <SensorsIcon color='success' sx={iconStyle} />;
-    }
-    case 'OFFLINE': {
-      return <SensorsOffIcon color='error' sx={iconStyle} />;
-    }
-    default: {
-      return <></>;
-    }
-  }
-};
-
-const ModeStatusIcon = ({ mode }) => {
-  switch (mode) {
-    case 'HEAT': {
-      return <LocalFireDepartmentIcon color='error' sx={iconStyle} />;
-    }
-    case 'COOL': {
-      return <AcUnitIcon color='info' sx={iconStyle} />;
-    }
-    default: {
-      return <></>;
-    }
-  }
-};
-
-const CommandListButtonIcon = ({ command }) => {
-  switch (command.command) {
-    case 'SetHeat': {
-      return <LocalFireDepartmentIcon color='error' sx={iconStyle} />;
-    }
-    case 'SetCool': {
-      return <AcUnitIcon color='info' sx={iconStyle} />;
-    }
-    case 'SetPowerOff': {
-      return <PowerSettingsNewIcon color='disabled' sx={iconStyle} />;
-    }
-    default: {
-      return <SettingsIcon color='disabled' sx={iconStyle} />;
-    }
-  }
 };
 
 const SectionDivider = () => {
@@ -202,12 +91,12 @@ const NestThermostatPage = () => {
     return (
       <Card>
         <CardContent>
-          <InfoLine
+          <NestThermostatCardRow
             label='Name'
             value={thermostat?.thermostat_name}
           />
           <SectionDivider />
-          <InfoLine
+          <NestThermostatCardRow
             label='HVAC Status'
             icon={<HvacStatusIcon status={thermostat?.hvac_status} />}
             value={getMappedNameOrDefault(
@@ -215,7 +104,7 @@ const NestThermostatPage = () => {
               hvacStatusNameMapping
             )}
           />
-          <InfoLine
+          <NestThermostatCardRow
             label='Connectivity'
             icon={
               <ConnectionStatusIcon
@@ -227,7 +116,7 @@ const NestThermostatPage = () => {
               thermostatConnectivityMapping
             )}
           />
-          <InfoLine
+          <NestThermostatCardRow
             label='Mode'
             icon={
               <ModeStatusIcon mode={thermostat?.thermostat_mode} />
@@ -239,14 +128,16 @@ const NestThermostatPage = () => {
           />
           <SectionDivider />
           {thermostat?.cool_fahrenheit != 0 && (
-            <InfoLine
+            <NestThermostatCardRow
               label='Cool'
               icon={<AcUnitIcon color='info' sx={iconStyle} />}
-              value={formatDegrees(thermostat?.cool_fahrenheit)}
+              value={getFormattedFahrenheit(
+                thermostat?.cool_fahrenheit
+              )}
             />
           )}
           {thermostat?.heat_fahrenheit != 0 && (
-            <InfoLine
+            <NestThermostatCardRow
               label='Heat'
               icon={
                 <LocalFireDepartmentIcon
@@ -254,19 +145,21 @@ const NestThermostatPage = () => {
                   sx={iconStyle}
                 />
               }
-              value={formatDegrees(thermostat?.heat_fahrenheit)}
+              value={getFormattedFahrenheit(
+                thermostat?.heat_fahrenheit
+              )}
             />
           )}
           <SectionDivider />
-          <InfoLine
+          <NestThermostatCardRow
             label='Ambient Temperature'
-            value={formatDegrees(
+            value={getFormattedFahrenheit(
               thermostat?.ambient_temperature_fahrenheit
             )}
           />
-          <InfoLine
+          <NestThermostatCardRow
             label='Ambient Humidity'
-            value={formatPercent(thermostat?.humidity_percent)}
+            value={getFormattedPercent(thermostat?.humidity_percent)}
           />
         </CardContent>
         <CardActions>
@@ -280,10 +173,10 @@ const NestThermostatPage = () => {
 
   const CommandPanel = () => {
     return (
-      <Paper elevation={3} sx={{ p: 2 }}>
+      <Paper elevation={1} sx={{ p: 2 }}>
         <Grid container spacing={2}>
           <Grid item lg={12} xs={12}>
-            <Typography variant='h5'>
+            <Typography variant='h6'>
               {selectedCommand &&
                 getFormattedCommandName(selectedCommand.command)}
             </Typography>
@@ -309,43 +202,20 @@ const NestThermostatPage = () => {
     );
   };
 
-  const CommandListItem = ({ command }) => {
-    return (
-      <ListItemButton
-        selected={selectedCommand.command === command.command}
-        onClick={() => handleSelectCommand(command)}>
-        <ListItemIcon>
-          <CommandListButtonIcon command={command} />
-        </ListItemIcon>
-        <ListItemText
-          primary={getFormattedCommandName(command.command)}
-        />
-      </ListItemButton>
-    );
-  };
-
-  const CommandList = () => {
-    return (
-      <Paper elevation={3} sx={{ p: 2 }}>
-        <Typography variant='h5'>Thermostat Commands</Typography>
-        <List dense>
-          {commands.map((command) => (
-            <CommandListItem
-              key={command.command}
-              command={command}
-            />
-          ))}
-        </List>
-      </Paper>
-    );
-  };
-
   return (
     <Grid container spacing={3}>
       <Grid item lg={6} xs={12}>
         <Grid container spacing={3}>
           <Grid item lg={12} xs={12}>
-            {commandsLoading ? <Spinner /> : <CommandList />}
+            {commandsLoading ? (
+              <Spinner />
+            ) : (
+              <NestThermostatCommandList
+                commands={commands}
+                selectedCommand={selectedCommand}
+                handleSelect={handleSelectCommand}
+              />
+            )}
           </Grid>
           <Grid item lg={12} xs={12}>
             {!commandsLoading && <CommandPanel />}

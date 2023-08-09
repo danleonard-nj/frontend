@@ -1,10 +1,12 @@
 import autoBind from 'auto-bind';
 import ReverbApi from '../../api/reverbApi';
 
+import { popErrorMessage } from '../alert/alertActions';
 import {
   setCreatedShipment,
   setCreatedShipmentLoading,
   setOrders,
+  setOrdersLoading,
 } from './reverbSlice';
 
 export default class ReverbActions {
@@ -15,8 +17,17 @@ export default class ReverbActions {
 
   getOrders(pageNumber) {
     return async (dispatch, getState) => {
-      const orders = await this.reverbApi.getOrders(pageNumber);
-      dispatch(setOrders(orders?.data?.orders));
+      dispatch(setOrdersLoading(false));
+
+      const { status, data } = await this.reverbApi.getOrders(
+        pageNumber
+      );
+
+      status === 200
+        ? dispatch(setOrders(data))
+        : dispatch(popErrorMessage('Failed to fetch Reverb orders'));
+
+      dispatch(setOrdersLoading(false));
     };
   }
 
@@ -32,7 +43,9 @@ export default class ReverbActions {
         orderNumber,
         orderDetail
       );
-      dispatch(setCreatedShipment(response?.shipment?.response?.shipment_id));
+      dispatch(
+        setCreatedShipment(response?.shipment?.response?.shipment_id)
+      );
     };
   }
 }

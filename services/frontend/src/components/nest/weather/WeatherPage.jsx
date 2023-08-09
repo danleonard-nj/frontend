@@ -1,4 +1,4 @@
-import { Box, Grid, Tab, Tabs } from '@mui/material';
+import { Box, Grid, Paper, Tab, Tabs } from '@mui/material';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import Spinner from '../../Spinner';
@@ -31,10 +31,8 @@ const WeatherPage = () => {
         </Box>
       </Grid>
       <Grid item lg={12}>
-        <>
-          {value === 0 && <WeatherTable weather={weather} />}
-          {value === 1 && <ForecastPage />}
-        </>
+        {value === 0 && <WeatherTable weather={weather} />}
+        {value === 1 && <ForecastPage />}
       </Grid>
     </Grid>
   );

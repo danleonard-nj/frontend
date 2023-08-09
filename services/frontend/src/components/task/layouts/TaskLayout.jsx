@@ -1,4 +1,4 @@
-import { Button, Grid, Paper } from '@mui/material';
+import { Box, Button, Grid, Paper, useTheme } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { isJsonEditorVisible } from '../../../api/data/kasa/scene';
@@ -12,25 +12,32 @@ import {
 } from '../../../store/alert/alertActions';
 import { setTask } from '../../../store/task/taskSlice';
 
-const tryStringify = (value) => {
-  return value ? JSON.stringify(value) : null;
-};
-
 const getTaskJson = (task) => {
   return JSON.stringify(task?.payload, null, '\t');
 };
 
 const TaskJsonEditor = () => {
-  const dispatch = useDispatch();
+  const [json, setJson] = useState('');
+  const [initialValue, setInitialValue] = useState('');
+  const [unsavedChanges, setUnsavedChanges] = useState(false);
 
-  console.log('render json editor');
   const { task = {} } = useSelector((x) => x.task);
 
-  const [json, setJson] = useState('');
+  const theme = useTheme();
+  const dispatch = useDispatch();
 
+  // Parse and load the task json into the editor
   useEffect(() => {
-    setJson(getTaskJson(task));
+    const taskJson = getTaskJson(task);
+
+    setJson(taskJson);
+    setInitialValue(taskJson);
   }, [task]);
+
+  // Track unsaved changes
+  useEffect(() => {
+    setUnsavedChanges(initialValue !== json);
+  }, [json]);
 
   const onChange = (value) => {
     setJson(value);
@@ -39,31 +46,53 @@ const TaskJsonEditor = () => {
   const handleParse = () => {
     try {
       const parsed = JSON.parse(json);
+
       dispatch(setTask({ ...task, payload: parsed }));
       dispatch(popMessage('JSON parsed successfully'));
+
+      setUnsavedChanges(false);
     } catch (error) {
       dispatch(popErrorMessage('Failed to parse JSON'));
     }
   };
 
   return (
-    <>
-      <Grid container spacing={3} sx={{ marginBottom: 2 }}>
-        <Grid item lg={10}>
-          <DashboardTitle>Request Body</DashboardTitle>
+    <div>
+      <Grid container spacing={1}>
+        <Grid item lg={12}>
+          <Grid container>
+            <Grid item lg={10}>
+              <DashboardTitle>
+                {unsavedChanges ? 'Request Body *' : 'Request Body'}
+              </DashboardTitle>
+            </Grid>
+            <Grid item lg={2} align='right'>
+              <Button onClick={handleParse}>Parse</Button>
+            </Grid>
+          </Grid>
         </Grid>
-        <Grid item lg={2} align='right'>
-          <Button onClick={handleParse}>Parse</Button>
+
+        <Grid item lg={12}>
+          <Box
+            display='flex'
+            border={
+              unsavedChanges ? '3px solid' : '3px solid transparent'
+            }
+            borderRadius='7px'
+            borderColor={
+              unsavedChanges
+                ? theme.palette.secondary.main
+                : theme.palette.primary.main
+            }>
+            <GenericJsonEditor
+              onChange={onChange}
+              value={json}
+              placeholder={'{}'}
+            />
+          </Box>
         </Grid>
       </Grid>
-      <span style={{ display: 'flex' }}>
-        <GenericJsonEditor
-          onChange={onChange}
-          value={json}
-          placeholder={'{}'}
-        />
-      </span>
-    </>
+    </div>
   );
 };
 

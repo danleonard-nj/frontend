@@ -90,7 +90,6 @@ const NestThermostatSetCool = () => {
     <Grid container spacing={3}>
       <Grid item lg={9} xs={12}>
         <Slider
-          getAriaLabel={() => 'Temperature range'}
           value={coolValue}
           onChange={handleChange}
           onChangeCommitted={(e, v) => handleValueCapture(v)}

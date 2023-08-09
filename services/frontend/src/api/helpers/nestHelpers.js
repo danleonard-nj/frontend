@@ -41,6 +41,14 @@ const getFormattedPercent = (value) => {
   return `${value}%`;
 };
 
+const getMappedNameOrDefault = (key, map, defaultValue = null) => {
+  if (key in map) {
+    return map[key];
+  }
+
+  return defaultValue ?? key;
+};
+
 export {
   getFormattedCommandName,
   getFormattedCelsius,
@@ -49,4 +57,5 @@ export {
   getFormattedFahrenheit,
   getFormattedPercent,
   formatForecastDay,
+  getMappedNameOrDefault,
 };

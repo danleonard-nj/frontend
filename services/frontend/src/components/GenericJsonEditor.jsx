@@ -17,6 +17,7 @@ const GenericJsonEditor = ({
   fontSize = 14,
   value = '{}',
   minLines = 20,
+  onValidate = null,
 }) => {
   return (
     <AceEditor
@@ -32,6 +33,7 @@ const GenericJsonEditor = ({
       highlightActiveLine={true}
       value={value}
       onChange={onChange}
+      onValidate={onValidate}
     />
   );
 };

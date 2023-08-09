@@ -16,6 +16,7 @@ import { DashboardChatGPTLayout } from '../layouts/DashboardChatGPTLayout';
 import { DashboardNestLayout } from '../layouts/DashboardNestLayout';
 import { DashboardBankingLayout } from '../layouts/DashboardBankingLayout';
 import { DashboardPfSenseLayout } from '../layouts/DashboardPfSenseLayout';
+import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -46,6 +47,7 @@ export default function Dashboard() {
       {dashboardPage === 'nest' && <DashboardNestLayout />}
       {dashboardPage === 'banking' && <DashboardBankingLayout />}
       {dashboardPage === 'pfsense' && <DashboardPfSenseLayout />}
+      {dashboardPage === 'torrents' && <DashboardTorrentLayout />}
     </Container>
   );
 }

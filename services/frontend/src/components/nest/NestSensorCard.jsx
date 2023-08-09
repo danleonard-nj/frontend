@@ -55,7 +55,7 @@ const SensorCardInfoLine = ({ label, value }) => {
 
 const SensorInfoCard = ({ sensor, onViewClick }) => {
   return (
-    <Card>
+    <Card sx={{ maxWidth: 250 }}>
       <CardContent>
         <Typography variant='h5' gutterBottom>
           {sensor?.device_name}{' '}

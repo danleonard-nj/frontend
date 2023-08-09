@@ -21,8 +21,10 @@ const reverbSlice = createSlice({
   initialState: reverbState,
   reducers: {
     setOrders(state, { payload }) {
-      state.ordersLoading = false;
       state.orders = payload;
+    },
+    setOrdersLoading(state, { payload }) {
+      state.ordersLoading = payload;
     },
     setCreatedShipmentLoading(state, { payload }) {
       state.createdShipmentLoading = payload;
@@ -42,6 +44,7 @@ const reverbSlice = createSlice({
 
 export const {
   setOrders,
+  setOrdersLoading,
   updateOrderDetail,
   setSelectedOrder,
   setCreatedShipment,

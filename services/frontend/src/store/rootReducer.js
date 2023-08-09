@@ -19,6 +19,7 @@ import chatGptSlice from './chatgpt/chatGptSlice';
 import nestSlice from './nest/nestSlice';
 import bankSlice from './bank/bankSlice';
 import weatherSlice from './weather/weatherSlice';
+import torrentSlice from './torrents/torrentSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -41,6 +42,7 @@ const rootReducer = combineReducers({
   nest: nestSlice,
   bank: bankSlice,
   weather: weatherSlice,
+  torrents: torrentSlice,
 });
 
 export default rootReducer;

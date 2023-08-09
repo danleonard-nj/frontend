@@ -34,24 +34,24 @@ const hvacStatusNameMapping = {
 
 const rangeMarks = [
   {
-    value: 60,
-    label: '60°C',
+    value: 62,
+    label: '62°C',
   },
   {
-    value: 68,
-    label: '68°C',
+    value: 66,
+    label: '66°C',
   },
   {
-    value: 72,
-    label: '72°C',
+    value: 70,
+    label: '70°C',
   },
   {
-    value: 76,
-    label: '76°C',
+    value: 74,
+    label: '74°C',
   },
   {
-    value: 80,
-    label: '80°C',
+    value: 78,
+    label: '78°C',
   },
 ];
 

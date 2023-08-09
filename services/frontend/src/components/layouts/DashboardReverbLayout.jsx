@@ -10,16 +10,35 @@ import {
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { dialogType, openDialog } from '../../store/dialog/dialogSlice';
+import {
+  dialogType,
+  openDialog,
+} from '../../store/dialog/dialogSlice';
 import { getOrders } from '../../store/reverb/reverbActions';
-import ReverbOrderTable from '../reverb/ReverbOrderTable';
+import { ReverbOrderTable } from '../reverb/ReverbOrderTable';
 import Spinner from '../Spinner';
 
-export default function DashboardReverbLayout() {
-  const dispatch = useDispatch();
-  const ordersLoading = useSelector((x) => x.reverb.ordersLoading);
+const PaginationContainer = ({ children }) => {
+  return (
+    <Box
+      sx={{
+        margin: 'auto',
+        width: '100%',
+        justifyContent: 'center',
+        display: 'flex',
+        marginTop: 1,
+      }}>
+      {children}
+    </Box>
+  );
+};
 
+export default function DashboardReverbLayout() {
   const [pageNumber, setPageNumber] = useState(1);
+
+  const { ordersLoading } = useSelector((x) => x.reverb);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(getOrders(pageNumber));
@@ -36,13 +55,12 @@ export default function DashboardReverbLayout() {
   return (
     <Toolbar>
       <Grid container spacing={3}>
-        <Grid item lg={10}></Grid>
-        <Grid item lg={2}>
-          <ButtonGroup variant='text' fullWidth>
-            <Button variant='contained' onClick={openCreateShipmentDialog}>
-              Create Shipment
-            </Button>
-          </ButtonGroup>
+        <Grid item lg={12} align='right'>
+          <Button
+            variant='contained'
+            onClick={openCreateShipmentDialog}>
+            Create Shipment
+          </Button>
         </Grid>
         <Grid item lg={12} xs={12}>
           <Paper
@@ -55,29 +73,16 @@ export default function DashboardReverbLayout() {
               sx={{
                 minHeight: '55vh',
               }}>
-              {!ordersLoading ? (
-                <ReverbOrderTable />
-              ) : (
-                <Container justifyContent='center'>
-                  <Spinner />
-                </Container>
-              )}
+              {ordersLoading ? <Spinner /> : <ReverbOrderTable />}
             </Box>
-            <Box
-              sx={{
-                margin: 'auto',
-                width: '100%',
-                justifyContent: 'center',
-                display: 'flex',
-                marginTop: 1,
-              }}>
+            <PaginationContainer>
               <Pagination
                 count='0'
                 page={pageNumber}
                 color='primary'
                 onChange={onPageChange}
               />
-            </Box>
+            </PaginationContainer>
           </Paper>
         </Grid>
       </Grid>

@@ -19,6 +19,7 @@ export const dialogType = {
   createFeatureDialog: 'createFeatureDialog',
   scheduleHistoryViewDialog: 'scheduleHistoryViewDialog',
   chatGptViewHistoryDialog: 'chatGptViewHistoryDialog',
+  magnetLinkDialog: 'magnetLinkDialog',
 };
 
 const getInitialState = () => {

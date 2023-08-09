@@ -9,8 +9,8 @@ import React from 'react';
 
 const NestSideNav = ({ selected, onChange }) => {
   return (
-    <Paper elevation={3}>
-      <nav aria-label='main mailbox folders'>
+    <Paper elevation={1}>
+      <nav>
         <List>
           <ListItem disablePadding>
             <ListItemButton
