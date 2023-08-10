@@ -7,6 +7,7 @@ const torrentsInitialState = {
   page: 1,
   magnetLoading: false,
   magnet: '',
+  torrentSource: '1337x',
 };
 
 const torrentSlice = createSlice({
@@ -31,6 +32,9 @@ const torrentSlice = createSlice({
     setPage(state, { payload }) {
       state.page = payload;
     },
+    setTorrentSource(state, { payload }) {
+      state.torrentSource = payload;
+    },
   },
 });
 
@@ -41,6 +45,7 @@ export const {
   setMagent,
   setMagnetLoading,
   setPage,
+  setTorrentSource,
 } = torrentSlice.actions;
 
 export default torrentSlice.reducer;

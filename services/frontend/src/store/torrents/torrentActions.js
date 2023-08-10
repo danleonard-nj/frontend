@@ -16,7 +16,7 @@ export default class TorrentActions {
 
   searchTorrents() {
     return async (dispatch, getState) => {
-      const { searchTerm, page } = getState().torrents;
+      const { searchTerm, page, torrentSource } = getState().torrents;
 
       // Handle success/failure toasts and formatting
       const handleErrorResponse = ({ status, data }) => {
@@ -33,7 +33,8 @@ export default class TorrentActions {
 
       const response = await this.torrentApi.getTorrents(
         searchTerm,
-        page
+        page,
+        torrentSource
       );
 
       response?.status === 200
@@ -44,14 +45,16 @@ export default class TorrentActions {
     };
   }
 
-  getMagnet(stub) {
+  getMagnet(data) {
     return async (dispatch, getState) => {
+      const { torrentSource } = getState().torrents;
+
       // Handle success/failure toasts and formatting
       const handleErrorResponse = ({ status, data }) => {
         if (status !== 200) {
           dispatch(
             popErrorMessage(
-              `Failed to fetch magnet link for stub:  ${stub}`
+              `Failed to fetch magnet link: ${JSON.stringify(data)}`
             )
           );
         }
@@ -59,7 +62,24 @@ export default class TorrentActions {
 
       dispatch(setMagnetLoading(true));
 
-      const response = await this.torrentApi.getMagentLink(stub);
+      const getPayloadData = () => {
+        switch (torrentSource) {
+          case 'piratebay': {
+            return {
+              id: data.data.id,
+              info_hash: data.data.info_hash,
+            };
+          }
+          case '1337x': {
+            return { stub: data.data.stub };
+          }
+        }
+      };
+
+      const response = await this.torrentApi.getMagentLink({
+        target: torrentSource,
+        data: getPayloadData(),
+      });
 
       response?.status === 200
         ? dispatch(setMagent(response.data))

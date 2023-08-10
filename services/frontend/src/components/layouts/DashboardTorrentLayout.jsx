@@ -4,11 +4,15 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   Grid,
   IconButton,
   InputAdornment,
+  InputLabel,
+  MenuItem,
   Pagination,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -22,6 +26,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import {
   setPage,
   setSearchTerm,
+  setTorrentSource,
 } from '../../store/torrents/torrentSlice';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
@@ -36,6 +41,7 @@ import {
 } from '../../store/dialog/dialogSlice';
 import React from 'react';
 import { useState } from 'react';
+import { torrentSource } from '../../api/data/torrents';
 
 const copyToClipboard = (value) => {
   navigator.clipboard.writeText(value);
@@ -134,9 +140,13 @@ const DashboardTorrentLayout = () => {
 
   const dispatch = useDispatch();
 
-  const { searchTerm, torrents, torrentsLoading, page } = useSelector(
-    (x) => x.torrents
-  );
+  const {
+    searchTerm,
+    torrents,
+    torrentsLoading,
+    page,
+    torrentSource,
+  } = useSelector((x) => x.torrents);
 
   const handleSearchChange = (e) => {
     dispatch(setSearchTerm(e.target.value));
@@ -154,13 +164,17 @@ const DashboardTorrentLayout = () => {
   };
 
   const handleDisplayMagnetLink = (torrent) => {
-    dispatch(getMagnet(torrent.stub));
+    dispatch(getMagnet(torrent));
     dispatch(openDialog(dialogType.magnetLinkDialog));
   };
 
   const handlePaginationChangeEvent = (event, value) => {
     dispatch(setPage(value));
     dispatch(searchTorrents());
+  };
+
+  const handleTorrentSourceChange = (e) => {
+    dispatch(setTorrentSource(e.target.value));
   };
 
   const ResultDisplay = () =>
@@ -178,11 +192,27 @@ const DashboardTorrentLayout = () => {
       elevation={2}
       sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
       <Grid container spacing={3}>
-        <Grid item lg={12}>
+        <Grid item lg={6}>
           <Typography variant='h6'>Torrents</Typography>
           <Typography variant='body2'>
             1337x.to Search Proxy
           </Typography>
+        </Grid>
+        <Grid item lg={6} align='right'>
+          <FormControl>
+            <InputLabel id='torrent-source-select-label'>
+              Torrent Source
+            </InputLabel>
+            <Select
+              labelId='torrent-source-select-label'
+              id='torrent-source-select'
+              value={torrentSource ?? ''}
+              label='Torrent Source'
+              onChange={handleTorrentSourceChange}>
+              <MenuItem value='1337x'>1337x</MenuItem>
+              <MenuItem value='piratebay'>TPB</MenuItem>
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item lg={12}>
           <TextField
@@ -202,16 +232,24 @@ const DashboardTorrentLayout = () => {
               ),
             }}
           />
+          {/* <FormControl fullWidth>
+            <InputLabel id='demo-simple-select-label'>
+              Torrent Source
+            </InputLabel> */}
+
+          {/* </FormControl> */}
         </Grid>
         <Grid item lg={12}>
           {isInitialSearchSubmitted && <ResultDisplay />}
         </Grid>
         <Grid item lg={12} align='right'>
-          <Pagination
-            defaultPage={1}
-            count={999}
-            onChange={handlePaginationChangeEvent}
-          />
+          {torrentSource === '1337x' && (
+            <Pagination
+              defaultPage={1}
+              count={999}
+              onChange={handlePaginationChangeEvent}
+            />
+          )}
         </Grid>
       </Grid>
     </Paper>
