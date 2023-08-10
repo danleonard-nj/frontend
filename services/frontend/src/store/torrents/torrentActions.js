@@ -68,6 +68,7 @@ export default class TorrentActions {
             return {
               id: data.data.id,
               info_hash: data.data.info_hash,
+              name: data.data.name,
             };
           }
           case '1337x': {
