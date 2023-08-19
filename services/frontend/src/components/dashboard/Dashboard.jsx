@@ -17,6 +17,7 @@ import { DashboardNestLayout } from '../layouts/DashboardNestLayout';
 import { DashboardBankingLayout } from '../layouts/DashboardBankingLayout';
 import { DashboardPfSenseLayout } from '../layouts/DashboardPfSenseLayout';
 import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
+import { DashboardApiEventHistoryLayout } from '../layouts/DashboardApiEventHistoryLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -48,6 +49,9 @@ export default function Dashboard() {
       {dashboardPage === 'banking' && <DashboardBankingLayout />}
       {dashboardPage === 'pfsense' && <DashboardPfSenseLayout />}
       {dashboardPage === 'torrents' && <DashboardTorrentLayout />}
+      {dashboardPage === 'events' && (
+        <DashboardApiEventHistoryLayout />
+      )}
     </Container>
   );
 }

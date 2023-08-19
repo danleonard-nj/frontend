@@ -8,6 +8,8 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { formatCurrency } from '../../api/helpers/bankHelpers';
+import { useEffect } from 'react';
+import { sortBy } from 'lodash';
 
 const pendingTransactionRowColor = '#55668C';
 const depositRowColor = '#477D7D';
@@ -32,7 +34,7 @@ const getTableRowStyles = (transaction) => ({
 
 const formatAmount = (amount) => {
   return amount < 0
-    ? `+ ${formatCurrency(amount * -1)}`
+    ? `+${formatCurrency(amount * -1)}`
     : formatCurrency(amount);
 };
 
@@ -47,6 +49,16 @@ const CategoryTooltipContent = ({ transaction }) => {
 };
 
 const TransactionTable = ({ transactions }) => {
+  const [sortedTransactions, setSortedTransactions] = React.useState(
+    []
+  );
+
+  useEffect(() => {
+    const sorted = sortBy(transactions, 'transaction_date');
+    console.log('sorted transactions', sorted);
+    setSortedTransactions(sorted);
+  }, []);
+
   return (
     <Table size='small'>
       <TableHead>
@@ -61,7 +73,7 @@ const TransactionTable = ({ transactions }) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {transactions.map((transaction) => (
+        {sortedTransactions.map((transaction) => (
           <TableRow sx={getTableRowStyles(transaction)}>
             {/* <TableCell>{transaction.transaction_id}</TableCell> */}
             <TableCell>

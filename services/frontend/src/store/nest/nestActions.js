@@ -5,6 +5,7 @@ import {
   setCommandLoading,
   setCommands,
   setCommandsLoading,
+  setEventsLoading,
   setSensorHistory,
   setSensorHistoryLoading,
   setSensorInfo,
@@ -78,6 +79,22 @@ export default class NestActions {
       dispatch(setCommandsLoading(true));
 
       const response = await this.nestApi.getThermostatCommands();
+
+      response.status === 200
+        ? dispatch(setCommands(response.data))
+        : dispatch(
+            popErrorMessage('Failed to fetch thermostat commands')
+          );
+
+      dispatch(setCommandsLoading(false));
+    };
+  }
+
+  getIntegrationEvents() {
+    return async (dispatch, getState) => {
+      dispatch(setEventsLoading(true));
+
+      const response = await this.nestApi.getIntegrationEvents();
 
       response.status === 200
         ? dispatch(setCommands(response.data))

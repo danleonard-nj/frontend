@@ -42,6 +42,20 @@ export default class NestApi extends ApiBase {
     return await this.send(endpoint.toString(), 'GET');
   }
 
+  async getIntegrationEvents(startTimestamp, sensorId = null) {
+    const endpoint = new URL(
+      `${this.baseUrl}/api/tools/nest/integration/events`
+    );
+
+    endpoint.searchParams.append('start_timestamp', startTimestamp);
+
+    if (sensorId != null) {
+      endpoint.searchParams.append('sensor_id', sensorId);
+    }
+
+    return await this.send(endpoint.toString(), 'GET');
+  }
+
   async getThermostatCommands() {
     const endpoint = new URL(
       `${this.baseUrl}/api/tools/nest/command`

@@ -20,6 +20,7 @@ import nestSlice from './nest/nestSlice';
 import bankSlice from './bank/bankSlice';
 import weatherSlice from './weather/weatherSlice';
 import torrentSlice from './torrents/torrentSlice';
+import apiEventSlice from './apiEvents/apiEventSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -43,6 +44,7 @@ const rootReducer = combineReducers({
   bank: bankSlice,
   weather: weatherSlice,
   torrents: torrentSlice,
+  apiEvents: apiEventSlice,
 });
 
 export default rootReducer;

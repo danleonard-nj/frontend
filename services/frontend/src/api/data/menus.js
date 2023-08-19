@@ -15,6 +15,7 @@ const pages = [
   'Banking',
   'PfSense',
   'Torrents',
+  'Events',
 ];
 
 export { pages };
