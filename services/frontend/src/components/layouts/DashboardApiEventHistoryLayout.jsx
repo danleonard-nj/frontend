@@ -1,11 +1,11 @@
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   Box,
   Button,
   Collapse,
-  Divider,
   Grid,
   IconButton,
-  Pagination,
   Paper,
   Slider,
   Table,
@@ -13,17 +13,13 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  TextField,
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getEventHistory } from '../../store/apiEvents/apiEventActions';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { GenericJsonEditor } from '../GenericJsonEditor';
 import Spinner from '../Spinner';
-import { DateTimeSelector } from '../fitness/DateTimeSelcetor';
 
 const defaultHoursBack = 1;
 const jsonTableHeight = 250;
@@ -243,9 +239,6 @@ const DashboardApiEventHistoryLayout = () => {
         <Grid item lg={12}>
           <EventHistoryTable />
         </Grid>
-        {/* <Grid item xs={12}>
-            <Pagination/>
-        </Grid> */}
       </Grid>
     </Paper>
   );

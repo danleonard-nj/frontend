@@ -34,6 +34,25 @@ const toLocalDateTime = (dateTime) => {
   return new Date(dateTime).toLocaleString();
 };
 
+const getCountdownDisplay = (seconds) => {
+  seconds = Number(seconds);
+
+  var day = Math.floor(seconds / (3600 * 24));
+  var hour = Math.floor((seconds % (3600 * 24)) / 3600);
+  var min = Math.floor((seconds % 3600) / 60);
+  var sec = Math.floor(seconds % 60);
+
+  var dDisplay =
+    day > 0 ? day + (day == 1 ? ' day, ' : ' days, ') : '';
+  var hDisplay =
+    hour > 0 ? hour + (hour == 1 ? ' hour, ' : ' hours, ') : '';
+  var mDisplay =
+    min > 0 ? min + (min == 1 ? ' minute, ' : ' minutes, ') : '';
+  var sDisplay =
+    sec > 0 ? sec + (sec == 1 ? ' second' : ' seconds') : '';
+  return dDisplay + hDisplay + mDisplay + sDisplay;
+};
+
 export {
   getLocalDateTimeFromString,
   getLocalDateTimeFromTimestamp,
@@ -41,4 +60,5 @@ export {
   normalizeDates,
   addDays,
   toLocalDateTime,
+  getCountdownDisplay,
 };

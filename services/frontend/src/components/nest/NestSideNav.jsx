@@ -35,9 +35,9 @@ const NestSideNav = ({ selected, onChange }) => {
           </ListItem>
           <ListItem disablePadding>
             <ListItemButton
-              selected={selected === 'configuration'}
-              onClick={() => onChange('configuration')}>
-              <ListItemText primary='Configuration' />
+              selected={selected === 'device-history'}
+              onClick={() => onChange('device-history')}>
+              <ListItemText primary='Device History' />
             </ListItemButton>
           </ListItem>
         </List>

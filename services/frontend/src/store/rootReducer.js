@@ -21,6 +21,7 @@ import bankSlice from './bank/bankSlice';
 import weatherSlice from './weather/weatherSlice';
 import torrentSlice from './torrents/torrentSlice';
 import apiEventSlice from './apiEvents/apiEventSlice';
+import dmsSlice from './dms/dmsSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -45,6 +46,7 @@ const rootReducer = combineReducers({
   weather: weatherSlice,
   torrents: torrentSlice,
   apiEvents: apiEventSlice,
+  dms: dmsSlice,
 });
 
 export default rootReducer;

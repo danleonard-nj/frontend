@@ -13,6 +13,7 @@ const pages = [
   'ChatGPT',
   'Nest',
   'Banking',
+  'DMS',
   'PfSense',
   'Torrents',
   'Events',

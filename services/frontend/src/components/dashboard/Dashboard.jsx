@@ -18,6 +18,7 @@ import { DashboardBankingLayout } from '../layouts/DashboardBankingLayout';
 import { DashboardPfSenseLayout } from '../layouts/DashboardPfSenseLayout';
 import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
 import { DashboardApiEventHistoryLayout } from '../layouts/DashboardApiEventHistoryLayout';
+import { DashboardDmsLayout } from '../layouts/DashboardDmsLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -52,6 +53,7 @@ export default function Dashboard() {
       {dashboardPage === 'events' && (
         <DashboardApiEventHistoryLayout />
       )}
+      {dashboardPage === 'dms' && <DashboardDmsLayout />}
     </Container>
   );
 }
