@@ -121,6 +121,24 @@ const DashboardDmsLayout = () => {
                     }
                   />
                 </Grid>
+                <Grid item lg={4} xs={12}>
+                  <ReadOnlyTextField
+                    label='Notification Date'
+                    value={
+                      dms?.switch?.notification_date
+                        ? toLocalDateTime(
+                            dms?.switch?.notification_date
+                          )
+                        : '-'
+                    }
+                  />
+                </Grid>
+                <Grid item lg={4} xs={12}>
+                  <ReadOnlyTextField
+                    label='Last Notification'
+                    value={dms?.switch?.last_notification ?? '-'}
+                  />
+                </Grid>
               </>
             )}
           </Grid>
