@@ -64,6 +64,13 @@ const DashboardDmsLayout = () => {
     dispatch(pollDms());
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      dispatch(pollDms(false));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <StyledPaper el={1}>
       <Container spacing={3}>

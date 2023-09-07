@@ -1,7 +1,7 @@
 import autoBind from 'auto-bind';
 import DmsApi from '../../api/dmsApi';
 import { getErrorMessage } from '../../api/helpers/apiHelpers';
-import { popErrorMessage } from '../alert/alertActions';
+import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
   setDisarm,
   setDisarmLoading,
@@ -15,7 +15,7 @@ class DmsActions {
     this.dmsApi = new DmsApi();
   }
 
-  pollDms() {
+  pollDms(useLoadingFlags = true) {
     return async (dispatch, getState) => {
       const handleResponse = ({ data, status }) => {
         if (status !== 200) {
@@ -28,13 +28,13 @@ class DmsActions {
         }
       };
 
-      dispatch(setDmsLoading(true));
+      useLoadingFlags && dispatch(setDmsLoading(true));
 
       const response = await this.dmsApi.poll();
 
       handleResponse(response);
 
-      dispatch(setDmsLoading(false));
+      useLoadingFlags && dispatch(setDmsLoading(false));
     };
   }
 
@@ -48,6 +48,7 @@ class DmsActions {
         } else {
           // Store the disarm result
           dispatch(setDisarm(data));
+          dispatch(popMessage('DMS disarmed!'));
         }
       };
 
