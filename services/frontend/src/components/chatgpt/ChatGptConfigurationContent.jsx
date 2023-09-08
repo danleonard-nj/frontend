@@ -56,8 +56,6 @@ const ChatGptConfigurationContent = () => {
   const {
     tokens = 2000,
     selectedRequestType = '',
-    usage = '',
-    usageLoading = false,
   } = useSelector((x) => x.chatgpt);
 
   const handleTokenChangeCaptured = (event) => {
@@ -66,10 +64,6 @@ const ChatGptConfigurationContent = () => {
 
   const handleImageRepetitionChangeCaptured = (event) => {
     dispatch(setImageRepetitions(event.target.value));
-  };
-
-  const handleRefreshUsage = () => {
-    dispatch(getUsage());
   };
 
   return (
@@ -117,32 +111,6 @@ const ChatGptConfigurationContent = () => {
           <ChatGptImageSizeSelect />
         </Grid>
       )}
-
-      <Grid item lg={12} xs={12}>
-        {usageLoading ? (
-          <Spinner />
-        ) : (
-          <Grid container spacing={3}>
-            <Grid item>
-              <TextField
-                value={usage}
-                fullWidth
-                label='Usage (MTD)'
-              />
-            </Grid>
-            <Grid item align='right'>
-              <Button
-                endIcon={<RefreshIcon />}
-                variant='contained'
-                size='small'
-                onClick={handleRefreshUsage}
-                sx={{ margin: '1rem' }}>
-                Refresh
-              </Button>
-            </Grid>
-          </Grid>
-        )}
-      </Grid>
     </Grid>
   );
 };
