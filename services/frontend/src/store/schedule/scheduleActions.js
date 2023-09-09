@@ -3,6 +3,7 @@ import { defaultSchedule } from '../../api/data/schedule';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
   setIsNew,
+  setIsScheduleModified,
   setLinkOptions,
   setSchedule,
   setScheduleHistory,
@@ -78,8 +79,8 @@ export default class ScheduleActions {
     return (dispatch, getState) => {
       const state = getState();
 
-      const tasks = state.task.tasks;
-      const schedule = state.schedule.schedule;
+      const { tasks } = state.task;
+      const { schedule } = state.schedule;
 
       const linkOptions = getAvailableTasks(schedule, tasks);
       dispatch(setLinkOptions(linkOptions));
@@ -88,35 +89,20 @@ export default class ScheduleActions {
 
   addLink(taskId) {
     return async (dispatch, getState) => {
-      dispatch(setScheduleLoading(true));
-
       const {
         schedule: { schedule },
       } = getState();
 
-      const handleErrorResponse = ({ status, data }) => {
-        dispatch(
-          popErrorMessage(
-            `Failed to add task to schedule: ${getErrorMessage(
-              data
-            )} `
-          )
-        );
-      };
-
       // Add new link to schedule
-      const response = await this.scheduleApi.updateSchedule({
-        ...schedule,
-        links: [...schedule.links, taskId],
-      });
+      dispatch(
+        setSchedule({
+          ...schedule,
+          links: [...schedule.links, taskId],
+        })
+      );
 
-      response.status > 200
-        ? handleErrorResponse(response)
-        : dispatch(popMessage('Task added to schedule'));
-
-      // Refresh the schedule list
-      dispatch(this.getSchedules());
-      dispatch(setScheduleLoading(false));
+      // Set the modified indicator
+      dispatch(setIsScheduleModified(true));
     };
   }
 

@@ -16,7 +16,10 @@ import {
   getSchedule,
   getSchedules,
 } from '../../../store/schedule/scheduleActions';
-import { newSchedule } from '../../../store/schedule/scheduleSlice';
+import {
+  newSchedule,
+  setIsScheduleModified,
+} from '../../../store/schedule/scheduleSlice';
 import { getTasks } from '../../../store/task/taskActions';
 import Spinner from '../../Spinner';
 
@@ -44,12 +47,20 @@ const ScheduleListGrid = ({ children }) => (
 const ScheduleList = ({ onScheduleClick }) => {
   const dispatch = useDispatch();
 
-  const { schedules, schedulesLoading } =
-    useSelector((x) => x.schedule) ?? [];
+  const {
+    schedules,
+    schedulesLoading,
+    isScheduleModified = false,
+  } = useSelector((x) => x.schedule) ?? [];
 
   const handleScheduleSelectOnClick = (scheduleId) => {
     dispatch(getSchedule(scheduleId));
     onScheduleClick();
+
+    // Clear the modified flag
+    if (isScheduleModified) {
+      dispatch(setIsScheduleModified(false));
+    }
   };
 
   const handleNewScheduleOnClick = () => {

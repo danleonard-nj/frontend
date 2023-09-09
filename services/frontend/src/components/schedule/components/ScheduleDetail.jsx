@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateScheduleState } from '../../../store/schedule/scheduleActions';
 import Spinner from '../../Spinner';
 import { ScheduleToolbar } from './ScheduleToolbar';
+import { setIsScheduleModified } from '../../../store/schedule/scheduleSlice';
 
 const ScheduleDetailPaper = ({ children }) => (
   <Paper
@@ -24,11 +25,19 @@ const ScheduleDetailPaper = ({ children }) => (
 );
 
 export default function ScheduleDetail() {
-  const { schedule = {}, scheduleLoading = true } = useSelector(
-    (store) => store.schedule
-  );
+  const {
+    schedule = {},
+    scheduleLoading = true,
+    isScheduleModified = false,
+  } = useSelector((store) => store.schedule);
 
   const dispatch = useDispatch();
+
+  const setScheduleMofided = () => {
+    if (!isScheduleModified) {
+      dispatch(setIsScheduleModified(true));
+    }
+  };
 
   const handleSecondsCheckboxChange = (event) => {
     dispatch(
@@ -37,6 +46,8 @@ export default function ScheduleDetail() {
         includeSeconds: event.target.checked,
       }))
     );
+
+    setScheduleMofided();
   };
 
   const handleActiveCheckboxChange = (event) => {
@@ -46,6 +57,8 @@ export default function ScheduleDetail() {
         isActive: event.target.checked,
       }))
     );
+
+    setScheduleMofided();
   };
 
   const handleChange = (value, name) => {
@@ -55,6 +68,8 @@ export default function ScheduleDetail() {
         [name]: value,
       }))
     );
+
+    setScheduleMofided();
   };
 
   return (

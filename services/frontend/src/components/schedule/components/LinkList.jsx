@@ -56,12 +56,13 @@ const LinkBoxHeader = ({ onAddScheduleClick }) => (
 
 const ScheduleLinkList = ({ onScheduleClick }) => {
   const [scheduleLinks, setScheduleLinks] = useState([]);
-  const dispatch = useDispatch();
 
   const {
     task: { tasks = [] },
     schedule: { schedule = {}, scheduleLoading = true },
   } = useSelector((x) => x);
+
+  const dispatch = useDispatch();
 
   // Add link handler
   const handleAddScheduleOnClick = () => {

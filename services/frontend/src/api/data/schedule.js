@@ -30,6 +30,7 @@ const scheduleState = {
   scheduleHistoryLoading: true,
   scheduleHistory: [],
   selectedSchedule: '',
+  isScheduleModified: false,
 };
 
 export { scheduleTemplate, defaultSchedule, scheduleState };

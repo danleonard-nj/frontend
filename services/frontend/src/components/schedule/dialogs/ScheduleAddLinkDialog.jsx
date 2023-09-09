@@ -17,6 +17,7 @@ import {
   dialogType,
 } from '../../../store/dialog/dialogSlice';
 import { addLink } from '../../../store/schedule/scheduleActions';
+import { getTasks } from '../../../store/task/taskActions';
 
 const getAvailableLinkOptions = (tasks, links) =>
   tasks.filter((x) => !links.includes(x.taskId));
@@ -47,6 +48,12 @@ export default function ScheduleAddLinkDialog() {
     handleCloseDialogOnClick();
   };
 
+  // Refresh the tasks for the link options
+  useEffect(() => {
+    dispatch(getTasks());
+  }, []);
+
+  // Set the available link options
   useEffect(() => {
     setLinkOptions(
       getAvailableLinkOptions(tasks, schedule.links ?? [])

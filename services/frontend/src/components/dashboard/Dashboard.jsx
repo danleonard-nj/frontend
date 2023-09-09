@@ -8,7 +8,6 @@ import DashboardKasaSceneLayout from '../layouts/DashboardKasaSceneLayout';
 import { DashboardKubernetesLogLayout } from '../layouts/DashboardKubernetesLogLayout';
 import { DashboardLocationHistoryLayout } from '../layouts/DashboardLocationHistoryLayout';
 import DashboardReverbLayout from '../layouts/DashboardReverbLayout';
-import DashboardScheduleLayout from '../layouts/DashboardScheduleLayout';
 import DashboardShipEngineLayout from '../layouts/DashboardShipEngineLayout';
 import DashboardTaskLayout from '../layouts/DashboardTaskLayout';
 import { DashoardEmailRuleLayout } from '../layouts/DashboardEmailRuleLayout';
@@ -19,6 +18,7 @@ import { DashboardPfSenseLayout } from '../layouts/DashboardPfSenseLayout';
 import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
 import { DashboardApiEventHistoryLayout } from '../layouts/DashboardApiEventHistoryLayout';
 import { DashboardDmsLayout } from '../layouts/DashboardDmsLayout';
+import { DashboardScheduleLayout } from '../layouts/DashboardScheduleLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);

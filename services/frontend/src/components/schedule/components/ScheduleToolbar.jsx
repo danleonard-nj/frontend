@@ -11,10 +11,18 @@ import {
 } from '../../../store/schedule/scheduleActions';
 import DashboardTitle from '../../dashboard/DashboardTitle';
 
+const getFormattedScheduleName = (schedule, isModified) => {
+  return isModified
+    ? `${schedule.scheduleName} *`
+    : schedule.scheduleName;
+};
+
 const ScheduleToolbar = () => {
   const dispatch = useDispatch();
 
-  const { schedule } = useSelector((x) => x.schedule);
+  const { schedule = {}, isScheduleModified = false } = useSelector(
+    (x) => x.schedule
+  );
 
   const handleRunSchedule = () => {
     dispatch(runSchedule(schedule.scheduleId));
@@ -34,7 +42,7 @@ const ScheduleToolbar = () => {
         <Grid container spacing={3}>
           <Grid item lg={6} xs={4} id='schedule-title-container'>
             <DashboardTitle id='schedule-title'>
-              {schedule.scheduleName ?? ''}
+              {getFormattedScheduleName(schedule, isScheduleModified)}
             </DashboardTitle>
           </Grid>
           <Grid

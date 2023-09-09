@@ -15,6 +15,9 @@ const scheduleSlice = createSlice({
     setIsNew(state, { payload }) {
       state.isNew = payload;
     },
+    setIsScheduleModified(state, { payload }) {
+      state.isScheduleModified = payload;
+    },
     setSchedule(state, { payload }) {
       state.schedule = payload;
     },
@@ -55,6 +58,7 @@ export const {
   setScheduleHistory,
   setScheduleHistoryLoading,
   setSelectedSchedule,
+  setIsScheduleModified,
 } = scheduleSlice.actions;
 
 export default scheduleSlice.reducer;
