@@ -1,36 +1,24 @@
-import {
-  Button,
-  FormGroup,
-  Grid,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getLogs } from '../../store/kubeLogs/kubeLogActions';
-import Spinner from '../Spinner';
-import { setLogTail } from '../../store/kubeLogs/kubeLogSlice';
+import { Button, FormGroup, Grid, TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getLogs } from "../../store/kubeLogs/kubeLogActions";
+import Spinner from "../Spinner";
+import { setLogTail } from "../../store/kubeLogs/kubeLogSlice";
 
 const filterPodLogs = (logs, filterValue, setLogs) => {
-  return filterValue
-    ? setLogs(logs.filter((x) => x.includes(filterValue)))
-    : setLogs(logs);
+  return filterValue ? setLogs(logs.filter((x) => x.includes(filterValue))) : setLogs(logs);
 };
 
 const KubernetesLogs = () => {
   const dispatch = useDispatch();
 
-  const {
-    logs,
-    logsLoading,
-    logTail,
-    selectedPod,
-    selectedNamespace,
-  } = useSelector((x) => x.kubeLogs);
+  const { logs, logsLoading, logTail, selectedPod, selectedNamespace } = useSelector(
+    (x) => x.kubeLogs
+  );
 
   const [podLogs, setPodLogs] = useState([]);
   const [logLines, setLogLines] = useState(logTail ?? 0);
-  const [filterValue, setFilterValue] = useState('');
+  const [filterValue, setFilterValue] = useState("");
 
   const handleRefresh = () => {
     dispatch(getLogs(selectedNamespace, selectedPod));
@@ -58,10 +46,13 @@ const KubernetesLogs = () => {
         multiline
         rows={30}
         maxRows={30}
-        value={podLogs?.join('\n') ?? ''}
+        value={podLogs?.join("\n") ?? ""}
         fullWidth
         contentEditable={false}
         spellCheck={false}
+        InputProps={{
+          readonly: true,
+        }}
       />
     );
 
