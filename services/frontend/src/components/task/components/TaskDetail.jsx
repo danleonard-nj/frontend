@@ -23,8 +23,11 @@ import Spinner from '../../Spinner';
 
 export default function TaskDetail() {
   const dispatch = useDispatch();
-  const task = useSelector((store) => store.task.task) ?? {};
-  const taskFetching = useSelector((x) => x.task.taskFetching);
+  const {
+    task = {},
+    taskFetching = false,
+    isTaskModified = false,
+  } = useSelector((store) => store.task);
 
   const handleTaskChange = (event) => {
     dispatch(
@@ -33,6 +36,8 @@ export default function TaskDetail() {
         [event.target.name]: event.target.value,
       }))
     );
+
+    setTaskModified();
   };
 
   const handleSave = () => {
@@ -41,6 +46,12 @@ export default function TaskDetail() {
 
   const handleDelete = () => {
     dispatch(openDialog(dialogType.deleteTask));
+  };
+
+  const setTaskModified = () => {
+    if (!isTaskModified) {
+      dispatch(updateTaskState(true));
+    }
   };
 
   return (

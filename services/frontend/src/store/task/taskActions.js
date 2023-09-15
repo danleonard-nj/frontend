@@ -3,7 +3,12 @@ import { defaultTask } from '../../api/helpers/taskHelpers';
 import ScheduleApi from '../../api/scheduleApi';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import { setIsNew } from '../schedule/scheduleSlice';
-import { setClients, setTask, setTasks } from './taskSlice';
+import {
+  setClients,
+  setTask,
+  setTaskLoading,
+  setTasks,
+} from './taskSlice';
 
 export default class TaskActions {
   constructor() {
@@ -54,6 +59,8 @@ export default class TaskActions {
         }
       };
 
+      dispatch(setTaskLoading(true));
+
       const response = await this.scheduleApi.getTask(taskId);
 
       // Handle failure message
@@ -63,6 +70,8 @@ export default class TaskActions {
       if (response?.status === 200) {
         dispatch(setTask(response?.data));
       }
+
+      dispatch(setTaskLoading(false));
     };
   }
 

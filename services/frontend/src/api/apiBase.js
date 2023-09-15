@@ -43,6 +43,11 @@ export default class ApiBase {
     };
   }
 
+  getUsername() {
+    console.log('account', this.accounts[0]);
+    return this.accounts[0].username;
+  }
+
   async toResponse(response, options = null) {
     // No content indicates we don't need to deserialize the response
     // Selector takes a reducer function w/ a single param containing

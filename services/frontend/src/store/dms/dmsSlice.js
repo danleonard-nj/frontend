@@ -5,6 +5,8 @@ const initialState = {
   dmsLoading: true,
   disarm: {},
   disarmLoading: false,
+  history: [],
+  historyLoading: true,
 };
 
 const dmsSlice = createSlice({
@@ -23,10 +25,22 @@ const dmsSlice = createSlice({
     setDisarmLoading(state, { payload }) {
       state.disarmLoading = payload;
     },
+    setHistory(state, { payload }) {
+      state.history = payload;
+    },
+    setHistoryLoading(state, { payload }) {
+      state.historyLoading = payload;
+    },
   },
 });
 
-export const { setDms, setDmsLoading, setDisarm, setDisarmLoading } =
-  dmsSlice.actions;
+export const {
+  setDms,
+  setDmsLoading,
+  setDisarm,
+  setDisarmLoading,
+  setHistory,
+  setHistoryLoading,
+} = dmsSlice.actions;
 
 export default dmsSlice.reducer;

@@ -8,6 +8,7 @@ const taskState = {
   tasksLoading: false,
   clientsLoading: true,
   isNew: false,
+  isTaskModified: false,
 };
 
 export { taskState };

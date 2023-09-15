@@ -13,10 +13,21 @@ export default class DmsApi extends ApiBase {
     );
   }
 
+  async getHistory(daysBack) {
+    const endpoint = new URL(`${this.baseUrl}/api/tools/dms/history`);
+
+    endpoint.searchParams.append('days_back', daysBack);
+
+    return await this.send(endpoint, 'GET');
+  }
+
   async disarm() {
     return await this.send(
       `${this.baseUrl}/api/tools/dms/disarm`,
-      'POST'
+      'POST',
+      {
+        username: this.getUsername(),
+      }
     );
   }
 }

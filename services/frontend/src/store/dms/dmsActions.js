@@ -7,6 +7,8 @@ import {
   setDisarmLoading,
   setDms,
   setDmsLoading,
+  setHistory,
+  setHistoryLoading,
 } from './dmsSlice';
 
 class DmsActions {
@@ -38,6 +40,30 @@ class DmsActions {
     };
   }
 
+  getHistory(daysBack) {
+    return async (dispatch, getState) => {
+      const handleResponse = ({ data, status }) => {
+        if (status !== 200) {
+          // Pop an error on failure to poll
+          const errorMessage = getErrorMessage(data);
+          dispatch(popErrorMessage(errorMessage));
+        } else {
+          // Store the poll result
+          dispatch(setHistory(data));
+        }
+      };
+
+      dispatch(setHistoryLoading(true));
+
+      // Fetch event history
+      const response = await this.dmsApi.getHistory(daysBack);
+
+      handleResponse(response);
+
+      dispatch(setHistoryLoading(false));
+    };
+  }
+
   disarmDms() {
     return async (dispatch, getState) => {
       const handleResponse = ({ data, status }) => {
@@ -63,4 +89,4 @@ class DmsActions {
   }
 }
 
-export const { pollDms, disarmDms } = new DmsActions();
+export const { pollDms, disarmDms, getHistory } = new DmsActions();

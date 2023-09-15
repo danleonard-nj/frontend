@@ -13,7 +13,11 @@ import {
   getCountdownDisplay,
   toLocalDateTime,
 } from '../../api/helpers/dateTimeUtils';
-import { disarmDms, pollDms } from '../../store/dms/dmsActions';
+import {
+  disarmDms,
+  getHistory,
+  pollDms,
+} from '../../store/dms/dmsActions';
 import Spinner from '../Spinner';
 import DashboardTitle from '../dashboard/DashboardTitle';
 
@@ -62,6 +66,7 @@ const DashboardDmsLayout = () => {
 
   useEffect(() => {
     dispatch(pollDms());
+    dispatch(getHistory(7));
   }, []);
 
   useEffect(() => {
@@ -97,7 +102,9 @@ const DashboardDmsLayout = () => {
                   <ReadOnlyTextField
                     label='Expiration'
                     value={
-                      toLocalDateTime(dms?.expiration_date) ?? '-'
+                      new Date(
+                        dms?.expiration_date * 1000
+                      ).toLocaleString() ?? '-'
                     }
                   />
                 </Grid>
@@ -106,7 +113,7 @@ const DashboardDmsLayout = () => {
                     label='Last Disarm'
                     value={
                       toLocalDateTime(
-                        dms?.switch?.last_disarm * 1000
+                        new Date(dms?.switch?.last_disarm * 1000)
                       ) ?? '-'
                     }
                   />
@@ -116,29 +123,29 @@ const DashboardDmsLayout = () => {
                     label='Last Touched'
                     value={
                       toLocalDateTime(
-                        dms?.switch?.last_touched * 1000
+                        new Date(dms?.switch?.last_touched * 1000)
                       ) ?? '-'
                     }
                   />
                 </Grid>
-                <Grid item lg={4} xs={12}>
+                {/* <Grid item lg={4} xs={12}>
                   <ReadOnlyTextField
                     label='Notification Date'
                     value={
                       dms?.switch?.notification_date
-                        ? toLocalDateTime(
-                            dms?.switch?.notification_date
+                        ? new Date(
+                            dms?.switch?.notification_date * 1000
                           )
                         : '-'
                     }
                   />
-                </Grid>
-                <Grid item lg={4} xs={12}>
+                </Grid> */}
+                {/* <Grid item lg={4} xs={12}>
                   <ReadOnlyTextField
                     label='Last Notification'
                     value={dms?.switch?.last_notification ?? '-'}
                   />
-                </Grid>
+                </Grid> */}
               </>
             )}
           </Grid>

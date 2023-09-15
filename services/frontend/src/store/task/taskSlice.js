@@ -41,9 +41,15 @@ const taskReducers = {
     state.taskLoading = false;
     state.task = payload;
   },
+  setTaskLoading(state, { payload }) {
+    state.taskLoading = payload;
+  },
   setTasks(state, { payload }) {
     state.tasksLoading = false;
     state.tasks = payload;
+  },
+  setIsTaskModified(state, { payload }) {
+    state.isTaskModified = payload;
   },
 };
 
@@ -59,6 +65,7 @@ export const {
   setClient,
   setClients,
   setClientsLoading,
+  setTaskLoading,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;
