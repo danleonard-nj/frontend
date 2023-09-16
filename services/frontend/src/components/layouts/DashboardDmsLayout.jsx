@@ -4,6 +4,11 @@ import {
   Container,
   Grid,
   Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from '@mui/material';
@@ -46,6 +51,91 @@ const ReadOnlyTextField = ({ label, value }) => {
   );
 };
 
+const HistoryTable = ({ history = [] }) => {
+  const [data, setData] = React.useState([]);
+
+  useEffect(() => {
+    let sortedHistory = [...history];
+
+    sortedHistory.sort((a, b) => {
+      return b.timestamp - a.timestamp;
+    });
+
+    setData(sortedHistory);
+  }, [history]);
+
+  return (
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell>Date</TableCell>
+          <TableCell>Type</TableCell>
+          <TableCell>User</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {data?.map((row) => (
+          <TableRow hover key={row.history_id}>
+            <TableCell component='th' scope='row'>
+              {new Date(row.timestamp * 1000).toLocaleString()}
+            </TableCell>
+            <TableCell>{row.operation}</TableCell>
+            <TableCell>{row.username}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
+
+const HistoryTableContainer = () => {
+  const [daysBack, setDaysBack] = React.useState(1);
+
+  const { history, historyLoading } = useSelector((x) => x.dms);
+
+  const dispatch = useDispatch();
+
+  const handleSetDaysBack = (e) => {
+    setDaysBack(e.target.value ?? 1);
+  };
+
+  useEffect(() => {
+    dispatch(getHistory(daysBack));
+  }, [daysBack]);
+
+  return (
+    <Paper elevation={2} sx={{ p: 2, marginTop: '1rem' }}>
+      <span
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}>
+        <Typography variant='h5' align='left'>
+          History
+        </Typography>
+        <TextField
+          type='number'
+          label='Days'
+          variant='standard'
+          value={daysBack}
+          onChangeCapture={handleSetDaysBack}
+        />
+      </span>
+
+      {historyLoading ? (
+        <Spinner />
+      ) : (
+        <HistoryTable history={history} />
+      )}
+      <Button
+        onClick={() => dispatch(getHistory(daysBack))}
+        sx={{ marginTop: '1rem' }}>
+        Refresh
+      </Button>
+    </Paper>
+  );
+};
+
 const DashboardDmsLayout = () => {
   const {
     dmsLoading = true,
@@ -66,7 +156,6 @@ const DashboardDmsLayout = () => {
 
   useEffect(() => {
     dispatch(pollDms());
-    dispatch(getHistory(7));
   }, []);
 
   useEffect(() => {
@@ -128,24 +217,6 @@ const DashboardDmsLayout = () => {
                     }
                   />
                 </Grid>
-                {/* <Grid item lg={4} xs={12}>
-                  <ReadOnlyTextField
-                    label='Notification Date'
-                    value={
-                      dms?.switch?.notification_date
-                        ? new Date(
-                            dms?.switch?.notification_date * 1000
-                          )
-                        : '-'
-                    }
-                  />
-                </Grid> */}
-                {/* <Grid item lg={4} xs={12}>
-                  <ReadOnlyTextField
-                    label='Last Notification'
-                    value={dms?.switch?.last_notification ?? '-'}
-                  />
-                </Grid> */}
               </>
             )}
           </Grid>
@@ -155,6 +226,9 @@ const DashboardDmsLayout = () => {
             <Button onClick={handlePoll}>Poll</Button>
             <Button onClick={handleDisarm}>Disarm</Button>
           </ButtonGroup>
+        </Grid>
+        <Grid item lg={12} xs={12}>
+          <HistoryTableContainer />
         </Grid>
       </Container>
     </StyledPaper>
