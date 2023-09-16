@@ -72,7 +72,7 @@ const DashboardDmsLayout = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       dispatch(pollDms(false));
-    }, 1000);
+    }, 750);
     return () => clearInterval(interval);
   }, []);
 
