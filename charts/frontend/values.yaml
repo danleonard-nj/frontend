@@ -22,7 +22,7 @@ probes:
     liveness: "/"
     readiness: "/"
   initialDelay: 30
-  interval: 10
+  interval: 60
   timeout: 30
 
 environment:
