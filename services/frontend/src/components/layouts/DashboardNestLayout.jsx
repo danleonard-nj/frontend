@@ -6,13 +6,11 @@ import {
   MenuItem,
   Paper,
   Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   TextField,
+  Typography,
+  styled,
 } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -26,9 +24,13 @@ import { NestSensorInfoPage } from "../nest/NestSensorInfoPage";
 import { NestSideNav } from "../nest/NestSideNav";
 import { NestThermostatPage } from "../nest/NestThermostatPage";
 import { WeatherPage } from "../nest/weather/WeatherPage";
-import { DataGrid } from "@mui/x-data-grid";
 
-const columns = [
+const TableContainer = styled(Box)(({ theme }) => ({
+  height: "75vh",
+  width: "100%",
+}));
+
+const historyColumns = [
   {
     field: "timestamp",
     headerName: "Date",
@@ -46,6 +48,29 @@ const columns = [
   },
 ];
 
+const integrationColumns = [
+  {
+    field: "timestamp",
+    headerName: "Date",
+    width: 200,
+  },
+  {
+    field: "device_name",
+    headerName: "Device Name",
+    width: 200,
+  },
+  {
+    field: "event_type",
+    headerName: "Event Type",
+    width: 200,
+  },
+  {
+    field: "result",
+    headerName: "Result",
+    width: 200,
+  },
+];
+
 const transformDeviceHistoryData = (data) => {
   return data.map((row) => ({
     ...row,
@@ -53,6 +78,14 @@ const transformDeviceHistoryData = (data) => {
     timestamp: new Date(row.timestamp * 1000).toLocaleString(),
     degrees_fahrenheit: `${row.degrees_fahrenheit} F`,
     humidity_percent: `${row.humidity_percent.toFixed(2)} %`,
+  }));
+};
+
+const transformIntegrationEventData = (data) => {
+  return data.map((row) => ({
+    ...row,
+    id: row.event_id,
+    timestamp: new Date(row.timestamp * 1000).toLocaleString(),
   }));
 };
 
@@ -66,7 +99,23 @@ const HistoryTable = ({ rows, columns }) => {
   }, [rows]);
 
   return (
-    <Box sx={{ height: 400, width: "100%" }}>
+    <TableContainer>
+      <DataGrid rows={data} columns={columns} disableRowSelectionOnClick />
+    </TableContainer>
+  );
+};
+
+const IntegrationTable = ({ rows, columns }) => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const data = transformIntegrationEventData(rows);
+    console.log("transformed data", data);
+    setData(data);
+  }, []);
+
+  return (
+    <Box sx={{ height: "75vh", width: "100%" }}>
       <DataGrid rows={data} columns={columns} disableRowSelectionOnClick />
     </Box>
   );
@@ -138,7 +187,7 @@ const NestDeviceHistoryPage = () => {
             {sensorHistoryLoading ? (
               <Spinner />
             ) : (
-              <HistoryTable rows={sensorHistory} columns={columns} />
+              <HistoryTable rows={sensorHistory} columns={historyColumns} />
             )}
           </Grid>
         </Grid>
@@ -159,14 +208,15 @@ const NestIntegrationPage = () => {
   }, [daysBack]);
 
   return (
-    <Grid container>
+    <Grid container spacing={3}>
       <Grid item lg={12} sm={12} xs={12}>
         <span
           style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
           }}
         >
+          <Typography variant="h5">Integration Events</Typography>
           <TextField
             type="number"
             label="Days Back"
@@ -179,28 +229,7 @@ const NestIntegrationPage = () => {
         {eventsLoading ? (
           <Spinner />
         ) : (
-          <Table dense>
-            <TableHead>
-              <TableRow>
-                <TableCell>Timestamp</TableCell>
-                <TableCell>Device Name</TableCell>
-                <TableCell>Event Type</TableCell>
-                <TableCell>Result</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {events.map((event) => (
-                <TableRow hover key={event.event_id}>
-                  <TableCell>
-                    {new Date(event.timestamp * 1000).toLocaleString()}
-                  </TableCell>
-                  <TableCell>{event.device_name}</TableCell>
-                  <TableCell>{event.event_type}</TableCell>
-                  <TableCell>{event.result}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <IntegrationTable rows={events} columns={integrationColumns} />
         )}
       </Grid>
     </Grid>
