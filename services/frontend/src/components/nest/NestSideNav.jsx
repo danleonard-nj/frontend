@@ -40,6 +40,13 @@ const NestSideNav = ({ selected, onChange }) => {
               <ListItemText primary='Device History' />
             </ListItemButton>
           </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={selected === 'integrations'}
+              onClick={() => onChange('integrations')}>
+              <ListItemText primary='Integration Events' />
+            </ListItemButton>
+          </ListItem>
         </List>
       </nav>
     </Paper>

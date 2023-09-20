@@ -14,13 +14,26 @@ export default class NestApi extends ApiBase {
     return await this.send(endpoint.toString(), 'GET');
   }
 
-  async getSensorHistory(startTimestamp, endTimestamp) {
+  async getSensorHistory(deviceId, hoursBack) {
+    const endpoint = new URL(
+      `${this.baseUrl}/api/tools/nest/sensor/${deviceId}`
+    );
+
+    endpoint.searchParams.append('hours_back', hoursBack);
+
+    return await this.send(endpoint.toString(), 'GET');
+  }
+
+  async getHistory(hoursBack, sample = '5min', deviceIds = []) {
     const endpoint = new URL(`${this.baseUrl}/api/tools/nest/sensor`);
 
-    endpoint.searchParams.append('start_timestamp', startTimestamp);
+    endpoint.searchParams.append('hours_back', hoursBack);
+    endpoint.searchParams.append('sample', sample);
 
-    if (endTimestamp) {
-      endpoint.searchParams.append('end_timestamp', endTimestamp);
+    if (deviceIds.length > 0) {
+      deviceIds.forEach((deviceId) => {
+        endpoint.searchParams.append('device_id', deviceId);
+      });
     }
 
     return await this.send(endpoint.toString(), 'GET');
@@ -42,12 +55,12 @@ export default class NestApi extends ApiBase {
     return await this.send(endpoint.toString(), 'GET');
   }
 
-  async getIntegrationEvents(startTimestamp, sensorId = null) {
+  async getIntegrationEvents(daysBack, sensorId = null) {
     const endpoint = new URL(
       `${this.baseUrl}/api/tools/nest/integration/events`
     );
 
-    endpoint.searchParams.append('start_timestamp', startTimestamp);
+    endpoint.searchParams.append('days_back', daysBack);
 
     if (sensorId != null) {
       endpoint.searchParams.append('sensor_id', sensorId);

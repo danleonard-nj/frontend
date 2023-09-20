@@ -140,7 +140,6 @@ const DashboardDmsLayout = () => {
   const {
     dmsLoading = true,
     dms = {},
-    disarm = {},
     disarmLoading = false,
   } = useSelector((x) => x.dms);
 
@@ -161,7 +160,7 @@ const DashboardDmsLayout = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       dispatch(pollDms(false));
-    }, 750);
+    }, 1);
     return () => clearInterval(interval);
   }, []);
 

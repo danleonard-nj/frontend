@@ -5,11 +5,14 @@ import {
   MenuItem,
   Paper,
   Select,
+  TextField,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSensorInfo } from '../../store/nest/nestActions';
-import { setSelectedSensor } from '../../store/nest/nestSlice';
+import {
+  getSensorHistory,
+  getSensorInfo,
+} from '../../store/nest/nestActions';
 import { getWeather } from '../../store/weather/weatherActions';
 import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
 import { NestSideNav } from '../nest/NestSideNav';
@@ -17,37 +20,72 @@ import { NestThermostatPage } from '../nest/NestThermostatPage';
 import { WeatherPage } from '../nest/weather/WeatherPage';
 
 const NestDeviceHistoryPage = () => {
-  const { sensorInfo, selectedSensor } = useSelector((x) => x.nest);
+  const [daysBack, setDaysBack] = useState(1);
+  const [selectedDevice, setSelectedDevice] = useState({});
+
+  const { sensorInfo } = useSelector((x) => x.nest);
 
   const dispatch = useDispatch();
 
   const handleSetSelectedSensor = (event) => {
-    console.log('handleSetSelectedSensor', event);
-    dispatch(setSelectedSensor(event.target.value));
+    const device = sensorInfo.find(
+      (x) => x.device_id === event.target.value
+    );
+
+    setSelectedDevice(device);
   };
+
+  const handleSetDaysBack = (event) => {
+    setDaysBack(event.target.value ?? 1);
+  };
+
+  useEffect(() => {
+    if (selectedDevice?.device_id) {
+      dispatch(getSensorHistory(selectedDevice.device_id, daysBack));
+    }
+  }, [selectedDevice]);
 
   return (
     <Grid container>
-      <Grid item lg={6} sm={12} xs={12}>
-        <FormControl fullWidth>
-          <InputLabel id='device-select-label'>Device</InputLabel>
-          <Select
-            labelId='device-select-label'
-            id='device-select'
-            value={selectedSensor}
-            label='Device'
-            onChange={handleSetSelectedSensor}>
-            {sensorInfo?.map((device) => (
-              <MenuItem value={device.device_id}>
-                {device.device_name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+      <Grid item lg={12} sm={12} xs={12}>
+        <span
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}>
+          <FormControl>
+            <InputLabel id='device-select-label'>Device</InputLabel>
+            <Select
+              labelId='device-select-label'
+              displayEmpty
+              id='device-select'
+              defaultValue='hello world'
+              value={selectedDevice?.device_id ?? ''}
+              label='Device'
+              onChange={handleSetSelectedSensor}
+              sx={{ minWidth: '250px' }}>
+              {sensorInfo?.map((device) => (
+                <MenuItem
+                  key={device.device_id}
+                  value={device.device_id}>
+                  {device.device_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            type='number'
+            label='Days'
+            value={daysBack}
+            onChange={handleSetDaysBack}
+          />
+        </span>
       </Grid>
     </Grid>
   );
 };
+
+const NestIntegrationPage = () => {};
 
 const DashboardNestLayout = () => {
   const dispatch = useDispatch();
@@ -80,6 +118,7 @@ const DashboardNestLayout = () => {
               {sideNav === 'device-history' && (
                 <NestDeviceHistoryPage />
               )}
+              {sideNav === 'integrations' && <></>}
             </Grid>
           </Grid>
         </Grid>

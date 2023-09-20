@@ -20,20 +20,15 @@ export default class NestActions {
     autoBind(this);
   }
 
-  getSensorHistory() {
+  getSensorHistory(sensorId, hoursBack) {
     return async (dispatch, getState) => {
       // Sensor history
-      const {
-        nest: {
-          sensorHistoryDateParams: { startTimestamp, endTimestamp },
-        },
-      } = getState();
 
       dispatch(setSensorHistoryLoading(true));
 
       const response = await this.nestApi.getSensorHistory(
-        startTimestamp,
-        endTimestamp
+        sensorId,
+        hoursBack
       );
 
       response.status === 200

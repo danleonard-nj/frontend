@@ -71,7 +71,6 @@ const thermostatReducers = {
 const sensorReducers = {
   setSensorInfo(state, { payload }) {
     state.sensorInfo = payload;
-    state.sensorInfoLoading = false;
   },
   setSensorInfoLoading(state, { payload }) {
     state.sensorInfoLoading = payload;
@@ -81,7 +80,6 @@ const sensorReducers = {
   },
   setSensorHistory(state, { payload }) {
     state.sensorHistory = payload;
-    state.sensorHistoryLoading = false;
   },
   setSensorHistoryLoading(state, { payload }) {
     state.sensorHistoryLoading = payload;
