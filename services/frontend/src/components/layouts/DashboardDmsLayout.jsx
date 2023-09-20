@@ -138,7 +138,7 @@ const HistoryTableContainer = () => {
 
 const DashboardDmsLayout = () => {
   const {
-    dmsLoading = true,
+    dmsLoading = false,
     dms = {},
     disarmLoading = false,
   } = useSelector((x) => x.dms);
@@ -160,7 +160,7 @@ const DashboardDmsLayout = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       dispatch(pollDms(false));
-    }, 1);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
