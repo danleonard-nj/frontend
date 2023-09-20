@@ -11,10 +11,6 @@ const nestInitialState = {
   sensorInfoLoading: true,
   sensorHistory: [],
   sensorHistoryLoading: true,
-  sensorHistoryDateParams: {
-    startTimestamp: getDefaultStartDate(),
-    endTimestamp: 0,
-  },
   selectedSensor: {},
   thermostat: {},
   thermostatLoading: true,

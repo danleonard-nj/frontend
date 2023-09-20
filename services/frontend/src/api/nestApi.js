@@ -24,6 +24,16 @@ export default class NestApi extends ApiBase {
     return await this.send(endpoint.toString(), 'GET');
   }
 
+  async getSensorHistory(deviceId, hoursBack) {
+    const endpoint = new URL(
+      `${this.baseUrl}/api/tools/nest/sensor/${deviceId}`
+    );
+
+    endpoint.searchParams.append('hours_back', hoursBack);
+
+    return await this.send(endpoint.toString(), 'GET');
+  }
+
   async getHistory(hoursBack, sample = '5min', deviceIds = []) {
     const endpoint = new URL(`${this.baseUrl}/api/tools/nest/sensor`);
 
@@ -55,16 +65,12 @@ export default class NestApi extends ApiBase {
     return await this.send(endpoint.toString(), 'GET');
   }
 
-  async getIntegrationEvents(daysBack, sensorId = null) {
+  async getIntegrationEvents(daysBack) {
     const endpoint = new URL(
       `${this.baseUrl}/api/tools/nest/integration/events`
     );
 
     endpoint.searchParams.append('days_back', daysBack);
-
-    if (sensorId != null) {
-      endpoint.searchParams.append('sensor_id', sensorId);
-    }
 
     return await this.send(endpoint.toString(), 'GET');
   }
