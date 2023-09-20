@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const getDefaultStartDate = () => {
   const date = new Date();
@@ -10,7 +10,7 @@ const nestInitialState = {
   sensorInfo: [],
   sensorInfoLoading: true,
   sensorHistory: [],
-  sensorHistoryLoading: true,
+  sensorHistoryLoading: false,
   selectedSensor: {},
   thermostat: {},
   thermostatLoading: true,
@@ -86,7 +86,7 @@ const sensorReducers = {
 };
 
 const nestSlice = createSlice({
-  name: 'nest',
+  name: "nest",
   initialState: nestInitialState,
   reducers: {
     ...sensorReducers,

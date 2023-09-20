@@ -1,4 +1,5 @@
 import {
+  Box,
   FormControl,
   Grid,
   InputLabel,
@@ -11,26 +12,77 @@ import {
   TableHead,
   TableRow,
   TextField,
-} from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getIntegrationEvents,
   getSensorHistory,
   getSensorInfo,
-} from '../../store/nest/nestActions';
-import { getWeather } from '../../store/weather/weatherActions';
-import Spinner from '../Spinner';
-import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
-import { NestSideNav } from '../nest/NestSideNav';
-import { NestThermostatPage } from '../nest/NestThermostatPage';
-import { WeatherPage } from '../nest/weather/WeatherPage';
+} from "../../store/nest/nestActions";
+import { getWeather } from "../../store/weather/weatherActions";
+import Spinner from "../Spinner";
+import { NestSensorInfoPage } from "../nest/NestSensorInfoPage";
+import { NestSideNav } from "../nest/NestSideNav";
+import { NestThermostatPage } from "../nest/NestThermostatPage";
+import { WeatherPage } from "../nest/weather/WeatherPage";
+import { DataGrid } from "@mui/x-data-grid";
+
+const columns = [
+  {
+    field: "timestamp",
+    headerName: "Date",
+    width: 200,
+  },
+  {
+    field: "degrees_fahrenheit",
+    headerName: "Degrees Fahrenheit",
+    width: 200,
+  },
+  {
+    field: "humidity_percent",
+    headerName: "Humidity Percent",
+    width: 200,
+  },
+];
+
+const transformDeviceHistoryData = (data) => {
+  return data.map((row) => ({
+    ...row,
+    id: row.record_id,
+    timestamp: new Date(row.timestamp * 1000).toLocaleString(),
+    degrees_fahrenheit: `${row.degrees_fahrenheit} F`,
+    humidity_percent: `${row.humidity_percent.toFixed(2)} %`,
+  }));
+};
+
+const HistoryTable = ({ rows, columns }) => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const data = transformDeviceHistoryData(rows);
+    console.log("transformed data", data);
+    setData(data);
+  }, [rows]);
+
+  return (
+    <Box sx={{ height: 400, width: "100%" }}>
+      <DataGrid rows={data} columns={columns} disableRowSelectionOnClick />
+    </Box>
+  );
+};
 
 const NestDeviceHistoryPage = () => {
   const [hoursBack, setHoursBack] = useState(1);
-  const [deviceId, setDeviceId] = useState('');
+  const [deviceId, setDeviceId] = useState("");
 
-  const { sensorInfo } = useSelector((x) => x.nest);
+  const {
+    sensorInfo = {},
+    sensorHistory = [],
+    sensorHistoryLoading = false,
+  } = useSelector((x) => x.nest);
+
+  console.log("loading", sensorHistoryLoading);
 
   const dispatch = useDispatch();
 
@@ -40,6 +92,7 @@ const NestDeviceHistoryPage = () => {
 
   useEffect(() => {
     if (deviceId) {
+      console.log("triggered");
       dispatch(getSensorHistory(deviceId, hoursBack));
     }
   }, [deviceId, hoursBack]);
@@ -47,37 +100,48 @@ const NestDeviceHistoryPage = () => {
   return (
     <Grid container>
       <Grid item lg={12} sm={12} xs={12}>
-        <span
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}>
-          <FormControl>
-            <InputLabel id='device-select-label'>Device</InputLabel>
-            <Select
-              labelId='device-select-label'
-              displayEmpty
-              id='device-select'
-              value={deviceId ?? ''}
-              label='Device'
-              onChange={(e) => setDeviceId(e.target.value)}
-              sx={{ minWidth: '250px' }}>
-              {sensorInfo?.map((device) => (
-                <MenuItem
-                  key={device.device_id}
-                  value={device.device_id}>
-                  {device.device_name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            type='number'
-            label='Hours Back'
-            value={hoursBack}
-            onChange={handleSetDaysBack}
-          />
-        </span>
+        <Grid container spacing={3}>
+          <Grid item lg={12} sm={12} xs={12}>
+            <span
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <FormControl>
+                <InputLabel id="device-select-label">Device</InputLabel>
+                <Select
+                  labelId="device-select-label"
+                  displayEmpty
+                  id="device-select"
+                  value={deviceId ?? ""}
+                  label="Device"
+                  onChange={(e) => setDeviceId(e.target.value)}
+                  sx={{ minWidth: "250px" }}
+                >
+                  {sensorInfo?.map((device) => (
+                    <MenuItem key={device.device_id} value={device.device_id}>
+                      {device.device_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                type="number"
+                label="Hours Back"
+                value={hoursBack}
+                onChange={handleSetDaysBack}
+              />
+            </span>
+          </Grid>
+          <Grid item lg={12} sm={12} xs={12}>
+            {sensorHistoryLoading ? (
+              <Spinner />
+            ) : (
+              <HistoryTable rows={sensorHistory} columns={columns} />
+            )}
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   );
@@ -99,12 +163,13 @@ const NestIntegrationPage = () => {
       <Grid item lg={12} sm={12} xs={12}>
         <span
           style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}>
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
           <TextField
-            type='number'
-            label='Days Back'
+            type="number"
+            label="Days Back"
             value={daysBack}
             onChange={(e) => setDaysBack(e.target.value)}
           />
@@ -127,9 +192,7 @@ const NestIntegrationPage = () => {
               {events.map((event) => (
                 <TableRow hover key={event.event_id}>
                   <TableCell>
-                    {new Date(
-                      event.timestamp * 1000
-                    ).toLocaleString()}
+                    {new Date(event.timestamp * 1000).toLocaleString()}
                   </TableCell>
                   <TableCell>{event.device_name}</TableCell>
                   <TableCell>{event.event_type}</TableCell>
@@ -147,13 +210,13 @@ const NestIntegrationPage = () => {
 const DashboardNestLayout = () => {
   const dispatch = useDispatch();
 
-  const [sideNav, setSideNav] = useState('sensor-info');
+  const [sideNav, setSideNav] = useState("sensor-info");
 
   useEffect(() => {
-    if (sideNav === 'sensor-info') {
+    if (sideNav === "sensor-info") {
       dispatch(getSensorInfo());
     }
-    if (sideNav === 'weather') {
+    if (sideNav === "weather") {
       dispatch(getWeather());
     }
   }, [dispatch, sideNav]);
@@ -161,7 +224,8 @@ const DashboardNestLayout = () => {
   return (
     <Paper
       elevation={2}
-      sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+      sx={{ p: 2, display: "flex", flexDirection: "column" }}
+    >
       <Grid container spacing={2}>
         <Grid item lg={3} xs={12} sm={12}>
           <NestSideNav selected={sideNav} onChange={setSideNav} />
@@ -169,13 +233,11 @@ const DashboardNestLayout = () => {
         <Grid item lg={9}>
           <Grid container spacing={2}>
             <Grid item lg={12}>
-              {sideNav === 'sensor-info' && <NestSensorInfoPage />}
-              {sideNav === 'thermostat' && <NestThermostatPage />}
-              {sideNav === 'weather' && <WeatherPage />}
-              {sideNav === 'device-history' && (
-                <NestDeviceHistoryPage />
-              )}
-              {sideNav === 'integrations' && <NestIntegrationPage />}
+              {sideNav === "sensor-info" && <NestSensorInfoPage />}
+              {sideNav === "thermostat" && <NestThermostatPage />}
+              {sideNav === "weather" && <WeatherPage />}
+              {sideNav === "device-history" && <NestDeviceHistoryPage />}
+              {sideNav === "integrations" && <NestIntegrationPage />}
             </Grid>
           </Grid>
         </Grid>
