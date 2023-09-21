@@ -47,7 +47,7 @@ const transformScheduleHistoryData = (scheduleHistory) => {
   }));
 };
 
-const HistoryTable = ({ rows, columns }) => {
+const HistoryTable = ({ rows, columns, loading }) => {
   console.log('reloading');
   const [data, setData] = React.useState([]);
 
@@ -62,20 +62,22 @@ const HistoryTable = ({ rows, columns }) => {
         rows={data}
         columns={columns}
         slots={{ toolbar: GridToolbar }}
+        loading={loading}
       />
     </TableContainer>
   );
 };
 
 const ScheduleHistoryTable = () => {
-  const scheduleHistory =
-    useSelector((x) => x.schedule.scheduleHistory) ?? [];
+  const { scheduleHistory = [], scheduleHistoryLoading = true } =
+    useSelector((x) => x.schedule);
 
   return (
     <Grid>
       <HistoryTable
         rows={scheduleHistory}
         columns={scheduleHistoryColumns}
+        loading={scheduleHistoryLoading}
       />
     </Grid>
   );

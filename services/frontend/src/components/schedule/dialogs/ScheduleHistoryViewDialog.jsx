@@ -3,6 +3,7 @@ import {
   Button,
   Dialog,
   DialogActions,
+  TextField,
   DialogContent,
   DialogTitle,
   Grid,
@@ -32,13 +33,24 @@ const ScheduleHistoryViewDialog = () => {
     setHoursBack(event.target.value);
   };
 
+  const handleRefresh = () => {
+    const startTimestamp = getTimestampHoursBack(hoursBack);
+    dispatch(getScheduleHistory(Math.round(startTimestamp)));
+  };
+
+  const handleHoursBackChange = (event) => {
+    setHoursBack(event.target.value);
+  };
+
   const handleClose = () => {
     dispatch(closeDialog(dialogType.scheduleHistoryViewDialog));
   };
 
   useEffect(() => {
-    const startTimestamp = getTimestampHoursBack(hoursBack);
-    dispatch(getScheduleHistory(Math.round(startTimestamp)));
+    if (hoursBack && hoursBack != 0) {
+      const startTimestamp = getTimestampHoursBack(hoursBack);
+      dispatch(getScheduleHistory(Math.round(startTimestamp)));
+    }
   }, [hoursBack]);
 
   return (
@@ -47,21 +59,32 @@ const ScheduleHistoryViewDialog = () => {
       onClose={handleClose}
       maxWidth='lg'
       fullWidth>
-      <Grid container>
-        <Grid item lg={6}>
-          <DialogTitle>Schedule History</DialogTitle>
-        </Grid>
-        <Grid item lg={6} justifyContent='flex-end'>
-          <Box sx={{ display: 'inline-block', width: '100%', p: 2 }}>
-            <Typography id='input-slider' gutterBottom>
-              Hours Back
-            </Typography>
-            <Slider
+      <Grid container spacing={3}>
+        <Grid item lg={12} sm={12} xs={12}>
+          <span
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '1rem',
+            }}>
+            <Typography variant='h5'>Schedule History</Typography>
+            {/* <Box sx={{ p: 2 }}> */}
+            <TextField
+              label='Hours Back'
               value={hoursBack ?? 0}
-              onChange={handleSliderChange}
-              valueLabelDisplay='auto'
+              onChange={handleHoursBackChange}
+              type='number'
             />
-          </Box>
+            {/* <Typography id='input-slider' gutterBottom>
+            Hours Back
+          </Typography>
+          <Slider
+            value={hoursBack ?? 0}
+            onChange={handleSliderChange}
+            valueLabelDisplay='auto'
+          /> */}
+            {/* </Box> */}
+          </span>
         </Grid>
       </Grid>
       <DialogContent sx={{ padding: 2 }}>
@@ -73,6 +96,7 @@ const ScheduleHistoryViewDialog = () => {
         </Grid>
       </DialogContent>
       <DialogActions>
+        <Button onClick={handleRefresh}>Refresh</Button>
         <Button onClick={handleClose}>Close</Button>
       </DialogActions>
     </Dialog>

@@ -3,6 +3,7 @@ import {
   FormControl,
   Grid,
   InputLabel,
+  Button,
   MenuItem,
   Paper,
   Select,
@@ -89,7 +90,7 @@ const transformIntegrationEventData = (data) => {
   }));
 };
 
-const HistoryTable = ({ rows, columns }) => {
+const HistoryTable = ({ rows, columns, loading }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -103,13 +104,14 @@ const HistoryTable = ({ rows, columns }) => {
       <DataGrid
         rows={data}
         columns={columns}
+        loading={loading}
         disableRowSelectionOnClick
       />
     </TableContainer>
   );
 };
 
-const IntegrationTable = ({ rows, columns }) => {
+const IntegrationTable = ({ rows, columns, loading }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -123,6 +125,7 @@ const IntegrationTable = ({ rows, columns }) => {
       <DataGrid
         rows={data}
         columns={columns}
+        loading={loading}
         disableRowSelectionOnClick
       />
     </Box>
@@ -139,17 +142,18 @@ const NestDeviceHistoryPage = () => {
     sensorHistoryLoading = false,
   } = useSelector((x) => x.nest);
 
-  console.log('loading', sensorHistoryLoading);
-
   const dispatch = useDispatch();
 
   const handleSetDaysBack = (event) => {
     setHoursBack(event.target.value ?? 1);
   };
 
+  const handleRefresh = () => {
+    dispatch(getSensorHistory(deviceId, hoursBack));
+  };
+
   useEffect(() => {
-    if (deviceId) {
-      console.log('triggered');
+    if (deviceId && hoursBack && hoursBack != 0) {
       dispatch(getSensorHistory(deviceId, hoursBack));
     }
   }, [deviceId, hoursBack]);
@@ -194,14 +198,14 @@ const NestDeviceHistoryPage = () => {
             </span>
           </Grid>
           <Grid item lg={12} sm={12} xs={12}>
-            {sensorHistoryLoading ? (
-              <Spinner />
-            ) : (
-              <HistoryTable
-                rows={sensorHistory}
-                columns={historyColumns}
-              />
-            )}
+            <HistoryTable
+              rows={sensorHistory}
+              columns={historyColumns}
+              loading={sensorHistoryLoading}
+            />
+          </Grid>
+          <Grid item lg={12} sm={12} xs={12} align='right'>
+            <Button onClick={handleRefresh}>Refresh</Button>
           </Grid>
         </Grid>
       </Grid>
@@ -216,8 +220,14 @@ const NestIntegrationPage = () => {
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
+  const handleRefresh = () => {
     dispatch(getIntegrationEvents(daysBack));
+  };
+
+  useEffect(() => {
+    if (daysBack && daysBack != 0) {
+      dispatch(getIntegrationEvents(daysBack));
+    }
   }, [daysBack]);
 
   return (
@@ -238,14 +248,14 @@ const NestIntegrationPage = () => {
         </span>
       </Grid>
       <Grid item lg={12} sm={12} xs={12}>
-        {eventsLoading ? (
-          <Spinner />
-        ) : (
-          <IntegrationTable
-            rows={events}
-            columns={integrationColumns}
-          />
-        )}
+        <IntegrationTable
+          rows={events}
+          columns={integrationColumns}
+          loading={eventsLoading}
+        />
+      </Grid>
+      <Grid item lg={12} sm={12} xs={12} align='right'>
+        <Button onClick={handleRefresh}>Refresh</Button>
       </Grid>
     </Grid>
   );
