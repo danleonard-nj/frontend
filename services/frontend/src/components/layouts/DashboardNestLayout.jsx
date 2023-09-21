@@ -1,100 +1,33 @@
 import {
-  Box,
+  Button,
   FormControl,
   Grid,
   InputLabel,
-  Button,
   MenuItem,
   Paper,
   Select,
   TextField,
   Typography,
-  styled,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  getAnalyticsData,
+  historyColumns,
+  integrationColumns,
+} from '../../api/data/nest/tables';
+import {
   getIntegrationEvents,
   getSensorHistory,
   getSensorInfo,
 } from '../../store/nest/nestActions';
 import { getWeather } from '../../store/weather/weatherActions';
-import Spinner from '../Spinner';
 import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
 import { NestSideNav } from '../nest/NestSideNav';
 import { NestThermostatPage } from '../nest/NestThermostatPage';
-import { WeatherPage } from '../nest/weather/WeatherPage';
+import { IntegrationTable } from '../nest/tables/IntegrationTable';
 import { NestAnalyticsPage } from '../nest/tabs/NestAnalyticsPage';
-import {
-  historyColumns,
-  integrationColumns,
-} from '../../api/data/nest/tables';
-
-const TableContainer = styled(Box)(({ theme }) => ({
-  height: '75vh',
-  width: '100%',
-}));
-
-const transformDeviceHistoryData = (data) => {
-  return data.map((row) => ({
-    ...row,
-    id: row.record_id,
-    timestamp: new Date(row.timestamp * 1000).toLocaleString(),
-    humidity_percent: `${row.humidity_percent.toFixed(2)} %`,
-  }));
-};
-
-const transformIntegrationEventData = (data) => {
-  return data.map((row) => ({
-    ...row,
-    id: row.event_id,
-    timestamp: new Date(row.timestamp * 1000).toLocaleString(),
-  }));
-};
-
-const HistoryTable = ({ rows, columns, loading }) => {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const data = transformDeviceHistoryData(rows);
-    console.log('transformed data', data);
-    setData(data);
-  }, [rows]);
-
-  return (
-    <TableContainer>
-      <DataGrid
-        rows={data}
-        columns={columns}
-        loading={loading}
-        disableRowSelectionOnClick
-      />
-    </TableContainer>
-  );
-};
-
-const IntegrationTable = ({ rows, columns, loading }) => {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const data = transformIntegrationEventData(rows);
-    console.log('transformed data', data);
-    setData(data);
-  }, []);
-
-  return (
-    <Box sx={{ height: '75vh', width: '100%' }}>
-      <DataGrid
-        rows={data}
-        columns={columns}
-        loading={loading}
-        disableRowSelectionOnClick
-      />
-    </Box>
-  );
-};
+import { WeatherPage } from '../nest/weather/WeatherPage';
+import { HistoryTable } from '../nest/tables/HistoryTable';
 
 const NestDeviceHistoryPage = () => {
   const [hoursBack, setHoursBack] = useState(1);

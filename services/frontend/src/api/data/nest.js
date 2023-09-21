@@ -55,6 +55,23 @@ const rangeMarks = [
   },
 ];
 
+const transformDeviceHistoryData = (data) => {
+  return data.map((row) => ({
+    ...row,
+    id: row.record_id,
+    timestamp: new Date(row.timestamp * 1000).toLocaleString(),
+    humidity_percent: `${row.humidity_percent.toFixed(2)} %`,
+  }));
+};
+
+const transformIntegrationEventData = (data) => {
+  return data.map((row) => ({
+    ...row,
+    id: row.event_id,
+    timestamp: new Date(row.timestamp * 1000).toLocaleString(),
+  }));
+};
+
 export {
   nestCommandNameMapping,
   nestCommandKeys,
@@ -62,4 +79,6 @@ export {
   thermostatModeNameMapping,
   thermostatConnectivityMapping,
   hvacStatusNameMapping,
+  transformDeviceHistoryData,
+  transformIntegrationEventData,
 };
