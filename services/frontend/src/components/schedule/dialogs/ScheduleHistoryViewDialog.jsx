@@ -28,11 +28,6 @@ const ScheduleHistoryViewDialog = () => {
 
   const [hoursBack, setHoursBack] = useState(4);
 
-  const handleLoadHistoryData = () => {
-    const startTimestamp = getTimestampHoursBack(hoursBack);
-    dispatch(getScheduleHistory(Math.round(startTimestamp)));
-  };
-
   const handleSliderChange = (event) => {
     setHoursBack(event.target.value);
   };
@@ -42,8 +37,9 @@ const ScheduleHistoryViewDialog = () => {
   };
 
   useEffect(() => {
-    handleLoadHistoryData();
-  }, []);
+    const startTimestamp = getTimestampHoursBack(hoursBack);
+    dispatch(getScheduleHistory(Math.round(startTimestamp)));
+  }, [hoursBack]);
 
   return (
     <Dialog
@@ -63,7 +59,6 @@ const ScheduleHistoryViewDialog = () => {
             <Slider
               value={hoursBack ?? 0}
               onChange={handleSliderChange}
-              onChangeCommitted={handleLoadHistoryData}
               valueLabelDisplay='auto'
             />
           </Box>

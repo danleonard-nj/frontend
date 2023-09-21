@@ -9,64 +9,65 @@ import {
   TextField,
   Typography,
   styled,
-} from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+} from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   getIntegrationEvents,
   getSensorHistory,
   getSensorInfo,
-} from "../../store/nest/nestActions";
-import { getWeather } from "../../store/weather/weatherActions";
-import Spinner from "../Spinner";
-import { NestSensorInfoPage } from "../nest/NestSensorInfoPage";
-import { NestSideNav } from "../nest/NestSideNav";
-import { NestThermostatPage } from "../nest/NestThermostatPage";
-import { WeatherPage } from "../nest/weather/WeatherPage";
+} from '../../store/nest/nestActions';
+import { getWeather } from '../../store/weather/weatherActions';
+import Spinner from '../Spinner';
+import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
+import { NestSideNav } from '../nest/NestSideNav';
+import { NestThermostatPage } from '../nest/NestThermostatPage';
+import { WeatherPage } from '../nest/weather/WeatherPage';
 
 const TableContainer = styled(Box)(({ theme }) => ({
-  height: "75vh",
-  width: "100%",
+  height: '75vh',
+  width: '100%',
 }));
 
 const historyColumns = [
   {
-    field: "timestamp",
-    headerName: "Date",
+    field: 'timestamp',
+    headerName: 'Date',
     width: 200,
   },
   {
-    field: "degrees_fahrenheit",
-    headerName: "Degrees Fahrenheit",
+    field: 'degrees_fahrenheit',
+    headerName: 'Degrees Fahrenheit',
     width: 200,
+    valueGetter: (params) => `${params.value} F`,
   },
   {
-    field: "humidity_percent",
-    headerName: "Humidity Percent",
+    field: 'humidity_percent',
+    headerName: 'Humidity Percent',
     width: 200,
   },
 ];
 
 const integrationColumns = [
   {
-    field: "timestamp",
-    headerName: "Date",
+    field: 'timestamp',
+    headerName: 'Date',
     width: 200,
   },
   {
-    field: "device_name",
-    headerName: "Device Name",
+    field: 'device_name',
+    headerName: 'Device Name',
     width: 200,
   },
   {
-    field: "event_type",
-    headerName: "Event Type",
+    field: 'event_type',
+    headerName: 'Event Type',
     width: 200,
   },
   {
-    field: "result",
-    headerName: "Result",
+    field: 'result',
+    headerName: 'Result',
     width: 200,
   },
 ];
@@ -76,7 +77,6 @@ const transformDeviceHistoryData = (data) => {
     ...row,
     id: row.record_id,
     timestamp: new Date(row.timestamp * 1000).toLocaleString(),
-    degrees_fahrenheit: `${row.degrees_fahrenheit} F`,
     humidity_percent: `${row.humidity_percent.toFixed(2)} %`,
   }));
 };
@@ -94,13 +94,17 @@ const HistoryTable = ({ rows, columns }) => {
 
   useEffect(() => {
     const data = transformDeviceHistoryData(rows);
-    console.log("transformed data", data);
+    console.log('transformed data', data);
     setData(data);
   }, [rows]);
 
   return (
     <TableContainer>
-      <DataGrid rows={data} columns={columns} disableRowSelectionOnClick />
+      <DataGrid
+        rows={data}
+        columns={columns}
+        disableRowSelectionOnClick
+      />
     </TableContainer>
   );
 };
@@ -110,20 +114,24 @@ const IntegrationTable = ({ rows, columns }) => {
 
   useEffect(() => {
     const data = transformIntegrationEventData(rows);
-    console.log("transformed data", data);
+    console.log('transformed data', data);
     setData(data);
   }, []);
 
   return (
-    <Box sx={{ height: "75vh", width: "100%" }}>
-      <DataGrid rows={data} columns={columns} disableRowSelectionOnClick />
+    <Box sx={{ height: '75vh', width: '100%' }}>
+      <DataGrid
+        rows={data}
+        columns={columns}
+        disableRowSelectionOnClick
+      />
     </Box>
   );
 };
 
 const NestDeviceHistoryPage = () => {
   const [hoursBack, setHoursBack] = useState(1);
-  const [deviceId, setDeviceId] = useState("");
+  const [deviceId, setDeviceId] = useState('');
 
   const {
     sensorInfo = {},
@@ -131,7 +139,7 @@ const NestDeviceHistoryPage = () => {
     sensorHistoryLoading = false,
   } = useSelector((x) => x.nest);
 
-  console.log("loading", sensorHistoryLoading);
+  console.log('loading', sensorHistoryLoading);
 
   const dispatch = useDispatch();
 
@@ -141,7 +149,7 @@ const NestDeviceHistoryPage = () => {
 
   useEffect(() => {
     if (deviceId) {
-      console.log("triggered");
+      console.log('triggered');
       dispatch(getSensorHistory(deviceId, hoursBack));
     }
   }, [deviceId, hoursBack]);
@@ -153,31 +161,33 @@ const NestDeviceHistoryPage = () => {
           <Grid item lg={12} sm={12} xs={12}>
             <span
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}>
               <FormControl>
-                <InputLabel id="device-select-label">Device</InputLabel>
+                <InputLabel id='device-select-label'>
+                  Device
+                </InputLabel>
                 <Select
-                  labelId="device-select-label"
+                  labelId='device-select-label'
                   displayEmpty
-                  id="device-select"
-                  value={deviceId ?? ""}
-                  label="Device"
+                  id='device-select'
+                  value={deviceId ?? ''}
+                  label='Device'
                   onChange={(e) => setDeviceId(e.target.value)}
-                  sx={{ minWidth: "250px" }}
-                >
+                  sx={{ minWidth: '250px' }}>
                   {sensorInfo?.map((device) => (
-                    <MenuItem key={device.device_id} value={device.device_id}>
+                    <MenuItem
+                      key={device.device_id}
+                      value={device.device_id}>
                       {device.device_name}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
               <TextField
-                type="number"
-                label="Hours Back"
+                type='number'
+                label='Hours Back'
                 value={hoursBack}
                 onChange={handleSetDaysBack}
               />
@@ -187,7 +197,10 @@ const NestDeviceHistoryPage = () => {
             {sensorHistoryLoading ? (
               <Spinner />
             ) : (
-              <HistoryTable rows={sensorHistory} columns={historyColumns} />
+              <HistoryTable
+                rows={sensorHistory}
+                columns={historyColumns}
+              />
             )}
           </Grid>
         </Grid>
@@ -212,14 +225,13 @@ const NestIntegrationPage = () => {
       <Grid item lg={12} sm={12} xs={12}>
         <span
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <Typography variant="h5">Integration Events</Typography>
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}>
+          <Typography variant='h5'>Integration Events</Typography>
           <TextField
-            type="number"
-            label="Days Back"
+            type='number'
+            label='Days Back'
             value={daysBack}
             onChange={(e) => setDaysBack(e.target.value)}
           />
@@ -229,7 +241,10 @@ const NestIntegrationPage = () => {
         {eventsLoading ? (
           <Spinner />
         ) : (
-          <IntegrationTable rows={events} columns={integrationColumns} />
+          <IntegrationTable
+            rows={events}
+            columns={integrationColumns}
+          />
         )}
       </Grid>
     </Grid>
@@ -239,13 +254,13 @@ const NestIntegrationPage = () => {
 const DashboardNestLayout = () => {
   const dispatch = useDispatch();
 
-  const [sideNav, setSideNav] = useState("sensor-info");
+  const [sideNav, setSideNav] = useState('sensor-info');
 
   useEffect(() => {
-    if (sideNav === "sensor-info") {
+    if (sideNav === 'sensor-info') {
       dispatch(getSensorInfo());
     }
-    if (sideNav === "weather") {
+    if (sideNav === 'weather') {
       dispatch(getWeather());
     }
   }, [dispatch, sideNav]);
@@ -253,8 +268,7 @@ const DashboardNestLayout = () => {
   return (
     <Paper
       elevation={2}
-      sx={{ p: 2, display: "flex", flexDirection: "column" }}
-    >
+      sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
       <Grid container spacing={2}>
         <Grid item lg={3} xs={12} sm={12}>
           <NestSideNav selected={sideNav} onChange={setSideNav} />
@@ -262,11 +276,13 @@ const DashboardNestLayout = () => {
         <Grid item lg={9}>
           <Grid container spacing={2}>
             <Grid item lg={12}>
-              {sideNav === "sensor-info" && <NestSensorInfoPage />}
-              {sideNav === "thermostat" && <NestThermostatPage />}
-              {sideNav === "weather" && <WeatherPage />}
-              {sideNav === "device-history" && <NestDeviceHistoryPage />}
-              {sideNav === "integrations" && <NestIntegrationPage />}
+              {sideNav === 'sensor-info' && <NestSensorInfoPage />}
+              {sideNav === 'thermostat' && <NestThermostatPage />}
+              {sideNav === 'weather' && <WeatherPage />}
+              {sideNav === 'device-history' && (
+                <NestDeviceHistoryPage />
+              )}
+              {sideNav === 'integrations' && <NestIntegrationPage />}
             </Grid>
           </Grid>
         </Grid>
