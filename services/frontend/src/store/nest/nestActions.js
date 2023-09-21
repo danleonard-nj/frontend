@@ -58,6 +58,8 @@ export default class NestActions {
         devices
       );
 
+      console.log('analytics data response', response);
+
       response.status === 200
         ? dispatch(setAnalyticsData(response.data))
         : dispatch(

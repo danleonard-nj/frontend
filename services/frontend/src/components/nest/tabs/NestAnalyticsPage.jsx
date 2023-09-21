@@ -7,14 +7,33 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  Title,
+  Tooltip,
+} from 'chart.js';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAnalyticsData } from '../../../store/nest/nestActions';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const NestAnalyticsPage = () => {
   const [selectedDevices, setSelectedDevices] = useState([]);
   const [sample, setSample] = useState('5min');
   const [hoursBack, setHoursBack] = useState(1);
+  const [chartData, setChartData] = useState({});
 
   console.log('devices', selectedDevices);
 
@@ -57,6 +76,23 @@ const NestAnalyticsPage = () => {
       dispatch(getAnalyticsData(hoursBack, sample, selectedDevices));
     }
   }, [hoursBack, sample, selectedDevices]);
+
+  //   useEffect(() => {
+  //     console.lot('getting chart data');
+
+  //     const data = {
+  //       labels: [],
+  //       datasets: [
+  //         {
+  //           data: analytics,
+  //           label: 'xAxisLabel',
+  //           // ...dataOptions,
+  //         },
+  //       ],
+  //     };
+
+  //     setChartData(data);
+  //   }, [analytics]);
 
   const SampleSelect = () => {
     return (
@@ -128,6 +164,13 @@ const NestAnalyticsPage = () => {
           <DeviceSelect devices={sensorInfo} />
         </span>
       </Grid>
+      {/* <Grid item lg={12} sm={12} xs={12}>
+        {analyticsLoading ? (
+          <Spinner />
+        ) : (
+          <Line data={chartData} options={options} />
+        )}
+      </Grid> */}
     </Grid>
   );
 };

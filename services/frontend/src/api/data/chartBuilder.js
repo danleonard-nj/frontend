@@ -1,6 +1,3 @@
-import { sortBy } from '../helpers/apiHelpers';
-import { getSum } from '../helpers/mathHelpers';
-
 const buildChartData = (
   source,
   xAxisSelector,
