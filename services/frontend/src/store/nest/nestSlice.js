@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const getDefaultStartDate = () => {
   const date = new Date();
@@ -24,6 +24,8 @@ const nestInitialState = {
   events: [],
   eventsLoading: true,
   sensorEvents: [],
+  analyticsData: [],
+  analyticsDataLoading: true,
 };
 
 const eventReducers = {
@@ -86,13 +88,19 @@ const sensorReducers = {
 };
 
 const nestSlice = createSlice({
-  name: "nest",
+  name: 'nest',
   initialState: nestInitialState,
   reducers: {
     ...sensorReducers,
     ...thermostatReducers,
     ...commandReducers,
     ...eventReducers,
+    setAnalyticsData(state, { payload }) {
+      state.analyticsData = payload;
+    },
+    setAnalyticsDataLoading(state, { payload }) {
+      state.analyticsDataLoading = payload;
+    },
   },
 });
 
@@ -112,6 +120,8 @@ export const {
   setEvents,
   setEventsLoading,
   setSensorEvents,
+  setAnalyticsData,
+  setAnalyticsDataLoading,
 } = nestSlice.actions;
 
 export default nestSlice.reducer;

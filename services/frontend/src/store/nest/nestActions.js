@@ -1,7 +1,9 @@
-import autoBind from "auto-bind";
-import NestApi from "../../api/nestApi";
-import { popErrorMessage, popMessage } from "../alert/alertActions";
+import autoBind from 'auto-bind';
+import NestApi from '../../api/nestApi';
+import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
+  setAnalyticsData,
+  setAnalyticsDataLoading,
   setCommandLoading,
   setCommands,
   setCommandsLoading,
@@ -13,7 +15,7 @@ import {
   setSensorInfoLoading,
   setThermosat,
   setThermosatLoading,
-} from "./nestSlice";
+} from './nestSlice';
 
 export default class NestActions {
   constructor() {
@@ -25,18 +27,46 @@ export default class NestActions {
     return async (dispatch, getState) => {
       // Sensor history
 
-      console.log("setting sensor history loading");
+      console.log('setting sensor history loading');
       dispatch(setSensorHistoryLoading(true));
 
-      const response = await this.nestApi.getSensorHistory(sensorId, hoursBack);
+      const response = await this.nestApi.getSensorHistory(
+        sensorId,
+        hoursBack
+      );
 
-      console.log("sensor history response", response);
+      console.log('sensor history response', response);
 
       response.status === 200
         ? dispatch(setSensorHistory(response.data))
-        : dispatch(popErrorMessage("Failed to fetch sensor info"));
+        : dispatch(popErrorMessage('Failed to fetch sensor info'));
 
       dispatch(setSensorHistoryLoading(false));
+    };
+  }
+
+  getAnalyticsData(hoursBack, sample, devices) {
+    return async (dispatch, getState) => {
+      console.log('getting analytics data');
+
+      dispatch(setAnalyticsDataLoading(true));
+
+      // Fetch sensor history for display
+      const response = await this.nestApi.getHistory(
+        hoursBack,
+        sample,
+        devices
+      );
+
+      response.status === 200
+        ? dispatch(setAnalyticsData(response.data))
+        : dispatch(
+            popErrorMessage(
+              'Failed to fetch sensory history data for analytics'
+            )
+          );
+
+      dispatch(setAnalyticsDataLoading(false));
     };
   }
 
@@ -48,7 +78,7 @@ export default class NestActions {
 
       response.status === 200
         ? dispatch(setSensorInfo(response.data))
-        : dispatch(popErrorMessage("Failed to fetch sensor info"));
+        : dispatch(popErrorMessage('Failed to fetch sensor info'));
 
       dispatch(setSensorInfoLoading(false));
     };
@@ -62,7 +92,9 @@ export default class NestActions {
 
       response.status === 200
         ? dispatch(setThermosat(response.data))
-        : dispatch(popErrorMessage("Failed to fetch thermostat info"));
+        : dispatch(
+            popErrorMessage('Failed to fetch thermostat info')
+          );
 
       dispatch(setThermosatLoading(false));
     };
@@ -76,7 +108,9 @@ export default class NestActions {
 
       response.status === 200
         ? dispatch(setCommands(response.data))
-        : dispatch(popErrorMessage("Failed to fetch thermostat commands"));
+        : dispatch(
+            popErrorMessage('Failed to fetch thermostat commands')
+          );
 
       dispatch(setCommandsLoading(false));
     };
@@ -86,11 +120,15 @@ export default class NestActions {
     return async (dispatch, getState) => {
       dispatch(setEventsLoading(true));
 
-      const response = await this.nestApi.getIntegrationEvents(daysBack);
+      const response = await this.nestApi.getIntegrationEvents(
+        daysBack
+      );
 
       response.status === 200
         ? dispatch(setEvents(response.data))
-        : dispatch(popErrorMessage("Failed to fetch integration events"));
+        : dispatch(
+            popErrorMessage('Failed to fetch integration events')
+          );
 
       dispatch(setEventsLoading(false));
     };
@@ -107,12 +145,14 @@ export default class NestActions {
         params: commandParameters,
       };
 
-      const response = await this.nestApi.postThermostatCommand(commandRequest);
+      const response = await this.nestApi.postThermostatCommand(
+        commandRequest
+      );
 
       dispatch(this.getThermostat());
 
       response.status === 200
-        ? dispatch(popMessage("Command sent successfully"))
+        ? dispatch(popMessage('Command sent successfully'))
         : dispatch(
             popErrorMessage(
               `Failed to send thermostat command: ${response.status}`
@@ -131,4 +171,5 @@ export const {
   getThermostatCommands,
   sendThermostatCommand,
   getIntegrationEvents,
+  getAnalyticsData,
 } = new NestActions();

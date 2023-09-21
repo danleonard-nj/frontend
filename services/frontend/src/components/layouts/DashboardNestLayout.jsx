@@ -15,6 +15,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  getAnalyticsData,
   getIntegrationEvents,
   getSensorHistory,
   getSensorInfo,
@@ -25,53 +26,16 @@ import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
 import { NestSideNav } from '../nest/NestSideNav';
 import { NestThermostatPage } from '../nest/NestThermostatPage';
 import { WeatherPage } from '../nest/weather/WeatherPage';
+import { NestAnalyticsPage } from '../nest/tabs/NestAnalyticsPage';
+import {
+  historyColumns,
+  integrationColumns,
+} from '../../api/data/nest/tables';
 
 const TableContainer = styled(Box)(({ theme }) => ({
   height: '75vh',
   width: '100%',
 }));
-
-const historyColumns = [
-  {
-    field: 'timestamp',
-    headerName: 'Date',
-    width: 200,
-  },
-  {
-    field: 'degrees_fahrenheit',
-    headerName: 'Degrees Fahrenheit',
-    width: 200,
-    valueGetter: (params) => `${params.value} F`,
-  },
-  {
-    field: 'humidity_percent',
-    headerName: 'Humidity Percent',
-    width: 200,
-  },
-];
-
-const integrationColumns = [
-  {
-    field: 'timestamp',
-    headerName: 'Date',
-    width: 200,
-  },
-  {
-    field: 'device_name',
-    headerName: 'Device Name',
-    width: 200,
-  },
-  {
-    field: 'event_type',
-    headerName: 'Event Type',
-    width: 200,
-  },
-  {
-    field: 'result',
-    headerName: 'Result',
-    width: 200,
-  },
-];
 
 const transformDeviceHistoryData = (data) => {
   return data.map((row) => ({
@@ -242,7 +206,7 @@ const NestIntegrationPage = () => {
           <TextField
             type='number'
             label='Days Back'
-            value={daysBack}
+            value={daysBack ?? 0}
             onChange={(e) => setDaysBack(e.target.value)}
           />
         </span>
@@ -293,6 +257,7 @@ const DashboardNestLayout = () => {
                 <NestDeviceHistoryPage />
               )}
               {sideNav === 'integrations' && <NestIntegrationPage />}
+              {sideNav === 'analytics' && <NestAnalyticsPage />}
             </Grid>
           </Grid>
         </Grid>
