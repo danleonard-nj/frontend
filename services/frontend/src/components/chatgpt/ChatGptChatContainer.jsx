@@ -57,16 +57,13 @@ const ChatGptChatContainer = ({
 
   const handleLeftHistoryArrowOnClick = () => {
     dispatch(leftHistoryArrowClick());
-    dispatch(leftHistoryArrowClick());
   };
 
   const handleRightHistoryArrowOnClick = () => {
     dispatch(rightHistoryArrowClick());
-    dispatch(rightHistoryArrowClick());
   };
 
   const handleRightDoubleArrowOnClick = () => {
-    dispatch(rightHistoryDoubleArrowClick());
     dispatch(rightHistoryDoubleArrowClick());
   };
 
