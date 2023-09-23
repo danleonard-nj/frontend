@@ -1,21 +1,15 @@
 import { TextField } from '@mui/material';
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { requestType } from '../../api/data/chatGpt';
-import { getUsage } from '../../store/chatgpt/chatGptActions';
 import { ChatGptImageList } from './ChatGptImageList';
 
 const ChatGptResult = () => {
-  const dispatch = useDispatch();
   const {
     selectedRequestType = '',
     prediction = '',
     images = [],
   } = useSelector((x) => x.chatgpt);
-
-  useEffect(() => {
-    dispatch(getUsage());
-  }, []);
 
   return (
     <>
