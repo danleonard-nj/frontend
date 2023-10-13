@@ -22,6 +22,7 @@ import weatherSlice from './weather/weatherSlice';
 import torrentSlice from './torrents/torrentSlice';
 import apiEventSlice from './apiEvents/apiEventSlice';
 import dmsSlice from './dms/dmsSlice';
+import journalSlice from './journal/journalSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -47,6 +48,7 @@ const rootReducer = combineReducers({
   torrents: torrentSlice,
   apiEvents: apiEventSlice,
   dms: dmsSlice,
+  journal: journalSlice,
 });
 
 export default rootReducer;

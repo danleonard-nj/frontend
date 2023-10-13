@@ -7,6 +7,7 @@ const pages = [
   'Reverb',
   'Fitness',
   'Locations',
+  'Journal',
   'Kubernetes',
   'Features',
   'Email',

@@ -19,6 +19,7 @@ import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
 import { DashboardApiEventHistoryLayout } from '../layouts/DashboardApiEventHistoryLayout';
 import { DashboardDmsLayout } from '../layouts/DashboardDmsLayout';
 import { DashboardScheduleLayout } from '../layouts/DashboardScheduleLayout';
+import { DashboardJournalLayout } from '../layouts/DashboardJournalLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -54,6 +55,7 @@ export default function Dashboard() {
         <DashboardApiEventHistoryLayout />
       )}
       {dashboardPage === 'dms' && <DashboardDmsLayout />}
+      {dashboardPage === 'journal' && <DashboardJournalLayout />}
     </Container>
   );
 }
