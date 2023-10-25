@@ -1,6 +1,4 @@
-import RefreshIcon from '@mui/icons-material/Refresh';
 import {
-  Button,
   FormControl,
   Grid,
   InputLabel,
@@ -11,13 +9,11 @@ import {
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { imageSizes, requestType } from '../../api/data/chatGpt';
-import { getUsage } from '../../store/chatgpt/chatGptActions';
 import {
   setImageRepetitions,
   setImageSize,
   setTokens,
 } from '../../store/chatgpt/chatGptSlice';
-import Spinner from '../Spinner';
 import { ChatGptEngineSelect } from './ChatGptEngineSelect';
 import { ChatGptRequestTypeSelect } from './ChatGptRequestTypeSelect';
 
@@ -53,10 +49,9 @@ const ChatGptImageSizeSelect = () => {
 const ChatGptConfigurationContent = () => {
   const dispatch = useDispatch();
 
-  const {
-    tokens = 2000,
-    selectedRequestType = '',
-  } = useSelector((x) => x.chatgpt);
+  const { tokens = 2000, selectedRequestType = '' } = useSelector(
+    (x) => x.chatgpt
+  );
 
   const handleTokenChangeCaptured = (event) => {
     dispatch(setTokens(event.target.value));

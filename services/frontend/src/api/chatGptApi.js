@@ -31,7 +31,7 @@ export default class ChatGptApi extends ApiBase {
 
   async getChat(messages, tokens, model, n = 1) {
     return await this.send(
-      `${this.baseUrl}/api/tools/chatgpt/chat/completions`,
+      `${this.baseUrl}/api/chatgpt/chat/completions`,
       'POST',
       this.getChatRequestBody(messages, tokens, model, n)
     );
@@ -39,7 +39,7 @@ export default class ChatGptApi extends ApiBase {
 
   async getPrediction(prompt, tokens, engine) {
     return await this.send(
-      `${this.baseUrl}/api/tools/chatgpt/completions`,
+      `${this.baseUrl}/api/chatgpt/completions`,
       'POST',
       this.getCompletionRequestBody(prompt, tokens, engine)
     );
@@ -47,7 +47,7 @@ export default class ChatGptApi extends ApiBase {
 
   async getImage(prompt, repetitions, size) {
     return await this.send(
-      `${this.baseUrl}/api/tools/chatgpt/images/generations`,
+      `${this.baseUrl}/api/chatgpt/images/generations`,
       'POST',
       this.getImageRequestBody(prompt, repetitions, size)
     );
@@ -55,22 +55,9 @@ export default class ChatGptApi extends ApiBase {
 
   async getEngines() {
     return await this.send(
-      `${this.baseUrl}/api/tools/chatgpt/engines`,
+      `${this.baseUrl}/api/chatgpt/engines`,
       'GET'
     );
-  }
-
-  async getUsage(startDate, endDate) {
-    const endpoint = new URL(
-      `${this.baseUrl}/api/tools/chatgpt/usage`
-    );
-
-    endpoint.searchParams.append('start_date', startDate);
-    endpoint.searchParams.append('end_date', endDate);
-
-    console.log(endpoint.toString());
-
-    return await this.send(endpoint.toString(), 'GET');
   }
 
   async getHistoryEndpoints(startTimestamp, endpointFilter = null) {

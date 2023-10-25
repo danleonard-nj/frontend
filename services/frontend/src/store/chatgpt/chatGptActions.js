@@ -309,46 +309,46 @@ export default class ChatGptActions {
     };
   }
 
-  getUsage(startDate = null, endDate = null) {
-    return async (dispatch, getState) => {
-      const handleResponse = ({ status, data }) => {
-        if (status !== 200 || data?.response?.status_code !== 200) {
-          dispatch(popErrorMessage('Failed to fetch usage data'));
-        } else {
-          // Get the usage data formatted as currency
-          const totalUsage = formatCurrency(
-            data?.response?.body?.total_usage ?? 0
-          );
+  // getUsage(startDate = null, endDate = null) {
+  //   return async (dispatch, getState) => {
+  //     const handleResponse = ({ status, data }) => {
+  //       if (status !== 200 || data?.response?.status_code !== 200) {
+  //         dispatch(popErrorMessage('Failed to fetch usage data'));
+  //       } else {
+  //         // Get the usage data formatted as currency
+  //         const totalUsage = formatCurrency(
+  //           data?.response?.body?.total_usage ?? 0
+  //         );
 
-          dispatch(setUsage(totalUsage));
-        }
-      };
+  //         dispatch(setUsage(totalUsage));
+  //       }
+  //     };
 
-      // Default start date to first day of month
-      if (!startDate) {
-        startDate = getStartOfMonthDate();
-      }
+  //     // Default start date to first day of month
+  //     if (!startDate) {
+  //       startDate = getStartOfMonthDate();
+  //     }
 
-      // Default end date to today
-      if (!endDate) {
-        endDate = toDateString(getDaysFromToday(1));
-      }
+  //     // Default end date to today
+  //     if (!endDate) {
+  //       endDate = toDateString(getDaysFromToday(1));
+  //     }
 
-      // Set engines loading flag
-      dispatch(setUsageLoading(true));
-      const response = await this.chatGptApi.getUsage(
-        startDate,
-        endDate
-      );
+  //     // Set engines loading flag
+  //     dispatch(setUsageLoading(true));
+  //     const response = await this.chatGptApi.getUsage(
+  //       startDate,
+  //       endDate
+  //     );
 
-      console.log('Usage', response);
+  //     console.log('Usage', response);
 
-      handleResponse(response);
+  //     handleResponse(response);
 
-      // Clear engines loading flag
-      dispatch(setUsageLoading(false));
-    };
-  }
+  //     // Clear engines loading flag
+  //     dispatch(setUsageLoading(false));
+  //   };
+  // }
 
   getHistory(daysBack, endpointFilter = null) {
     return async (dispatch, getState) => {

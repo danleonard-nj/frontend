@@ -3,6 +3,7 @@ const nestCommandKeys = {
   setHeat: 'set-heat',
   setCool: 'set-cool',
   setPowerOff: 'set-power-off',
+  setMode: 'set-mode',
 };
 
 const nestCommandNameMapping = {
@@ -13,6 +14,7 @@ const nestCommandNameMapping = {
     name: 'Set Power Off',
     key: nestCommandKeys.setPowerOff,
   },
+  SetMode: { name: 'Set Mode', key: nestCommandKeys.setMode },
 };
 
 const thermostatModeNameMapping = {

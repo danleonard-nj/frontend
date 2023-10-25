@@ -1,25 +1,22 @@
 import { Container } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { DashboardApiEventHistoryLayout } from '../layouts/DashboardApiEventHistoryLayout';
+import { DashboardBankingLayout } from '../layouts/DashboardBankingLayout';
+import { DashboardChatGPTLayout } from '../layouts/DashboardChatGPTLayout';
+import { DashboardDmsLayout } from '../layouts/DashboardDmsLayout';
+import { DashoardEmailRuleLayout } from '../layouts/DashboardEmailRuleLayout';
 import { DashboardFeatureLayout } from '../layouts/DashboardFeatureLayout';
-import { DashboardFitnessLayout } from '../layouts/DashboardFitnessLayout';
 import DashboardKasaLayout from '../layouts/DashboardKasaLayout';
 import DashboardKasaSceneLayout from '../layouts/DashboardKasaSceneLayout';
 import { DashboardKubernetesLogLayout } from '../layouts/DashboardKubernetesLogLayout';
 import { DashboardLocationHistoryLayout } from '../layouts/DashboardLocationHistoryLayout';
+import { DashboardNestLayout } from '../layouts/DashboardNestLayout';
 import DashboardReverbLayout from '../layouts/DashboardReverbLayout';
+import { DashboardScheduleLayout } from '../layouts/DashboardScheduleLayout';
 import DashboardShipEngineLayout from '../layouts/DashboardShipEngineLayout';
 import DashboardTaskLayout from '../layouts/DashboardTaskLayout';
-import { DashoardEmailRuleLayout } from '../layouts/DashboardEmailRuleLayout';
-import { DashboardChatGPTLayout } from '../layouts/DashboardChatGPTLayout';
-import { DashboardNestLayout } from '../layouts/DashboardNestLayout';
-import { DashboardBankingLayout } from '../layouts/DashboardBankingLayout';
-import { DashboardPfSenseLayout } from '../layouts/DashboardPfSenseLayout';
 import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
-import { DashboardApiEventHistoryLayout } from '../layouts/DashboardApiEventHistoryLayout';
-import { DashboardDmsLayout } from '../layouts/DashboardDmsLayout';
-import { DashboardScheduleLayout } from '../layouts/DashboardScheduleLayout';
-import { DashboardJournalLayout } from '../layouts/DashboardJournalLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -37,7 +34,7 @@ export default function Dashboard() {
         <DashboardShipEngineLayout />
       )}
       {dashboardPage === 'reverb' && <DashboardReverbLayout />}
-      {dashboardPage === 'fitness' && <DashboardFitnessLayout />}
+      {/* {dashboardPage === 'fitness' && <DashboardFitnessLayout />} */}
       {dashboardPage === 'locations' && (
         <DashboardLocationHistoryLayout />
       )}
@@ -49,13 +46,13 @@ export default function Dashboard() {
       {dashboardPage === 'chatgpt' && <DashboardChatGPTLayout />}
       {dashboardPage === 'nest' && <DashboardNestLayout />}
       {dashboardPage === 'banking' && <DashboardBankingLayout />}
-      {dashboardPage === 'pfsense' && <DashboardPfSenseLayout />}
+      {/* {dashboardPage === 'pfsense' && <DashboardPfSenseLayout />} */}
       {dashboardPage === 'torrents' && <DashboardTorrentLayout />}
       {dashboardPage === 'events' && (
         <DashboardApiEventHistoryLayout />
       )}
       {dashboardPage === 'dms' && <DashboardDmsLayout />}
-      {dashboardPage === 'journal' && <DashboardJournalLayout />}
+      {/* {dashboardPage === 'journal' && <DashboardJournalLayout />} */}
     </Container>
   );
 }

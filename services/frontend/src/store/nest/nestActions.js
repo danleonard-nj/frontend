@@ -16,6 +16,7 @@ import {
   setThermosat,
   setThermosatLoading,
 } from './nestSlice';
+import { nestCommandKeys } from '../../api/data/nest';
 
 export default class NestActions {
   constructor() {
@@ -106,10 +107,16 @@ export default class NestActions {
     return async (dispatch, getState) => {
       dispatch(setCommandsLoading(true));
 
-      const response = await this.nestApi.getThermostatCommands();
+      const { data, status } =
+        await this.nestApi.getThermostatCommands();
 
-      response.status === 200
-        ? dispatch(setCommands(response.data))
+      // Don't display the set-mode command
+      const commands = data.filter(
+        (x) => x.key !== nestCommandKeys.setMode
+      );
+
+      status === 200
+        ? dispatch(setCommands(commands))
         : dispatch(
             popErrorMessage('Failed to fetch thermostat commands')
           );
