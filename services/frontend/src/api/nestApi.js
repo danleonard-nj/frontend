@@ -36,8 +36,6 @@ export default class NestApi extends ApiBase {
       });
     }
 
-    console.log('endpoint', endpoint.toString());
-
     return await this.send(endpoint.toString(), 'GET');
   }
 
