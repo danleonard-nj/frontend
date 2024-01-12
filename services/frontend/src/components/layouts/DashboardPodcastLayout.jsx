@@ -1,17 +1,10 @@
-import {
-  Container,
-  Grid,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Typography,
-} from '@mui/material';
+import { Container, Grid, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPodcasts } from '../../store/podcasts/podcastActions';
 import Spinner from '../Spinner';
-import { setSelectedShow } from '../../store/podcasts/podcastSlice';
+import { EpisodeList } from '../podcasts/EpisodeList';
+import { PodcastList } from '../podcasts/PodcastList';
 
 const DashboardPodcastLayout = () => {
   const {
