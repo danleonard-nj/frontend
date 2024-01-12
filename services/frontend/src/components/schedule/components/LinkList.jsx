@@ -106,7 +106,7 @@ const ScheduleLinkList = ({ onScheduleClick }) => {
   const ScheduleLinkList = () => (
     <List>
       {scheduleLinks?.links?.map((task, index) => (
-        <ScheduleLinkListItem task={task} index={index} />
+        <ScheduleLinkListItem key={index} task={task} index={index} />
       ))}
     </List>
   );

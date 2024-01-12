@@ -119,7 +119,9 @@ export default function CreateFeatureDialog() {
                       value={feature.feature_id}
                       fullWidth>
                       {Object.keys(featureType).map((type) => (
-                        <MenuItem value={type}>{type}</MenuItem>
+                        <MenuItem key={type} value={type}>
+                          {type}
+                        </MenuItem>
                       ))}
                     </Select>
                   </FormControl>

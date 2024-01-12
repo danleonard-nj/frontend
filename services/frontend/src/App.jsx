@@ -2,25 +2,21 @@ import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
 } from '@azure/msal-react';
-import { createTheme, CssBaseline } from '@mui/material';
+import {
+  HttpTransportType,
+  HubConnectionBuilder,
+  LogLevel,
+} from '@microsoft/signalr';
+import { CssBaseline, createTheme } from '@mui/material';
 import { ThemeProvider } from '@mui/system';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import { DialogProvider } from './components/DialogProvider';
 import SnackbarAlert from './components/alerts/SnackbarAlert';
 import Login from './components/auth/Login';
 import Dashboard from './components/dashboard/Dashboard';
-import { DialogProvider } from './components/DialogProvider';
 import SideMenu from './components/menus/SideMenu';
 import { TopMenu } from './components/menus/TopMenu';
-import {
-  JsonHubProtocol,
-  HubConnectionState,
-  HubConnectionBuilder,
-  LogLevel,
-  HttpTransportType,
-} from '@microsoft/signalr';
-import { useState } from 'react';
-import { useEffect } from 'react';
 
 const configureHandlers = (connection) => {
   connection.on('renderTrigger', (triggerKey) => {

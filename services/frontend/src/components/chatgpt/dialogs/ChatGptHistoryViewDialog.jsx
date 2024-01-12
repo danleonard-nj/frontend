@@ -91,6 +91,7 @@ const ChatGptHistoryViewDialog = () => {
                 {Object.values(chatGptEndpoints).map(
                   (historyEndpoint) => (
                     <ChatGptAccordianHistoryTable
+                      key={historyEndpoint}
                       expanded={
                         historyEndpoint === selectedHistoryEndpoint
                       }

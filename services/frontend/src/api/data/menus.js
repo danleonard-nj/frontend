@@ -14,6 +14,7 @@ const pages = [
   'Banking',
   'Torrents',
   'Events',
+  'Podcasts',
 ];
 
 export { pages };

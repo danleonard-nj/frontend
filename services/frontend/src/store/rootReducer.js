@@ -1,28 +1,29 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import scheduleReducer from './schedule/scheduleSlice';
-import taskReducer from './task/taskSlice';
 import alertReducer from './alert/alertSlice';
+import apiEventSlice from './apiEvents/apiEventSlice';
+import bankSlice from './bank/bankSlice';
+import chatGptSlice from './chatgpt/chatGptSlice';
 import dashboardReducer from './dashboard/dashboardSlice';
 import dialogReducer from './dialog/dialogSlice';
+import dmsSlice from './dms/dmsSlice';
+import emailSlice from './email/emailSlice';
+import featureSlice from './features/featureSlice';
+import fitnessSlice from './fitness/fitnessSlice';
+import journalSlice from './journal/journalSlice';
 import deviceReducer from './kasa/deviceSlice';
-import sceneReducer from './kasa/sceneSlice';
 import flowReducer from './kasa/flowSlice';
 import presetReducer from './kasa/presetSlice';
-import shipEngineReducer from './shipEngine/shipEngineSlice';
-import reverbReducer from './reverb/reverbSlice';
-import fitnessSlice from './fitness/fitnessSlice';
-import locationSlice from './locations/locationSlice';
+import sceneReducer from './kasa/sceneSlice';
 import kubeLogsSlice from './kubeLogs/kubeLogSlice';
-import featureSlice from './features/featureSlice';
-import emailSlice from './email/emailSlice';
-import chatGptSlice from './chatgpt/chatGptSlice';
+import locationSlice from './locations/locationSlice';
 import nestSlice from './nest/nestSlice';
-import bankSlice from './bank/bankSlice';
-import weatherSlice from './weather/weatherSlice';
+import reverbReducer from './reverb/reverbSlice';
+import scheduleReducer from './schedule/scheduleSlice';
+import shipEngineReducer from './shipEngine/shipEngineSlice';
+import taskReducer from './task/taskSlice';
 import torrentSlice from './torrents/torrentSlice';
-import apiEventSlice from './apiEvents/apiEventSlice';
-import dmsSlice from './dms/dmsSlice';
-import journalSlice from './journal/journalSlice';
+import weatherSlice from './weather/weatherSlice';
+import podcastSlice from './podcasts/podcastSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -49,6 +50,7 @@ const rootReducer = combineReducers({
   apiEvents: apiEventSlice,
   dms: dmsSlice,
   journal: journalSlice,
+  podcasts: podcastSlice,
 });
 
 export default rootReducer;

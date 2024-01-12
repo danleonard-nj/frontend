@@ -19,14 +19,13 @@ import {
   filterScenesByCategory,
   getCategories,
   getScenes,
-  updateSceneCategory,
 } from '../../store/kasa/actions/sceneActions';
 import {
   setNewSceneCategoryToggle,
   setSelectedSceneCategory,
 } from '../../store/kasa/sceneSlice';
-import KasaSceneButton from '../kasa/scene/KasaSceneButton';
 import Spinner from '../Spinner';
+import KasaSceneButton from '../kasa/scene/KasaSceneButton';
 
 export default function DashboardKasaSceneLayout() {
   const [tab, setTab] = useState('');
@@ -44,7 +43,7 @@ export default function DashboardKasaSceneLayout() {
   sceneCategories ??= [];
   filteredScenes ??= [];
 
-  const openSceneCategoryAddDialog = (categoryId) => {
+  const openSceneCategoryAddDialog = () => {
     dispatch(openDialog(dialogType.sceneCategoryAdd));
   };
 
@@ -66,12 +65,9 @@ export default function DashboardKasaSceneLayout() {
       dispatch(getCategories());
       dispatch(setSelectedSceneCategory('All'));
     }
-    if (!regions?.length) {
-      dispatch(getRegions());
-    }
-    if (!scenes?.length) {
-      dispatch(getScenes());
-    }
+
+    !regions?.length && dispatch(getRegions());
+    !scenes?.length && dispatch(getScenes());
   }, [dispatch]);
 
   useEffect(() => {
@@ -115,6 +111,7 @@ export default function DashboardKasaSceneLayout() {
                       onChange={handleTabChange}>
                       {sceneCategories?.map((sc) => (
                         <Tab
+                          key={sc.scene_category_id}
                           label={sc.scene_category}
                           value={sc.scene_category_id}
                           id='kasa-scene-layout-scene-tab'
@@ -134,7 +131,13 @@ export default function DashboardKasaSceneLayout() {
                       <Grid item lg={4} xs={12} sm={12}>
                         <Grid container spacing={1}>
                           {filteredScenes.map((scene) => (
-                            <Grid item lg={12} xs={12} sm={12} p={1}>
+                            <Grid
+                              key={scene.scene_id}
+                              item
+                              lg={12}
+                              xs={12}
+                              sm={12}
+                              p={1}>
                               <KasaSceneButton scene={scene} />
                             </Grid>
                           ))}

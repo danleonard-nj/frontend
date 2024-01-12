@@ -46,13 +46,11 @@ export default function Dashboard() {
       {dashboardPage === 'chatgpt' && <DashboardChatGPTLayout />}
       {dashboardPage === 'nest' && <DashboardNestLayout />}
       {dashboardPage === 'banking' && <DashboardBankingLayout />}
-      {/* {dashboardPage === 'pfsense' && <DashboardPfSenseLayout />} */}
       {dashboardPage === 'torrents' && <DashboardTorrentLayout />}
       {dashboardPage === 'events' && (
         <DashboardApiEventHistoryLayout />
       )}
-      {dashboardPage === 'dms' && <DashboardDmsLayout />}
-      {/* {dashboardPage === 'journal' && <DashboardJournalLayout />} */}
+      {dashboardPage === 'podcasts' && <></>}
     </Container>
   );
 }

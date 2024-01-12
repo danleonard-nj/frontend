@@ -11,7 +11,10 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeDialog, dialogType } from '../../store/dialog/dialogSlice';
+import {
+  closeDialog,
+  dialogType,
+} from '../../store/dialog/dialogSlice';
 import { createOrderShipment } from '../../store/reverb/reverbActions';
 import { updateOrderDetail } from '../../store/reverb/reverbSlice';
 import Spinner from '../Spinner';
@@ -22,7 +25,8 @@ export default function ReverbOrderDetailDialog() {
   const createdShipmentLoading = useSelector(
     (x) => x.reverb.createdShipmentLoading
   );
-  const isOpen = useSelector((x) => x.dialog[dialogType.orderDetail]);
+  const isOpen =
+    useSelector((x) => x.dialog[dialogType.orderDetail]) ?? false;
 
   const handleClose = () => {
     dispatch(closeDialog(dialogType.orderDetail));
@@ -69,7 +73,10 @@ export default function ReverbOrderDetailDialog() {
               <Grid container spacing={2}>
                 <Grid item lg={12}>
                   <Paper elevation={2} sx={{ padding: 2 }}>
-                    <Typography component='h2' variant='h6' color='white'>
+                    <Typography
+                      component='h2'
+                      variant='h6'
+                      color='white'>
                       Dimensions
                     </Typography>
                     <Grid container spacing={3}>
