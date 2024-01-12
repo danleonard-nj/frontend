@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const podcastInitialState = {
   shows: [],
   showsLoading: true,
+  selectedShow: {},
 };
 
 const podcastSlice = createSlice({
@@ -15,9 +16,13 @@ const podcastSlice = createSlice({
     setShowsLoading(state, { payload }) {
       state.showsLoading = payload;
     },
+    setSelectedShow(state, { payload }) {
+      state.selectedShow = payload;
+    },
   },
 });
 
-export const { setShows, setShowsLoading } = podcastSlice.actions;
+export const { setShows, setShowsLoading, setSelectedShow } =
+  podcastSlice.actions;
 
 export default podcastSlice.reducer;

@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { getDevices } from '../../store/kasa/actions/deviceActions';
 import { getPresets } from '../../store/kasa/actions/presetActions';
 import { getScenes } from '../../store/kasa/actions/sceneActions';
-import { KasaDeviceLayout } from '../kasa/device/KasaDeviceLayout';
+import DeviceCard from '../DeviceCard';
 import { KasaDeviceList } from '../kasa/device/KasaDeviceList';
 import { KasaPreset } from '../kasa/preset/KasaPreset';
 import { KasaPresetList } from '../kasa/preset/KasaPresetList';
@@ -60,9 +60,7 @@ export default function DashboardKasaLayout() {
           }}>
           {tab === 0 && <KasaPreset id='kasa-tab-content-preset' />}
           {tab === 1 && <KasaScene id='kasa-tab-content-scene' />}
-          {tab === 2 && (
-            <KasaDeviceLayout id='kasa-tab-content-device' />
-          )}
+          {tab === 2 && <DeviceCard id='kasa-tab-content-device' />}
         </Paper>
       </Grid>
     </Grid>

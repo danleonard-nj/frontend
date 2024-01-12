@@ -11,56 +11,16 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPodcasts } from '../../store/podcasts/podcastActions';
 import Spinner from '../Spinner';
+import { setSelectedShow } from '../../store/podcasts/podcastSlice';
 
 const DashboardPodcastLayout = () => {
-  const { showsLoading = true, shows = [] } = useSelector(
-    (x) => x.podcast
-  );
-
-  const [selectedShow, setSelectedShow] = React.useState('');
+  const {
+    showsLoading = true,
+    shows = [],
+    selectedShow = {},
+  } = useSelector((x) => x.podcast);
 
   const dispatch = useDispatch();
-
-  const handleSelectShow = (show) => {
-    setSelectedShow(show);
-  };
-
-  const PodcastList = ({ podcasts: shows }) => {
-    return (
-      <List>
-        {shows.map((show) => (
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={() => handleSelectShow(show)}
-              selected={show.show_title == selectedShow.show_title}>
-              <ListItemText primary={show.show_title} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    );
-  };
-
-  const EpisodeList = ({ show }) => {
-    const episodes = show?.episodes || [];
-
-    const handleSelectEpisode = (episode) => {
-      window.open(episode.audio, '_blank');
-    };
-
-    return (
-      <List>
-        {episodes.map((episode) => (
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={() => handleSelectEpisode(episode)}>
-              <ListItemText primary={episode.episode_title} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    );
-  };
 
   useEffect(() => {
     dispatch(getPodcasts());
@@ -77,10 +37,7 @@ const DashboardPodcastLayout = () => {
             {showsLoading ? (
               <Spinner />
             ) : (
-              <PodcastList
-                podcasts={shows}
-                onClick={handleSelectShow}
-              />
+              <PodcastList podcasts={shows} />
             )}
           </Typography>
         </Grid>
