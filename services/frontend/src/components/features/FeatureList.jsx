@@ -9,7 +9,10 @@ export default function FeatureList() {
     <Paper>
       <List subheader={<ListSubheader>Features</ListSubheader>}>
         {features.map((feature) => (
-          <FeatureListItem feature={feature} />
+          <FeatureListItem
+            feature={feature}
+            key={feature.feature_id}
+          />
         ))}
       </List>
     </Paper>

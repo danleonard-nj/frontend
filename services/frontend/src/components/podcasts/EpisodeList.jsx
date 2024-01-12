@@ -18,7 +18,7 @@ const EpisodeList = ({ show }) => {
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => handleSelectEpisode(episode)}>
-            <ListItemTextt primary={episode.episode_title} />
+            <ListItemText primary={episode.episode_title} />
           </ListItemButton>
         </ListItem>
       ))}

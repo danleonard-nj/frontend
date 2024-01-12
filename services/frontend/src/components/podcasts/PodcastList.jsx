@@ -5,6 +5,7 @@ import {
   ListItemText,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
+import { setSelectedShow } from '../../store/podcasts/podcastSlice';
 
 const PodcastList = ({ podcasts: shows }) => {
   const { selectedShow = {} } = useSelector((x) => x.podcast);
