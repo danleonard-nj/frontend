@@ -17,6 +17,7 @@ import { DashboardScheduleLayout } from '../layouts/DashboardScheduleLayout';
 import DashboardShipEngineLayout from '../layouts/DashboardShipEngineLayout';
 import DashboardTaskLayout from '../layouts/DashboardTaskLayout';
 import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
+import { DashboardPodcastLayout } from '../layouts/DashboardPodcastLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -50,7 +51,7 @@ export default function Dashboard() {
       {dashboardPage === 'events' && (
         <DashboardApiEventHistoryLayout />
       )}
-      {dashboardPage === 'podcasts' && <></>}
+      {dashboardPage === 'podcasts' && <DashboardPodcastLayout />}
     </Container>
   );
 }

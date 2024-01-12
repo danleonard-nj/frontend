@@ -50,7 +50,7 @@ const rootReducer = combineReducers({
   apiEvents: apiEventSlice,
   dms: dmsSlice,
   journal: journalSlice,
-  podcasts: podcastSlice,
+  podcast: podcastSlice,
 });
 
 export default rootReducer;

@@ -1,23 +1,28 @@
-import { createSlice } from '@reduxjs/toolkit';
+import autoBind from 'auto-bind';
+import PodcastApi from '../../api/podcastApi';
+import { popErrorMessage } from '../alert/alertActions';
+import { setShows, setShowsLoading } from './podcastSlice';
 
-const podcastInitialState = {
-  shows: [],
-  showsLoading: true,
-};
+export default class NestActions {
+  constructor() {
+    this.podcastApi = new PodcastApi();
+    autoBind(this);
+  }
 
-const podcastSlice = createSlice({
-  name: 'podcast',
-  initialState: podcastInitialState,
-  reducers: {
-    setShows(state, { payload }) {
-      state.shows = payload;
-    },
-    setShowsLoading(state, { payload }) {
-      state.showsLoading = payload;
-    },
-  },
-});
+  getPodcasts() {
+    return async (dispatch, getState) => {
+      dispatch(setShowsLoading(true));
 
-export const {} = podcastSlice.actions;
+      // Fetch sensor history for display
+      const response = await this.podcastApi.getPodcasts();
 
-export default podcastSlice.reducer;
+      response.status === 200
+        ? dispatch(setShows(response.data))
+        : dispatch(popErrorMessage('Failed to fetch podcasts'));
+
+      dispatch(setShowsLoading(false));
+    };
+  }
+}
+
+export const { getPodcasts } = new NestActions();
