@@ -15,7 +15,7 @@ const EpisodeList = ({ show }) => {
   return (
     <List>
       {episodes.map((episode) => (
-        <ListItem disablePadding>
+        <ListItem disablePadding key={episode.episode_id}>
           <ListItemButton
             onClick={() => handleSelectEpisode(episode)}>
             <ListItemText primary={episode.episode_title} />

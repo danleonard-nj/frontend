@@ -24,9 +24,10 @@ import { updateFlowState } from '../../../store/kasa/actions/flowActions';
 
 export default function KasaSceneFlowToolbar() {
   const dispatch = useDispatch();
-  const presets = useSelector((x) => x.preset.presets);
-  const devices = useSelector((x) => x.device.devices);
-  const flow = useSelector((x) => x.flow.flow);
+
+  const { presets } = useSelector((x) => x.preset);
+  const { devices } = useSelector((x) => x.device);
+  const { flow } = useSelector((x) => x.flow);
 
   const [selectedPreset, setSelectedPreset] = useState('');
   const [selectedDevice, setSelectedDevice] = useState('');
@@ -46,10 +47,12 @@ export default function KasaSceneFlowToolbar() {
     const preset = presets.filter(
       (x) => x.preset_id === selectedPreset
     )[0];
+
     const presetNode = createInputNode(
       preset.preset_id,
       preset.preset_name
     );
+
     dispatch(updateFlowState((flow) => [...flow, presetNode]));
   };
 
@@ -57,10 +60,12 @@ export default function KasaSceneFlowToolbar() {
     const device = devices.filter(
       (x) => x.device_id === selectedDevice
     )[0];
+
     const deviceNode = createOutputNode(
       device.device_id,
       device.device_name
     );
+
     dispatch(updateFlowState((flow) => [...flow, deviceNode]));
   };
 
@@ -152,7 +157,6 @@ export default function KasaSceneFlowToolbar() {
                       </MenuItem>
                     ))}
                   </Select>
-
                   <Button
                     size='small'
                     variant='contained'

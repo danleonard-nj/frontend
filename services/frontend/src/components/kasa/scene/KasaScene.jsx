@@ -2,7 +2,7 @@ import { Box, Grid, Paper, TextField } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateSceneState } from '../../../store/kasa/actions/sceneActions';
-import KasaSceneFlow from '../scene/KasaSceneFlow';
+import { KasaSceneFlow } from '../scene/KasaSceneFlow';
 import KasaSceneFlowToolbar from './KasaSceneFlowToolbar';
 import KasaSceneToolbar from './KasaSceneToolbar';
 

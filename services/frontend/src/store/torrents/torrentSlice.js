@@ -7,7 +7,7 @@ const torrentsInitialState = {
   page: 1,
   magnetLoading: false,
   magnet: '',
-  torrentSource: '1337x',
+  torrentSource: 'piratebay',
 };
 
 const torrentSlice = createSlice({

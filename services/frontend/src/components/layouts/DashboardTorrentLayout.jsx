@@ -53,10 +53,10 @@ const TorrentTable = ({ torrents, onMagnetLinkDisplay }) => {
       <TableHead>
         <TableRow>
           <TableCell>Name</TableCell>
+          <TableCell>Upload Date</TableCell>
+          <TableCell>Size</TableCell>
           <TableCell>Seeders</TableCell>
           <TableCell>Leechers</TableCell>
-          <TableCell>Size</TableCell>
-          <TableCell>Upload Date</TableCell>
           <TableCell>Uploader</TableCell>
           <TableCell></TableCell>
         </TableRow>
@@ -194,9 +194,7 @@ const DashboardTorrentLayout = () => {
       <Grid container spacing={3}>
         <Grid item lg={6}>
           <Typography variant='h6'>Torrents</Typography>
-          <Typography variant='body2'>
-            1337x.to Search Proxy
-          </Typography>
+          <Typography variant='body2'>Search Proxy</Typography>
         </Grid>
         <Grid item lg={6} align='right'>
           <FormControl>
@@ -209,7 +207,6 @@ const DashboardTorrentLayout = () => {
               value={torrentSource ?? ''}
               label='Torrent Source'
               onChange={handleTorrentSourceChange}>
-              <MenuItem value='1337x'>1337x</MenuItem>
               <MenuItem value='piratebay'>TPB</MenuItem>
             </Select>
           </FormControl>
@@ -232,24 +229,18 @@ const DashboardTorrentLayout = () => {
               ),
             }}
           />
-          {/* <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>
-              Torrent Source
-            </InputLabel> */}
-
-          {/* </FormControl> */}
         </Grid>
         <Grid item lg={12}>
           {isInitialSearchSubmitted && <ResultDisplay />}
         </Grid>
         <Grid item lg={12} align='right'>
-          {torrentSource === '1337x' && (
+          {/* {torrentSource === '1337x' && (
             <Pagination
               defaultPage={1}
               count={999}
               onChange={handlePaginationChangeEvent}
             />
-          )}
+          )} */}
         </Grid>
       </Grid>
     </Paper>
