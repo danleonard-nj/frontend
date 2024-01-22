@@ -44,6 +44,32 @@ const ScheduleListGrid = ({ children }) => (
   </Grid>
 );
 
+const ListBoxHeader = (handleNewScheduleOnClick) => (
+  <ScheduleListGrid>
+    <Grid item lg={6} xs={6}>
+      <TitleTypography>Schedules</TitleTypography>
+    </Grid>
+    <Grid item lg={6} xs={6} align='right'>
+      <Button onClick={handleNewScheduleOnClick}>New</Button>
+    </Grid>
+  </ScheduleListGrid>
+);
+
+const ScheduleButton = ({
+  schedule,
+  handleScheduleSelectOnClick,
+}) => (
+  <ListItemButton
+    onClick={() => handleScheduleSelectOnClick(schedule.scheduleId)}
+    key={schedule.scheduleId}
+    selected={false}>
+    <ListItemIcon>
+      <ScheduleIcon />
+    </ListItemIcon>
+    <ListItemText primary={schedule.scheduleName} />
+  </ListItemButton>
+);
+
 const ScheduleList = ({ onScheduleClick }) => {
   const dispatch = useDispatch();
 
@@ -67,52 +93,35 @@ const ScheduleList = ({ onScheduleClick }) => {
     dispatch(newSchedule());
   };
 
-  const ScheduleButton = ({ schedule }) => (
-    <ListItemButton
-      onClick={() => handleScheduleSelectOnClick(schedule.scheduleId)}
-      key={schedule.scheduleId}
-      selected={false}>
-      <ListItemIcon>
-        <ScheduleIcon />
-      </ListItemIcon>
-      <ListItemText primary={schedule.scheduleName} />
-    </ListItemButton>
-  );
-
-  const ListBoxHeader = () => (
-    <ScheduleListGrid>
-      <Grid item lg={6} xs={6}>
-        <TitleTypography>Schedules</TitleTypography>
-      </Grid>
-      <Grid item lg={6} xs={6} align='right'>
-        <Button onClick={handleNewScheduleOnClick}>New</Button>
-      </Grid>
-    </ScheduleListGrid>
-  );
-
   useEffect(() => {
     dispatch(getSchedules());
     dispatch(getTasks());
   }, []);
 
   const ListBox = () => (
-    <Paper elevation={3} sx={{ minHeight: '75vh' }}>
-      {schedulesLoading ? (
-        <Spinner id='schedule-list-spinner' />
-      ) : (
-        <List component='nav' id='schedule-list' sx={scrollable}>
-          {schedules.map((schedule, index) => (
-            <ScheduleButton key={index} schedule={schedule} />
-          ))}
-        </List>
-      )}
-    </Paper>
+    <List component='nav' id='schedule-list' sx={scrollable}>
+      {schedules.map((schedule, index) => (
+        <ScheduleButton
+          key={index}
+          schedule={schedule}
+          handleScheduleSelectOnClick={handleScheduleSelectOnClick}
+        />
+      ))}
+    </List>
   );
 
   return (
     <div>
-      <ListBoxHeader />
-      <ListBox />
+      <ListBoxHeader
+        handleNewScheduleOnClick={handleNewScheduleOnClick}
+      />
+      <Paper elevation={3} sx={{ minHeight: '75vh' }}>
+        {schedulesLoading ? (
+          <Spinner id='schedule-list-spinner' />
+        ) : (
+          <ListBox />
+        )}
+      </Paper>
     </div>
   );
 };
