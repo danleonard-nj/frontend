@@ -1,5 +1,8 @@
 import autoBind from 'auto-bind';
-import { sortBy } from '../../../api/helpers/apiHelpers';
+import {
+  getErrorMessage,
+  sortBy,
+} from '../../../api/helpers/apiHelpers';
 import SceneApi from '../../../api/kasa/sceneApi';
 import {
   popErrorMessage,
@@ -12,10 +15,6 @@ import {
   setScenes,
   updateSceneStateInternal,
 } from '../sceneSlice';
-
-const getErrorMessage = (data) => {
-  return `${data.error}: ${data.message}`;
-};
 
 export default class SceneActions {
   constructor() {
