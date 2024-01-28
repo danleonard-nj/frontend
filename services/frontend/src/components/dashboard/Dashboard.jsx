@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { DashboardApiEventHistoryLayout } from '../layouts/DashboardApiEventHistoryLayout';
 import { DashboardBankingLayout } from '../layouts/DashboardBankingLayout';
 import { DashboardChatGPTLayout } from '../layouts/DashboardChatGPTLayout';
-import { DashboardDmsLayout } from '../layouts/DashboardDmsLayout';
 import { DashoardEmailRuleLayout } from '../layouts/DashboardEmailRuleLayout';
 import { DashboardFeatureLayout } from '../layouts/DashboardFeatureLayout';
 import DashboardKasaLayout from '../layouts/DashboardKasaLayout';
