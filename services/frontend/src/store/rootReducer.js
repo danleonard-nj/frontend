@@ -5,7 +5,6 @@ import bankSlice from './bank/bankSlice';
 import chatGptSlice from './chatgpt/chatGptSlice';
 import dashboardReducer from './dashboard/dashboardSlice';
 import dialogReducer from './dialog/dialogSlice';
-import dmsSlice from './dms/dmsSlice';
 import emailSlice from './email/emailSlice';
 import featureSlice from './features/featureSlice';
 import fitnessSlice from './fitness/fitnessSlice';
@@ -48,7 +47,6 @@ const rootReducer = combineReducers({
   weather: weatherSlice,
   torrents: torrentSlice,
   apiEvents: apiEventSlice,
-  dms: dmsSlice,
   journal: journalSlice,
   podcast: podcastSlice,
 });
