@@ -6,11 +6,13 @@ import { setSelectedShipment } from '../../../../store/shipEngine/shipEngineSlic
 
 const ShipEngineExpandRowButton = ({ shipment }) => {
   const dispatch = useDispatch();
-  const selectedShipment = useSelector((x) => x.shipEngine.selectedShipment);
+  const { selectedShipment } = useSelector((x) => x.shipEngine);
 
   const handleExpandRow = (shipmentId) => {
     dispatch(
-      setSelectedShipment(selectedShipment === shipmentId ? null : shipmentId)
+      setSelectedShipment(
+        selectedShipment === shipmentId ? null : shipmentId
+      )
     );
   };
 
@@ -19,7 +21,7 @@ const ShipEngineExpandRowButton = ({ shipment }) => {
       aria-label='expand row'
       sx={{ margin: 'auto' }}
       onClick={() => handleExpandRow(shipment.id)}>
-      {selectedShipment == shipment.id ? (
+      {selectedShipment === shipment.id ? (
         <KeyboardArrowUpIcon />
       ) : (
         <KeyboardArrowDownIcon />

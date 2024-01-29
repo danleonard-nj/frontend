@@ -1,13 +1,10 @@
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
-  TextField,
   DialogContent,
-  DialogTitle,
   Grid,
-  Slider,
+  TextField,
   Typography,
 } from '@mui/material';
 import * as React from 'react';
@@ -28,10 +25,6 @@ const ScheduleHistoryViewDialog = () => {
   );
 
   const [hoursBack, setHoursBack] = useState(4);
-
-  const handleSliderChange = (event) => {
-    setHoursBack(event.target.value);
-  };
 
   const handleRefresh = () => {
     const startTimestamp = getTimestampHoursBack(hoursBack);
@@ -68,22 +61,12 @@ const ScheduleHistoryViewDialog = () => {
               padding: '1rem',
             }}>
             <Typography variant='h5'>Schedule History</Typography>
-            {/* <Box sx={{ p: 2 }}> */}
             <TextField
               label='Hours Back'
               value={hoursBack ?? 0}
               onChange={handleHoursBackChange}
               type='number'
             />
-            {/* <Typography id='input-slider' gutterBottom>
-            Hours Back
-          </Typography>
-          <Slider
-            value={hoursBack ?? 0}
-            onChange={handleSliderChange}
-            valueLabelDisplay='auto'
-          /> */}
-            {/* </Box> */}
           </span>
         </Grid>
       </Grid>

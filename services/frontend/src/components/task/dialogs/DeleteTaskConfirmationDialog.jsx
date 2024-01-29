@@ -6,16 +6,21 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@mui/material';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
-import { deleteTask, getTasks } from '../../../store/task/taskActions';
-import { closeDialog, dialogType } from '../../../store/dialog/dialogSlice';
+import {
+  closeDialog,
+  dialogType,
+} from '../../../store/dialog/dialogSlice';
+import { deleteTask } from '../../../store/task/taskActions';
 
 export default function DeleteTaskConfirmationDialog() {
   const dispatch = useDispatch();
   const task = useSelector((x) => x.task.task);
-  const isVisible = useSelector((x) => x.dialog[dialogType.deleteTask]);
+  const isVisible = useSelector(
+    (x) => x.dialog[dialogType.deleteTask]
+  );
 
   function handleClose() {
     dispatch(closeDialog(dialogType.deleteTask));
@@ -32,10 +37,13 @@ export default function DeleteTaskConfirmationDialog() {
       onClose={handleClose}
       aria-labelledby='alert-dialog-title'
       aria-describedby='alert-dialog-description'>
-      <DialogTitle id='alert-dialog-title'>Delete {task.taskName}?</DialogTitle>
+      <DialogTitle id='alert-dialog-title'>
+        Delete {task.taskName}?
+      </DialogTitle>
       <DialogContent>
         <DialogContentText id='alert-dialog-description'>
-          Are you sure you want to delete this task? This cannot be undone.
+          Are you sure you want to delete this task? This cannot be
+          undone.
         </DialogContentText>
       </DialogContent>
       <DialogActions>

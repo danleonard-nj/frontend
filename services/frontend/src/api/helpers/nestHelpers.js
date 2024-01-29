@@ -49,6 +49,12 @@ const getMappedNameOrDefault = (key, map, defaultValue = null) => {
   return defaultValue ?? key;
 };
 
+const formatDescription = (description) => {
+  const chars = description.split('');
+
+  return [...chars[0].toUpperCase(), ...chars.slice(1)].join('');
+};
+
 export {
   getFormattedCommandName,
   getFormattedCelsius,
@@ -58,4 +64,5 @@ export {
   getFormattedPercent,
   formatForecastDay,
   getMappedNameOrDefault,
+  formatDescription,
 };

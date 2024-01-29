@@ -1,11 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const getDefaultStartDate = () => {
-  const date = new Date();
-  date.setDate(date.getDate() - 1);
-  return date.getTime() / 1000;
-};
-
 const nestInitialState = {
   sensorInfo: [],
   sensorInfoLoading: true,

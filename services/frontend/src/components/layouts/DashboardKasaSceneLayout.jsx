@@ -32,16 +32,12 @@ export default function DashboardKasaSceneLayout() {
   const dispatch = useDispatch();
 
   const {
-    scenes,
-    sceneCategories,
+    scenes = [],
+    sceneCategories = [],
     newSceneCategoryToggle,
-    filteredScenes,
-    scenesLoading,
+    filteredScenes = [],
+    scenesLoading = true,
   } = useSelector((x) => x.scene);
-
-  scenes ??= [];
-  sceneCategories ??= [];
-  filteredScenes ??= [];
 
   const openSceneCategoryAddDialog = () => {
     dispatch(openDialog(dialogType.sceneCategoryAdd));

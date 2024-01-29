@@ -19,8 +19,8 @@ import {
   openDialog,
 } from '../../../store/dialog/dialogSlice';
 import { removeSelectedScheduleLink } from '../../../store/schedule/scheduleActions';
-import DashboardTitle from '../../dashboard/DashboardTitle';
 import Spinner from '../../Spinner';
+import DashboardTitle from '../../dashboard/DashboardTitle';
 
 const handleGetScheduleWithLinks = (schedule, tasks) => {
   const links = tasks.filter((x) =>
@@ -39,7 +39,7 @@ const ScheduleLinkListPaper = ({ children }) => (
   </Paper>
 );
 
-const LinkBoxHeader = ({ onAddScheduleClick }) => (
+const ScheduleLinkBoxHeader = ({ onAddScheduleClick }) => (
   <Box sx={{ marginBottom: 1 }}>
     <Grid container>
       <Grid item lg={10} xs={6}>
@@ -52,6 +52,35 @@ const LinkBoxHeader = ({ onAddScheduleClick }) => (
       </Grid>
     </Grid>
   </Box>
+);
+
+const ScheduleLinkListItem = ({
+  task,
+  index,
+  handleDeleteOnClick,
+}) => (
+  <ListItem
+    disablePadding
+    key={index}
+    id={`schedule-list-item-${index}`}
+    secondaryAction={
+      <IconButton
+        id={`schedule-list-item-${index}-icon-button`}
+        edge='end'
+        aria-label='comments'
+        onClick={() => handleDeleteOnClick(task.taskId)}>
+        <DeleteIcon
+          id={`schedule-list-item-${index}-delete-button`}
+        />
+      </IconButton>
+    }>
+    <ListItemButton sx={{ width: '100%' }}>
+      <ListItemIcon>
+        <LinkIcon />
+      </ListItemIcon>
+      <ListItemText primary={task?.taskName} />
+    </ListItemButton>
+  </ListItem>
 );
 
 const ScheduleLinkList = ({ onScheduleClick }) => {
@@ -78,57 +107,35 @@ const ScheduleLinkList = ({ onScheduleClick }) => {
       setScheduleLinks(handleGetScheduleWithLinks(schedule, tasks));
   }, [schedule]);
 
-  const ScheduleLinkListItem = ({ task, index }) => (
-    <ListItem
-      disablePadding
-      key={index}
-      id={`schedule-list-item-${index}`}
-      secondaryAction={
-        <IconButton
-          id={`schedule-list-item-${index}-icon-button`}
-          edge='end'
-          aria-label='comments'
-          onClick={() => handleDeleteOnClick(task.taskId)}>
-          <DeleteIcon
-            id={`schedule-list-item-${index}-delete-button`}
-          />
-        </IconButton>
-      }>
-      <ListItemButton sx={{ width: '100%' }}>
-        <ListItemIcon>
-          <LinkIcon />
-        </ListItemIcon>
-        <ListItemText primary={task?.taskName} />
-      </ListItemButton>
-    </ListItem>
-  );
-
-  const ScheduleLinkList = () => (
-    <List>
-      {scheduleLinks?.links?.map((task, index) => (
-        <ScheduleLinkListItem key={index} task={task} index={index} />
-      ))}
-    </List>
-  );
-
-  const LinkBoxContent = () => (
-    <Paper elevation={2} sx={{ p: 2 }}>
-      <Grid container sx={{ height: '100%' }}>
-        <Grid item lg={12} md={12} sm={12} xs={12}>
-          <Box sx={{ marginTop: 2 }}>
-            <ScheduleLinkListPaper>
-              {scheduleLoading ? <Spinner /> : <ScheduleLinkList />}
-            </ScheduleLinkListPaper>
-          </Box>
-        </Grid>
-      </Grid>
-    </Paper>
-  );
-
   return (
     <div>
-      <LinkBoxHeader onAddScheduleClick={handleAddScheduleOnClick} />
-      <LinkBoxContent />
+      <ScheduleLinkBoxHeader
+        onAddScheduleClick={handleAddScheduleOnClick}
+      />
+      <Paper elevation={2} sx={{ p: 2 }}>
+        <Grid container sx={{ height: '100%' }}>
+          <Grid item lg={12} md={12} sm={12} xs={12}>
+            <Box sx={{ marginTop: 2 }}>
+              <ScheduleLinkListPaper>
+                {scheduleLoading ? (
+                  <Spinner />
+                ) : (
+                  <List>
+                    {scheduleLinks?.links?.map((task, index) => (
+                      <ScheduleLinkListItem
+                        key={index}
+                        task={task}
+                        index={index}
+                        handleDeleteOnClick={handleDeleteOnClick}
+                      />
+                    ))}
+                  </List>
+                )}
+              </ScheduleLinkListPaper>
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
     </div>
   );
 };

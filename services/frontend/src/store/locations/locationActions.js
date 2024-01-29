@@ -1,10 +1,9 @@
-import { get } from 'ace-builds/src-noconflict/ace';
 import LocationApi from '../../api/locationApi';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
+  setLocationTab,
   setLocations,
   setLocationsLoading,
-  setLocationTab,
   setSelectedLocation,
 } from './locationSlice';
 
@@ -33,7 +32,9 @@ export function queryLocations(latitude, longitude, miles, limit) {
       const errorMessage = locations.data?.message;
       dispatch(
         popErrorMessage(
-          `Failed to query location: ${errorMessage ?? 'Exception occured'}`
+          `Failed to query location: ${
+            errorMessage ?? 'Exception occured'
+          }`
         )
       );
     } else {

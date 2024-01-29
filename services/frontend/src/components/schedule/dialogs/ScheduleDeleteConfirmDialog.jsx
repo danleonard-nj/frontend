@@ -1,33 +1,38 @@
 import {
+  Button,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  DialogActions,
-  Button,
+  DialogTitle,
 } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeDialog, dialogType } from '../../../store/dialog/dialogSlice';
+import {
+  closeDialog,
+  dialogType,
+} from '../../../store/dialog/dialogSlice';
 import {
   deleteSchedule,
   getSchedules,
 } from '../../../store/schedule/scheduleActions';
 
-export default function ScheduleDeleteConfirmDialog() {
+const ScheduleDeleteConfirmDialog = () => {
   const dispatch = useDispatch();
   const schedule = useSelector((x) => x.schedule.schedule);
-  const isVisible = useSelector((x) => x.dialog[dialogType.deleteSchedule]);
+  const isVisible = useSelector(
+    (x) => x.dialog[dialogType.deleteSchedule]
+  );
 
-  function handleDelete(scheduleId) {
+  const handleDelete = (scheduleId) => {
     dispatch(deleteSchedule(scheduleId));
     dispatch(getSchedules());
     handleClose();
-  }
+  };
 
-  function handleClose() {
+  const handleClose = () => {
     dispatch(closeDialog(dialogType.deleteSchedule));
-  }
+  };
 
   return (
     <Dialog
@@ -40,7 +45,8 @@ export default function ScheduleDeleteConfirmDialog() {
       </DialogTitle>
       <DialogContent>
         <DialogContentText id='alert-dialog-description'>
-          Are you sure you want to delete this schedule? This cannot be undone.
+          Are you sure you want to delete this schedule? This cannot
+          be undone.
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -53,4 +59,6 @@ export default function ScheduleDeleteConfirmDialog() {
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export { ScheduleDeleteConfirmDialog };

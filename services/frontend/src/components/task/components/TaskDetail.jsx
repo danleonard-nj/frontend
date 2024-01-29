@@ -21,7 +21,7 @@ import {
 import DashboardTitle from '../../dashboard/DashboardTitle';
 import Spinner from '../../Spinner';
 
-export default function TaskDetail() {
+const TaskDetail = () => {
   const dispatch = useDispatch();
   const {
     task = {},
@@ -60,19 +60,6 @@ export default function TaskDetail() {
         <Spinner />
       ) : (
         <>
-          {/* <Grid container spacing={3} sx={{ marginBottom: 1 }}>
-            <Grid item lg={9} xs={4} id='task-detail-title-grid-item'>
-              <DashboardTitle>{task.taskName}</DashboardTitle>
-            </Grid>
-            <Grid item lg={3} xs={3} sm={3}>
-              <ButtonGroup variant='text'>
-                <Button onClick={handleSave}>Save</Button>
-                <Button color='error' onClick={handleDelete}>
-                  Delete
-                </Button>
-              </ButtonGroup>
-            </Grid>
-          </Grid> */}
           <Grid
             container
             direction='row'
@@ -134,4 +121,6 @@ export default function TaskDetail() {
       )}
     </>
   );
-}
+};
+
+export { TaskDetail };

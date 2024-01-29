@@ -5,22 +5,16 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  useTheme,
 } from '@mui/material';
 import React from 'react';
 import {
+  formatDescription,
   getLocation,
   getWindInfo,
 } from '../../../api/helpers/nestHelpers';
 import { DailyLatLongDisplay } from './DailyLatLongDisplay';
 import { DailyMinMaxDisplay } from './DailyMinMaxDisplay';
 import { DailySunriseSunsetDisplay } from './DailySunriseSunsetDisplay';
-
-const formatDescription = (description) => {
-  const chars = description.split('');
-
-  return [...chars[0].toUpperCase(), ...chars.slice(1)].join('');
-};
 
 const WeatherTable = ({ weather }) => {
   return (

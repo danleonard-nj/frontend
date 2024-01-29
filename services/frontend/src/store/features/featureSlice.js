@@ -62,7 +62,7 @@ const featureSlice = createSlice({
     },
     updateFeatureListItem(state, { payload }) {
       state.features = state.features.map((feature) => {
-        return feature.feature_id == payload.feature_id
+        return feature.feature_id === payload.feature_id
           ? payload
           : feature;
       });

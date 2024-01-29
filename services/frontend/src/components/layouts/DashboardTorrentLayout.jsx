@@ -1,3 +1,4 @@
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Button,
   Dialog,
@@ -10,7 +11,6 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
-  Pagination,
   Paper,
   Select,
   Table,
@@ -21,27 +21,23 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import SearchIcon from '@mui/icons-material/Search';
-import {
-  setPage,
-  setSearchTerm,
-  setTorrentSource,
-} from '../../store/torrents/torrentSlice';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import {
-  getMagnet,
-  searchTorrents,
-} from '../../store/torrents/torrentActions';
-import Spinner from '../Spinner';
 import {
   closeDialog,
   dialogType,
   openDialog,
 } from '../../store/dialog/dialogSlice';
-import React from 'react';
-import { useState } from 'react';
-import { torrentSource } from '../../api/data/torrents';
+import {
+  getMagnet,
+  searchTorrents,
+} from '../../store/torrents/torrentActions';
+import {
+  setPage,
+  setSearchTerm,
+  setTorrentSource,
+} from '../../store/torrents/torrentSlice';
+import Spinner from '../Spinner';
 
 const copyToClipboard = (value) => {
   navigator.clipboard.writeText(value);
@@ -140,13 +136,8 @@ const DashboardTorrentLayout = () => {
 
   const dispatch = useDispatch();
 
-  const {
-    searchTerm,
-    torrents,
-    torrentsLoading,
-    page,
-    torrentSource,
-  } = useSelector((x) => x.torrents);
+  const { searchTerm, torrents, torrentsLoading, torrentSource } =
+    useSelector((x) => x.torrents);
 
   const handleSearchChange = (e) => {
     dispatch(setSearchTerm(e.target.value));
@@ -166,11 +157,6 @@ const DashboardTorrentLayout = () => {
   const handleDisplayMagnetLink = (torrent) => {
     dispatch(getMagnet(torrent));
     dispatch(openDialog(dialogType.magnetLinkDialog));
-  };
-
-  const handlePaginationChangeEvent = (event, value) => {
-    dispatch(setPage(value));
-    dispatch(searchTorrents());
   };
 
   const handleTorrentSourceChange = (e) => {
@@ -233,15 +219,7 @@ const DashboardTorrentLayout = () => {
         <Grid item lg={12}>
           {isInitialSearchSubmitted && <ResultDisplay />}
         </Grid>
-        <Grid item lg={12} align='right'>
-          {/* {torrentSource === '1337x' && (
-            <Pagination
-              defaultPage={1}
-              count={999}
-              onChange={handlePaginationChangeEvent}
-            />
-          )} */}
-        </Grid>
+        <Grid item lg={12} align='right'></Grid>
       </Grid>
     </Paper>
   );

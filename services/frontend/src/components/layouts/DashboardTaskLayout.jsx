@@ -2,7 +2,7 @@ import { Grid, Paper } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { getClients, getTasks } from '../../store/task/taskActions';
-import TaskList from '../task/components/TaskList';
+import { TaskList } from '../task/components/TaskList';
 import { TaskLayout } from '../task/layouts/TaskLayout';
 
 export default function DashboardTaskLayout() {

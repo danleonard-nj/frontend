@@ -98,18 +98,6 @@ const ScheduleList = ({ onScheduleClick }) => {
     dispatch(getTasks());
   }, []);
 
-  const ListBox = () => (
-    <List component='nav' id='schedule-list' sx={scrollable}>
-      {schedules.map((schedule, index) => (
-        <ScheduleButton
-          key={index}
-          schedule={schedule}
-          handleScheduleSelectOnClick={handleScheduleSelectOnClick}
-        />
-      ))}
-    </List>
-  );
-
   return (
     <div>
       <ListBoxHeader
@@ -119,7 +107,17 @@ const ScheduleList = ({ onScheduleClick }) => {
         {schedulesLoading ? (
           <Spinner id='schedule-list-spinner' />
         ) : (
-          <ListBox />
+          <List component='nav' id='schedule-list' sx={scrollable}>
+            {schedules.map((schedule, index) => (
+              <ScheduleButton
+                key={index}
+                schedule={schedule}
+                handleScheduleSelectOnClick={
+                  handleScheduleSelectOnClick
+                }
+              />
+            ))}
+          </List>
         )}
       </Paper>
     </div>

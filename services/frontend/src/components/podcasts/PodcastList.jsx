@@ -23,7 +23,7 @@ const PodcastList = ({ podcasts: shows }) => {
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => handleSelectShow(show)}
-            selected={show.show_title == selectedShow.show_title}>
+            selected={show.show_title === selectedShow.show_title}>
             <ListItemText primary={show.show_title} />
           </ListItemButton>
         </ListItem>

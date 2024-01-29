@@ -2,15 +2,15 @@ import { Box, Button, Grid, Paper, useTheme } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { isJsonEditorVisible } from '../../../api/data/kasa/scene';
-import { GenericJsonEditor } from '../../GenericJsonEditor';
-import DashboardTitle from '../../dashboard/DashboardTitle';
-import { IdentityClient } from '../components/IdentityClient';
-import TaskDetail from '../components/TaskDetail';
 import {
   popErrorMessage,
   popMessage,
 } from '../../../store/alert/alertActions';
 import { setTask } from '../../../store/task/taskSlice';
+import { GenericJsonEditor } from '../../GenericJsonEditor';
+import DashboardTitle from '../../dashboard/DashboardTitle';
+import { IdentityClient } from '../components/IdentityClient';
+import { TaskDetail } from '../components/TaskDetail';
 
 const getTaskJson = (task) => {
   return JSON.stringify(task?.payload, null, '\t');
@@ -97,8 +97,7 @@ const TaskJsonEditor = () => {
 };
 
 export const TaskLayout = () => {
-  const dispatch = useDispatch();
-  const task = useSelector((x) => x.task.task);
+  const { task } = useSelector((x) => x.task);
 
   return (
     <>

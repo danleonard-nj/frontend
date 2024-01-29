@@ -3,8 +3,8 @@ import { KasaDeviceClientResponseDialog } from './kasa/dialogs/KasaDeviceClientR
 import { KasaSceneCategoryDialog } from './kasa/dialogs/KasaSceneCategoryAddDialog';
 import { KasaSceneCategoryRemoveDialog } from './kasa/dialogs/KasaCreateSceneCategoryDialog';
 import ReverbOrderDetailDialog from './reverb/ReverbOrderDetailDialog';
-import ScheduleAddLinkDialog from './schedule/dialogs/ScheduleAddLinkDialog';
-import ScheduleDeleteConfirmDialog from './schedule/dialogs/ScheduleDeleteConfirmDialog';
+import { ScheduleAddLinkDialog } from './schedule/dialogs/ScheduleAddLinkDialog';
+import { ScheduleDeleteConfirmDialog } from './schedule/dialogs/ScheduleDeleteConfirmDialog';
 import { ScheduleHistoryViewDialog } from './schedule/dialogs/ScheduleHistoryViewDialog';
 import DeleteTaskConfirmationDialog from './task/dialogs/DeleteTaskConfirmationDialog';
 import { ChatGptHistoryViewDialog } from './chatgpt/dialogs/ChatGptHistoryViewDialog';

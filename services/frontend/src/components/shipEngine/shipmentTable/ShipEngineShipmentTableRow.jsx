@@ -9,14 +9,14 @@ import {
   getWeight,
 } from '../../../api/helpers/shipEngineHelpers';
 import { cancelShipment } from '../../../store/shipEngine/shipEngineActions';
-import ShipEngineExpandRowButton from './components/ShipEngineExpandRowButton';
 import ShipEngineShipmentExpandedRow from './ShipEngineShipmentExpandedRow';
+import ShipEngineExpandRowButton from './components/ShipEngineExpandRowButton';
 
 export default function ShipEngineShipmentTableRow({ shipment }) {
   const dispatch = useDispatch();
-  const carrierNameLookup = useSelector((x) => x.shipEngine.carrierNameLookup);
-  const serviceCodeLookup = useSelector((x) => x.shipEngine.serviceCodeLookup);
-  const selectedShipment = useSelector((x) => x.shipEngine.selectedShipment);
+
+  const { carrierNameLookup, serviceCodeLookup, selectedShipment } =
+    useSelector((x) => x.shipEngine);
 
   const handleCancelShipment = (shipmentId) => {
     dispatch(cancelShipment(shipmentId));
@@ -24,7 +24,8 @@ export default function ShipEngineShipmentTableRow({ shipment }) {
 
   return (
     <>
-      <TableRow id={`ship-engine-shipment-table-row-id-${shipment.id}`}>
+      <TableRow
+        id={`ship-engine-shipment-table-row-id-${shipment.id}`}>
         <TableCell>
           <ShipEngineExpandRowButton shipment={shipment} />
         </TableCell>
@@ -34,12 +35,17 @@ export default function ShipEngineShipmentTableRow({ shipment }) {
           {getCarrierName(carrierNameLookup, shipment.carrier_id)}
         </TableCell>
         <TableCell>
-          {getServiceCodeName(serviceCodeLookup, shipment.service_code)}
+          {getServiceCodeName(
+            serviceCodeLookup,
+            shipment.service_code
+          )}
         </TableCell>
         <TableCell>{shipment?.destination?.name}</TableCell>
         <TableCell>{shipment.created_date}</TableCell>
         <TableCell>{shipment.ship_date}</TableCell>
-        <TableCell>{getStatusName(shipment.shipment_status)}</TableCell>
+        <TableCell>
+          {getStatusName(shipment.shipment_status)}
+        </TableCell>
         <TableCell>{getDimensions(shipment)}</TableCell>
         <TableCell>{getWeight(shipment)}</TableCell>
         <TableCell>
@@ -57,7 +63,7 @@ export default function ShipEngineShipmentTableRow({ shipment }) {
           sx={{ border: 0, paddingTop: 0, paddingBottom: 0 }}
           colSpan={12}>
           <Collapse
-            in={selectedShipment == shipment.id}
+            in={selectedShipment === shipment.id}
             timeout='auto'
             unmountOnExit>
             <ShipEngineShipmentExpandedRow shipment={shipment} />

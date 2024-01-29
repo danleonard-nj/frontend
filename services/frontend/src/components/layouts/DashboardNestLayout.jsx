@@ -24,10 +24,10 @@ import { getWeather } from '../../store/weather/weatherActions';
 import { NestSensorInfoPage } from '../nest/NestSensorInfoPage';
 import { NestSideNav } from '../nest/NestSideNav';
 import { NestThermostatPage } from '../nest/NestThermostatPage';
+import { HistoryTable } from '../nest/tables/HistoryTable';
 import { IntegrationTable } from '../nest/tables/IntegrationTable';
 import { NestAnalyticsPage } from '../nest/tabs/NestAnalyticsPage';
 import { WeatherPage } from '../nest/weather/WeatherPage';
-import { HistoryTable } from '../nest/tables/HistoryTable';
 
 const NestDeviceHistoryPage = () => {
   const [hoursBack, setHoursBack] = useState(1);
@@ -50,7 +50,7 @@ const NestDeviceHistoryPage = () => {
   };
 
   useEffect(() => {
-    if (deviceId && hoursBack && hoursBack != 0) {
+    if (deviceId && hoursBack && hoursBack !== 0) {
       dispatch(getSensorHistory(deviceId, hoursBack));
     }
   }, [deviceId, hoursBack]);
@@ -122,7 +122,7 @@ const NestIntegrationPage = () => {
   };
 
   useEffect(() => {
-    if (daysBack && daysBack != 0) {
+    if (daysBack && daysBack !== 0) {
       dispatch(getIntegrationEvents(daysBack));
     }
   }, [daysBack]);

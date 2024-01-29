@@ -8,7 +8,6 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,13 +34,7 @@ const ChatGptHistoryViewDialog = () => {
     historyDaysBack = 7,
     selectedHistoryEndpoint = '',
     history = [],
-    historyEndpoints = [],
-    historyEndpointsLoading = true,
   } = useSelector((x) => x.chatgpt);
-
-  const handleLoadHistoryData = () => {
-    dispatch(getHistory(historyDaysBack, selectedHistoryEndpoint));
-  };
 
   const handleClose = () => {
     dispatch(closeDialog(dialogType.chatGptViewHistoryDialog));
@@ -52,14 +45,10 @@ const ChatGptHistoryViewDialog = () => {
     dispatch(getHistory(value));
   };
 
-  // const handleClearSelectedEndpoint = () => {
-  //   dispatch(setSelectedHistoryEndpoint(''));
-  // };
-
   const handleAccordionExpand = (endpoint) => {
     dispatch(
       setSelectedHistoryEndpoint(
-        endpoint == selectedHistoryEndpoint ? '' : endpoint
+        endpoint === selectedHistoryEndpoint ? '' : endpoint
       )
     );
   };
@@ -113,10 +102,6 @@ const ChatGptHistoryViewDialog = () => {
                 <Typography id='input-slider' gutterBottom>
                   Days Back
                 </Typography>
-                {/* <ChatGptHistoryEndpointSelect />
-                <Button onClick={handleClearSelectedEndpoint}>
-                  Clear
-                </Button> */}
                 <ChatGptHistoryDaysBackSlider
                   onChangeCommitted={handleSetHistoryDaysBack}
                 />

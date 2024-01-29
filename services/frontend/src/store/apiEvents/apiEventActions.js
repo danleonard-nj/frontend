@@ -1,11 +1,9 @@
 import autoBind from 'auto-bind';
+import { orderBy } from 'lodash';
 import EventApi from '../../api/eventApi';
 import { getErrorMessage } from '../../api/helpers/apiHelpers';
 import { popErrorMessage } from '../alert/alertActions';
 import { setEvents, setEventsLoading } from './apiEventSlice';
-import { orderBy, sortBy } from 'lodash';
-
-const getISODate = (date) => date.toISOString().split('T')[0];
 
 export default class ApiEventActions {
   constructor() {

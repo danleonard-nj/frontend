@@ -5,22 +5,16 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-import React from 'react';
+import { sortBy } from 'lodash';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTask } from '../../../store/task/taskSlice';
 import DashboardTitle from '../../dashboard/DashboardTitle';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { sortBy } from 'lodash';
 
 const IdentityClient = () => {
   const dispatch = useDispatch();
 
-  const {
-    task = {},
-    clients = [],
-    clientsLoading = true,
-  } = useSelector((x) => x.task);
+  const { task = {}, clients = [] } = useSelector((x) => x.task);
 
   const [clientList, setClientList] = useState([]);
 

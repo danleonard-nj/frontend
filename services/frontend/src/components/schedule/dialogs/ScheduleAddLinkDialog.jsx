@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { getAvailableLinkOptions } from '../../../api/helpers/scheduleHelpers';
 import {
   closeDialog,
   dialogType,
@@ -19,10 +20,7 @@ import {
 import { addLink } from '../../../store/schedule/scheduleActions';
 import { getTasks } from '../../../store/task/taskActions';
 
-const getAvailableLinkOptions = (tasks, links) =>
-  tasks.filter((x) => !links.includes(x.taskId));
-
-export default function ScheduleAddLinkDialog() {
+const ScheduleAddLinkDialog = () => {
   const [selectedLink, setSelectedLink] = useState('');
   const [linkOptions, setLinkOptions] = useState([]);
 
@@ -91,4 +89,6 @@ export default function ScheduleAddLinkDialog() {
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export { ScheduleAddLinkDialog };

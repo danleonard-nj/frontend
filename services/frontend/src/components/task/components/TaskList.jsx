@@ -17,11 +17,13 @@ import { setTask } from '../../../store/task/taskSlice';
 import DashboardTitle from '../../dashboard/DashboardTitle';
 import Spinner from '../../Spinner';
 
-export default function TaskList() {
+const TaskList = () => {
   const dispatch = useDispatch();
-  const tasks = useSelector((store) => store.task?.tasks) ?? [];
-  const tasksLoading = useSelector((x) => x.task.tasksLoading);
-  const task = useSelector((x) => x.task.task) ?? {};
+  const {
+    tasks = [],
+    tasksLoading = false,
+    task = {},
+  } = useSelector((store) => store.task);
 
   const handleClick = (taskId) => {
     dispatch(getTask(taskId));
@@ -50,7 +52,7 @@ export default function TaskList() {
               {tasks?.map((item, index) => (
                 <ListItemButton
                   key={index}
-                  selected={item.taskId == task.taskId}
+                  selected={item.taskId === task.taskId}
                   onClick={() => handleClick(item.taskId)}>
                   <ListItemIcon>
                     <ScheduleIcon />
@@ -64,4 +66,6 @@ export default function TaskList() {
       </>
     </>
   );
-}
+};
+
+export { TaskList };

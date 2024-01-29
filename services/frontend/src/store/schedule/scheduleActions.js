@@ -1,5 +1,7 @@
 import autoBind from 'auto-bind';
 import { defaultSchedule } from '../../api/data/schedule';
+import { getErrorMessage } from '../../api/helpers/apiHelpers';
+import ScheduleApi from '../../api/scheduleApi';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
   setIsNew,
@@ -11,11 +13,6 @@ import {
   setScheduleLoading,
   setSchedules,
 } from './scheduleSlice';
-import {
-  getErrorMessage,
-  sortBy,
-} from '../../api/helpers/apiHelpers';
-import ScheduleApi from '../../api/scheduleApi';
 
 export default class ScheduleActions {
   constructor() {
@@ -33,8 +30,6 @@ export default class ScheduleActions {
 
       // Fetch schedule list
       const response = await this.scheduleApi.getSchedules();
-
-      const sortedSchedules = sortBy(response?.data, 'ScheduleName');
 
       // Pop error message on failed status
       handleResultMessage(response?.status);
@@ -160,7 +155,7 @@ export default class ScheduleActions {
     const validTasks = [];
 
     schedule.links.forEach((taskId) => {
-      if (tasks.find((x) => x.taskId == taskId)) {
+      if (tasks.find((x) => x.taskId === taskId)) {
         validTasks.push(taskId);
       }
     });

@@ -2,16 +2,12 @@ import autoBind from 'auto-bind';
 import ChatGptApi from '../../api/chatGptApi';
 import {
   addDays,
-  formatCurrency,
   getBodyErrorMessage,
   getBodyErrorType,
   getChatCompletionHistory,
-  getDaysFromToday,
-  getStartOfMonthDate,
   getTotalTokenUsage,
   stripLeadingNewLineChars,
 } from '../../api/helpers/chatGptHelpers';
-import { toDateString } from '../../api/helpers/dateTimeUtils';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
   setChatMessages,
@@ -28,8 +24,6 @@ import {
   setMessage,
   setPrediction,
   setPredictionLoading,
-  setUsage,
-  setUsageLoading,
 } from './chatGptSlice';
 
 export default class ChatGptActions {
@@ -119,13 +113,8 @@ export default class ChatGptActions {
 
   getChat() {
     return async (dispatch, getState) => {
-      const {
-        message,
-        chatMessages,
-        tokens,
-        selectedEngine,
-        isConfigurationExpanded,
-      } = getState().chatgpt;
+      const { message, chatMessages, tokens, selectedEngine } =
+        getState().chatgpt;
 
       // Handle success/failure toasts and formatting
       const handleResponse = ({ status, data }) => {

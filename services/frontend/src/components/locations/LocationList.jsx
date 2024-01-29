@@ -1,4 +1,11 @@
-import { Container, Grid, Slider, Tab, Tabs, Typography } from '@mui/material';
+import {
+  Container,
+  Grid,
+  Slider,
+  Tab,
+  Tabs,
+  Typography,
+} from '@mui/material';
 import React from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
@@ -24,15 +31,27 @@ const LocationDetailContainer = () => {
         value={locationTab}
         onChange={(event, tab) => handleTabChange(tab)}
         id='kasa-scene-layout-tabs'>
-        <Tab label='Query' value={0} id='kasa-scene-layout-scene-tab' />
+        <Tab
+          label='Query'
+          value={0}
+          id='kasa-scene-layout-scene-tab'
+        />
 
-        <Tab label='Locations' value={1} id='kasa-scene-layout-scene-tab' />
-        <Tab label='Marker' value={2} id='kasa-scene-layout-scene-tab' />
+        <Tab
+          label='Locations'
+          value={1}
+          id='kasa-scene-layout-scene-tab'
+        />
+        <Tab
+          label='Marker'
+          value={2}
+          id='kasa-scene-layout-scene-tab'
+        />
       </Tabs>
 
-      {locationTab == 0 && <LocationQuerySettings />}
-      {locationTab == 1 && <LocationList />}
-      {locationTab == 2 && <MarkerSelectedLocation />}
+      {locationTab === 0 && <LocationQuerySettings />}
+      {locationTab === 1 && <LocationList />}
+      {locationTab === 2 && <MarkerSelectedLocation />}
     </>
   );
 };
@@ -45,7 +64,9 @@ const LocationQuerySettings = () => {
     querySettings?.distance ?? 0
   );
 
-  const [limitValue, setLimitValue] = useState(querySettings?.limit ?? 0);
+  const [limitValue, setLimitValue] = useState(
+    querySettings?.limit ?? 0
+  );
 
   const handleDistanceChange = (value) => {
     console.log('commited');
@@ -66,7 +87,9 @@ const LocationQuerySettings = () => {
             aria-label='Miles'
             value={distanceValue}
             valueLabelDisplay='auto'
-            onChangeCommitted={(event, value) => handleDistanceChange(value)}
+            onChangeCommitted={(event, value) =>
+              handleDistanceChange(value)
+            }
             onChange={(event, value) => setDistanceValue(value)}
             step={1}
             marks
@@ -80,7 +103,9 @@ const LocationQuerySettings = () => {
             aria-label='Limit'
             value={limitValue}
             valueLabelDisplay='auto'
-            onChangeCommitted={(event, value) => handleLimitChange(value)}
+            onChangeCommitted={(event, value) =>
+              handleLimitChange(value)
+            }
             onChange={(event, value) => setLimitValue(value)}
             step={5}
             marks
@@ -95,7 +120,9 @@ const LocationQuerySettings = () => {
 
 const LocationList = () => {
   const locations = useSelector((x) => x.location.locations) ?? [];
-  const locationsLoading = useSelector((x) => x.location.locationsLoading);
+  const locationsLoading = useSelector(
+    (x) => x.location.locationsLoading
+  );
 
   return locationsLoading ? (
     <Spinner />
@@ -109,9 +136,13 @@ const LocationList = () => {
 };
 
 const MarkerSelectedLocation = () => {
-  const selectedLocation = useSelector((x) => x.location.selectedLocation);
+  const selectedLocation = useSelector(
+    (x) => x.location.selectedLocation
+  );
 
-  return selectedLocation && <LocationCard location={selectedLocation} />;
+  return (
+    selectedLocation && <LocationCard location={selectedLocation} />
+  );
 };
 
 export { LocationList, LocationDetailContainer };
