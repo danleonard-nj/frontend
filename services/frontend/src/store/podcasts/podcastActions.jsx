@@ -3,7 +3,7 @@ import PodcastApi from '../../api/podcastApi';
 import { popErrorMessage } from '../alert/alertActions';
 import { setShows, setShowsLoading } from './podcastSlice';
 
-export default class NestActions {
+export default class PodcastActions {
   constructor() {
     this.podcastApi = new PodcastApi();
     autoBind(this);
@@ -25,4 +25,4 @@ export default class NestActions {
   }
 }
 
-export const { getPodcasts } = new NestActions();
+export const { getPodcasts } = new PodcastActions();
