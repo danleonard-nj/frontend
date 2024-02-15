@@ -10,6 +10,7 @@ import {
   setTransactions,
   setTransactionsLoading,
 } from './bankSlice';
+import { orderBy } from 'lodash';
 
 const getISODate = (date) => date.toISOString().split('T')[0];
 
@@ -31,12 +32,19 @@ export default class BankActions {
         );
       };
 
-      dispatch(setBalancesLoading(true));
+      const handleSuccessResponse = ({ data }) => {
+        const sorted = orderBy(
+          data?.balances ?? [],
+          'bank_key',
+          'desc'
+        );
+        dispatch(setBalances(sorted));
+      };
 
       const response = await this.bankApi.getBalances();
 
       response.status === 200
-        ? dispatch(setBalances(response.data))
+        ? handleSuccessResponse(response)
         : handleErrorResponse(response);
 
       dispatch(setBalancesLoading(false));

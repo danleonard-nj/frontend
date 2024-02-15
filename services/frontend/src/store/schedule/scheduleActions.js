@@ -13,6 +13,7 @@ import {
   setScheduleLoading,
   setSchedules,
 } from './scheduleSlice';
+import { sortBy } from 'lodash';
 
 export default class ScheduleActions {
   constructor() {
@@ -33,7 +34,11 @@ export default class ScheduleActions {
 
       // Pop error message on failed status
       handleResultMessage(response?.status);
-      dispatch(setSchedules(response?.data));
+
+      // Sort the schedules by name
+      const sorted = sortBy(response?.data ?? [], 'scheduleName');
+
+      dispatch(setSchedules(sorted));
     };
   }
 

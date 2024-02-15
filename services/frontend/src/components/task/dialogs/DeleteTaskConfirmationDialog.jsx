@@ -15,21 +15,22 @@ import {
 } from '../../../store/dialog/dialogSlice';
 import { deleteTask } from '../../../store/task/taskActions';
 
-export default function DeleteTaskConfirmationDialog() {
+const DeleteTaskConfirmationDialog = () => {
   const dispatch = useDispatch();
-  const task = useSelector((x) => x.task.task);
+
+  const { task } = useSelector((x) => x.task);
   const isVisible = useSelector(
     (x) => x.dialog[dialogType.deleteTask]
   );
 
-  function handleClose() {
+  const handleClose = () => {
     dispatch(closeDialog(dialogType.deleteTask));
-  }
+  };
 
-  function handleDelete() {
+  const handleDelete = () => {
     dispatch(deleteTask(task.taskId));
     handleClose();
-  }
+  };
 
   return (
     <Dialog
@@ -54,8 +55,10 @@ export default function DeleteTaskConfirmationDialog() {
       </DialogActions>
     </Dialog>
   );
-}
+};
 
 DeleteTaskConfirmationDialog.propTypes = {
   visibilityState: PropTypes.bool,
 };
+
+export { DeleteTaskConfirmationDialog };

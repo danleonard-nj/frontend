@@ -19,7 +19,8 @@ import { LocationCard } from './LocationCard';
 
 const LocationDetailContainer = () => {
   const dispatch = useDispatch();
-  const locationTab = useSelector((x) => x.location.locationTab) ?? 0;
+
+  const { locationTab = 0 } = useSelector((x) => x.location);
 
   const handleTabChange = (tab) => {
     dispatch(setLocationTab(tab));
@@ -119,13 +120,13 @@ const LocationQuerySettings = () => {
 };
 
 const LocationList = () => {
-  const locations = useSelector((x) => x.location.locations) ?? [];
-  const locationsLoading = useSelector(
-    (x) => x.location.locationsLoading
-  );
+  const { locations = [], locationsLoading = false } =
+    useSelector((x) => x.location) ?? [];
 
   return locationsLoading ? (
-    <Spinner />
+    <Container>
+      <Spinner />
+    </Container>
   ) : (
     locations.map((location) => (
       <>
@@ -136,9 +137,7 @@ const LocationList = () => {
 };
 
 const MarkerSelectedLocation = () => {
-  const selectedLocation = useSelector(
-    (x) => x.location.selectedLocation
-  );
+  const { selectedLocation } = useSelector((x) => x.location);
 
   return (
     selectedLocation && <LocationCard location={selectedLocation} />

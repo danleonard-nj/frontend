@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getBalances } from '../../store/bank/bankActions';
 import { setSelectedTab } from '../../store/bank/bankSlice';
 import Spinner from '../Spinner';
-import { BalanceTable } from '../bank/BalanceTable';
 import { TransactionsTab } from '../bank/TransactionsTab';
+import { BalanceTable } from '../bank/BalanceTable';
 
 const DashboardBankingLayout = () => {
   const {
-    balances: { balances },
+    balances = [],
     balancesLoading = true,
     selectedBankKey = '',
     selectedTab = 'balances',

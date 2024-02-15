@@ -14,21 +14,19 @@ export default function DashboardTaskLayout() {
   });
 
   return (
-    <>
-      <Grid container spacing={3} id='task-container'>
-        <Grid item lg={3} xs={12} md={5} id='task-list-container'>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              minHeight: '39rem',
-            }}>
-            <TaskList />
-          </Paper>
-        </Grid>
-        <TaskLayout />
+    <Grid container spacing={3} id='task-container'>
+      <Grid item lg={3} xs={12} md={5} id='task-list-container'>
+        <Paper
+          sx={{
+            p: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '39rem',
+          }}>
+          <TaskList />
+        </Paper>
       </Grid>
-    </>
+      <TaskLayout />
+    </Grid>
   );
 }

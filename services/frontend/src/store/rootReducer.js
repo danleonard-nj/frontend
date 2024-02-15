@@ -8,7 +8,6 @@ import dialogReducer from './dialog/dialogSlice';
 import emailSlice from './email/emailSlice';
 import featureSlice from './features/featureSlice';
 import fitnessSlice from './fitness/fitnessSlice';
-import journalSlice from './journal/journalSlice';
 import deviceReducer from './kasa/deviceSlice';
 import flowReducer from './kasa/flowSlice';
 import presetReducer from './kasa/presetSlice';
@@ -47,7 +46,6 @@ const rootReducer = combineReducers({
   weather: weatherSlice,
   torrents: torrentSlice,
   apiEvents: apiEventSlice,
-  journal: journalSlice,
   podcast: podcastSlice,
 });
 

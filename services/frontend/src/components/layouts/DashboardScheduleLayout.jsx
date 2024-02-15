@@ -22,8 +22,6 @@ const DashboardScheduleLayout = () => {
   const detailRef = useRef(null);
 
   const onScheduleSelect = () => {
-    console.log('ref select!');
-    console.log(detailRef);
     if (detailRef?.current) {
       detailRef?.current?.scrollIntoView();
     }

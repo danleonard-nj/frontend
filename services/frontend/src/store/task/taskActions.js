@@ -9,6 +9,7 @@ import {
   setTaskLoading,
   setTasks,
 } from './taskSlice';
+import { sortBy } from 'lodash';
 
 export default class TaskActions {
   constructor() {
@@ -37,9 +38,11 @@ export default class TaskActions {
       // Pop message on failure
       handleResultMessage(response?.status);
 
+      const sorted = sortBy(response?.data ?? [], 'taskName');
+
       // Update task list on successful request
-      if (response.status) {
-        dispatch(setTasks(response?.data));
+      if (response.status === 200) {
+        dispatch(setTasks(sorted));
       }
     };
   }

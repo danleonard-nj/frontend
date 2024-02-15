@@ -6,10 +6,9 @@ import ReverbOrderDetailDialog from './reverb/ReverbOrderDetailDialog';
 import { ScheduleAddLinkDialog } from './schedule/dialogs/ScheduleAddLinkDialog';
 import { ScheduleDeleteConfirmDialog } from './schedule/dialogs/ScheduleDeleteConfirmDialog';
 import { ScheduleHistoryViewDialog } from './schedule/dialogs/ScheduleHistoryViewDialog';
-import DeleteTaskConfirmationDialog from './task/dialogs/DeleteTaskConfirmationDialog';
+import { DeleteTaskConfirmationDialog } from './task/dialogs/DeleteTaskConfirmationDialog';
 import { ChatGptHistoryViewDialog } from './chatgpt/dialogs/ChatGptHistoryViewDialog';
 import { MagnetLinkDialog } from './layouts/DashboardTorrentLayout';
-import { AddEntryDialog } from './journal/AddEntryDialog';
 
 export const DialogProvider = () => {
   return (
@@ -25,7 +24,6 @@ export const DialogProvider = () => {
       <ScheduleHistoryViewDialog />
       <ChatGptHistoryViewDialog />
       <MagnetLinkDialog id='magnet-link-dialog' />
-      <AddEntryDialog />
     </>
   );
 };

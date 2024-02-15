@@ -7,17 +7,19 @@ import { getLocationName } from '../../api/data/locations';
 import { toLocalDateTime } from '../../api/helpers/dateTimeUtils';
 
 const LocationCard = ({ location }) => {
+  const hasTimestamps = location?.timestamps?.length > 0;
+  const hasSources = location?.sources?.length > 0;
+
   return (
     <Box sx={{ minWidth: 275 }}>
       <Card variant='outlined'>
         <CardContent>
-          <Typography sx={{ fontSize: 14 }} color='text.secondary' gutterBottom>
+          <Typography
+            sx={{ fontSize: 14 }}
+            color='text.secondary'
+            gutterBottom>
             Address
           </Typography>
-          {/* <Typography variant='h5' component='div'>
-          Miles: {location.distance.miles}
-          Feet: {location.distance.feet}
-        </Typography> */}
           <Typography variant='h5' component='div'>
             {getLocationName(location)}
           </Typography>
@@ -25,7 +27,9 @@ const LocationCard = ({ location }) => {
           <Typography sx={{ fontSize: 14 }} color='text.secondary'>
             Coordinate Key
           </Typography>
-          <Typography variant='body2'>{location.coordinate_key}</Typography>
+          <Typography variant='body2'>
+            {location.coordinate_key}
+          </Typography>
           <br />
           <Typography variant='h5' component='div'>
             Locations
@@ -33,11 +37,15 @@ const LocationCard = ({ location }) => {
 
           {location.reverse_geocoded.locations.map((geo) => (
             <>
-              <Typography sx={{ fontSize: 14 }} color='text.secondary'>
+              <Typography
+                sx={{ fontSize: 14 }}
+                color='text.secondary'>
                 Address
               </Typography>
               <Typography variant='body2'>{geo.address}</Typography>
-              <Typography sx={{ fontSize: 14 }} color='text.secondary'>
+              <Typography
+                sx={{ fontSize: 14 }}
+                color='text.secondary'>
                 Location Type
               </Typography>
               {geo.types?.length
@@ -47,7 +55,9 @@ const LocationCard = ({ location }) => {
                     </Typography>
                   ))
                 : 'No types'}
-              <Typography sx={{ fontSize: 14 }} color='text.secondary'>
+              <Typography
+                sx={{ fontSize: 14 }}
+                color='text.secondary'>
                 Place:
               </Typography>
               <Typography variant='body2'>{geo.place_id}</Typography>
@@ -62,9 +72,11 @@ const LocationCard = ({ location }) => {
             Sources
           </Typography>
           <Typography variant='body2'>
-            {location?.sources?.length
+            {hasSources
               ? location?.sources.map((locationSource) => (
-                  <Typography variant='body2'>{locationSource}</Typography>
+                  <Typography variant='body2'>
+                    {locationSource}
+                  </Typography>
                 ))
               : 'No sources'}
           </Typography>
@@ -72,8 +84,8 @@ const LocationCard = ({ location }) => {
             Date
           </Typography>
           <Typography variant='body2'>
-            {location?.timestamps?.length
-              ? location?.timestamps.map((timestamp) => (
+            {hasTimestamps
+              ? location.timestamps.map((timestamp) => (
                   <Typography variant='body2'>
                     {toLocalDateTime(timestamp)}
                   </Typography>
