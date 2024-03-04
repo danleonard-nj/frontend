@@ -10,11 +10,16 @@ const formatAmount = (amount) => {
     : formatCurrency(amount);
 };
 
+const formatType = (params) =>
+  params.row.amount > 0 ? 'Debit' : 'Credit';
+
 const columns = [
   {
-    field: 'transaction_bk',
-    headerName: 'ID',
+    field: 'transaction_date',
+    headerName: 'Date',
     align: 'left',
+    valueGetter: (params) =>
+      new Date(params.value * 1000).toLocaleString(),
     flex: 0.25,
   },
   {
@@ -22,14 +27,6 @@ const columns = [
     headerName: 'Merchant',
     align: 'left',
     valueGetter: (params) => params.row.merchant || '',
-    flex: 0.25,
-  },
-  {
-    field: 'transaction_date',
-    headerName: 'Date',
-    align: 'left',
-    valueGetter: (params) =>
-      new Date(params.value * 1000).toLocaleString(),
     flex: 0.25,
   },
   {
@@ -42,13 +39,20 @@ const columns = [
     field: 'name',
     headerName: 'Description',
     align: 'left',
-    flex: 1,
+    flex: 0.5,
   },
   {
     field: 'amount',
     headerName: 'Amount',
     align: 'left',
     valueGetter: (params) => formatAmount(params.value),
+    flex: 0.15,
+  },
+  {
+    field: 'type',
+    headerName: 'Type',
+    align: 'left',
+    valueGetter: (params) => formatType(params),
     flex: 0.15,
   },
 ];
