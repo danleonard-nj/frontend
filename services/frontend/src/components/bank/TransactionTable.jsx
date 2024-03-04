@@ -1,36 +1,8 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Tooltip,
-} from '@mui/material';
+import { Box } from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { formatCurrency } from '../../api/helpers/bankHelpers';
-import { useEffect } from 'react';
-import { sortBy } from 'lodash';
-
-const pendingTransactionRowColor = '#55668C';
-const depositRowColor = '#477D7D';
-
-const getIsoDate = (date) => {
-  return date.toISOString().split('T')[0];
-};
-
-const getIsoDateFromTimestamp = (timestamp) => {
-  return getIsoDate(new Date(timestamp * 1000));
-};
-
-const formatPending = (pending) => {
-  return pending ? 'True' : 'False';
-};
-
-const getTableRowStyles = (transaction) => ({
-  backgroundColor: transaction.pending
-    ? pendingTransactionRowColor
-    : '',
-});
 
 const formatAmount = (amount) => {
   return amount < 0
@@ -38,77 +10,64 @@ const formatAmount = (amount) => {
     : formatCurrency(amount);
 };
 
-const CategoryTooltipContent = ({ transaction }) => {
+const columns = [
+  {
+    field: 'transaction_bk',
+    headerName: 'ID',
+    align: 'left',
+    flex: 0.25,
+  },
+  {
+    field: 'data',
+    headerName: 'Merchant',
+    align: 'left',
+    valueGetter: (params) => params.row.merchant || '',
+    flex: 0.25,
+  },
+  {
+    field: 'transaction_date',
+    headerName: 'Date',
+    align: 'left',
+    valueGetter: (params) =>
+      new Date(params.value * 1000).toLocaleString(),
+    flex: 0.25,
+  },
+  {
+    field: 'categories',
+    headerName: 'Categories',
+    align: 'left',
+    flex: 0.25,
+  },
+  {
+    field: 'name',
+    headerName: 'Description',
+    align: 'left',
+    flex: 1,
+  },
+  {
+    field: 'amount',
+    headerName: 'Amount',
+    align: 'left',
+    valueGetter: (params) => formatAmount(params.value),
+    flex: 0.15,
+  },
+];
+
+const TransactionTable = () => {
+  const { transactions = [], transactionsLoading = true } =
+    useSelector((x) => x.bank);
+
   return (
-    <>
-      <span>Primary: {transaction?.pf_categories?.primary}</span>
-      <br />
-      <span>Detailed: {transaction?.pf_categories?.detailed}</span>
-    </>
-  );
-};
-
-const TransactionTable = ({ transactions }) => {
-  const [sortedTransactions, setSortedTransactions] = React.useState(
-    []
-  );
-
-  useEffect(() => {
-    const sorted = sortBy(transactions, 'transaction_date');
-    console.log('sorted transactions', sorted);
-    setSortedTransactions(sorted);
-  }, []);
-
-  return (
-    <Table size='small'>
-      <TableHead>
-        <TableRow>
-          {/* <TableCell>Transaction ID</TableCell> */}
-          <TableCell>Date</TableCell>
-          <TableCell>Categories</TableCell>
-          <TableCell>Description</TableCell>
-          <TableCell>Pending</TableCell>
-          <TableCell>Amount</TableCell>
-          {/* <TableCell>Modified</TableCell> */}
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {sortedTransactions.map((transaction) => (
-          <TableRow sx={getTableRowStyles(transaction)}>
-            {/* <TableCell>{transaction.transaction_id}</TableCell> */}
-            <TableCell>
-              {getIsoDateFromTimestamp(transaction.transaction_date)}
-            </TableCell>
-            <Tooltip
-              title={
-                <CategoryTooltipContent transaction={transaction} />
-              }
-              placement='left'>
-              <TableCell>
-                {(transaction.categories ?? []).join(', ')}
-              </TableCell>
-            </Tooltip>
-            <TableCell>{transaction.name ?? 'N/A'}</TableCell>
-            <TableCell>
-              {formatPending(transaction.pending)}
-            </TableCell>
-            <TableCell>{formatAmount(transaction.amount)}</TableCell>
-            {/* <TableCell>
-              {transaction?.pf_categories?.detailed}
-            </TableCell> */}
-            {/* <TableCell>
-              {new Date(
-                transaction.timestamp * 1000
-              ).toLocaleString()}
-            </TableCell> */}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <Box height='60vh'>
+      <DataGrid
+        rows={transactions}
+        columns={columns}
+        slots={{ toolbar: GridToolbar }}
+        loading={transactionsLoading}
+        getRowId={(row) => row.transaction_bk}
+      />
+    </Box>
   );
 };
 
 export { TransactionTable };
-
-// op 1 - #6B568E
-// op 2 - #55668C
