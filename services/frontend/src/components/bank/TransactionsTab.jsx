@@ -1,4 +1,11 @@
-import { Divider, Grid, Typography } from '@mui/material';
+import {
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Typography,
+} from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -6,13 +13,22 @@ import {
   dateParamsInitialized as isTransactionDateRangeInitialized,
 } from '../../api/helpers/bankHelpers';
 import { getTransactions } from '../../store/bank/bankActions';
-import { setTransactionParams } from '../../store/bank/bankSlice';
+import {
+  setShowPendingTransactions,
+  setTransactionParams,
+} from '../../store/bank/bankSlice';
 import Spinner from '../Spinner';
 import { DateRangeSelector } from './DateRangeSelector';
 import { TransactionTable } from './TransactionTable';
 
-const getIsoDate = (date) => {
-  return date.toISOString().split('T')[0];
+const splitAndCapitalize = (str) => {
+  const words = str.split('-');
+  const capitalizedWords = words.map((word) => {
+    const firstLetter = word.charAt(0).toUpperCase();
+    const restOfWord = word.slice(1);
+    return firstLetter + restOfWord;
+  });
+  return capitalizedWords.join(' ');
 };
 
 const TransactionsTab = () => {
@@ -21,7 +37,10 @@ const TransactionsTab = () => {
     transactionsParams = {},
     transactions = [],
     transactionsLoading = true,
+    showPendingTransactions = true,
   } = useSelector((x) => x.bank);
+
+  const [filteredData, setFilteredData] = React.useState([]);
 
   const dispatch = useDispatch();
 
@@ -48,6 +67,11 @@ const TransactionsTab = () => {
     );
   };
 
+  const handleShowPending = (showPending) => {
+    console.log('showPending', showPending);
+    dispatch(setShowPendingTransactions(showPending));
+  };
+
   useEffect(() => {
     // Verify the transaction date parameter start and end date
     // are set to a value other than default (empty string)
@@ -66,12 +90,27 @@ const TransactionsTab = () => {
     dispatch(getTransactions());
   }, [transactionsParams]);
 
+  useEffect(() => {
+    const filtered = [];
+    for (const transaction of transactions) {
+      if (!showPendingTransactions && transaction.pending) {
+        continue;
+      }
+      filtered.push(transaction);
+    }
+
+    filtered.sort((a, b) => b.transaction_date - a.transaction_date);
+    setFilteredData(filtered);
+  }, [showPendingTransactions, transactions]);
+
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={3} justifyContent='flex-end'>
       <Grid item lg={6}>
-        <Typography variant='h6'>Bank: {selectedBankKey}</Typography>
+        <Typography variant='h5'>
+          <b>{splitAndCapitalize(selectedBankKey)}</b>
+        </Typography>
       </Grid>
-      <Grid item lg={6} align='right'>
+      <Grid item lg={6}>
         <DateRangeSelector
           startDate={transactionsParams?.startDate ?? ''}
           setStartDate={(val) => handleSetStartDate(val)}
@@ -79,6 +118,22 @@ const TransactionsTab = () => {
           setEndDate={handleSetEndDate}
         />
       </Grid>
+
+      <Grid item lg={12}>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                value={handleShowPending}
+                defaultChecked
+                onChange={(e) => handleShowPending(e.target.checked)}
+              />
+            }
+            label='Show Pending'
+          />
+        </FormGroup>
+      </Grid>
+
       <Grid item lg={12} xs={12} sm={12}>
         <Divider />
       </Grid>
@@ -86,7 +141,11 @@ const TransactionsTab = () => {
         {transactionsLoading ? (
           <Spinner />
         ) : (
-          <TransactionTable transactions={transactions} />
+          <TransactionTable
+            transactions={filteredData}
+            transactionsLoading={transactionsLoading}
+            showPendingTransactions={showPendingTransactions}
+          />
         )}
       </Grid>
     </Grid>

@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.transaction-table-highlighted-row {
+  background-color: #ff7f7f;
+}

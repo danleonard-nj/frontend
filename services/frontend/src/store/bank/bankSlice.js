@@ -17,6 +17,7 @@ const bankInitialState = {
     startDate: '',
     endDate: '',
   },
+  showPendingTransactions: true,
   selectedBankKey: '',
   selectedTab: 'balances',
 };
@@ -61,6 +62,9 @@ const bankSlice = createSlice({
     setSelectedTab(state, { payload }) {
       state.selectedTab = payload;
     },
+    setShowPendingTransactions(state, { payload }) {
+      state.showPendingTransactions = payload;
+    },
   },
 });
 
@@ -77,6 +81,7 @@ export const {
   setSelectedBankKey,
   setBalanceHistoryParams,
   setTransactionParams,
+  setShowPendingTransactions,
 } = bankSlice.actions;
 
 export default bankSlice.reducer;
