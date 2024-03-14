@@ -1,6 +1,6 @@
 import autoBind from 'auto-bind';
 import RedisManagementApi from '../../api/redisApi';
-import { popErrorMessage } from '../alert/alertActions';
+import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
   setCacheValue,
   setCacheValueLoading,
@@ -60,34 +60,41 @@ export default class RedisActions {
     };
   }
 
-  setSelectedRedisKey(key) {
+  deleteRedisKey(key) {
     return async (dispatch, getState) => {
       // Handle success/failure toasts and formatting
-      // const handleErrorResponse = ({ status, data }) => {
-      //   if (status !== 200) {
-      //     dispatch(
-      //       popErrorMessage(`Failed to fetch value for key '${key}'`)
-      //     );
-      //   }
-      // };
+      const handleErrorResponse = ({ status, data }) => {
+        if (status !== 200) {
+          dispatch(
+            popErrorMessage(`${data?.error}: ${data?.message}`)
+          );
+        }
+      };
 
       // dispatch(setCacheValueLoading(true));
 
-      // const response = await this.redisApi.getValue(key, parseJson);
+      const response = await this.redisApi.deleteKey(key);
 
-      // response?.status === 200
-      //   ? dispatch(setCacheValue(response.data))
-      //   : handleErrorResponse(response);
+      response?.status === 200
+        ? dispatch(popMessage(`Key '${key}' deleted successfully`))
+        : handleErrorResponse(response);
 
       // dispatch(setCacheValueLoading(false));
+    };
+  }
 
-      // Set parse JSON to false fo oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+  setSelectedRedisKey(key) {
+    return async (dispatch, getState) => {
+      console.log('setSelectedRedisKey', key);
       dispatch(setParseJson(false));
-
       dispatch(setSelectedKey(key));
     };
   }
 }
 
-export const { getRedisKeys, getRedisValue, setSelectedRedisKey } =
-  new RedisActions();
+export const {
+  getRedisKeys,
+  getRedisValue,
+  setSelectedRedisKey,
+  deleteRedisKey,
+} = new RedisActions();

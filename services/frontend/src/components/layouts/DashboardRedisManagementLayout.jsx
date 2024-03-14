@@ -1,3 +1,4 @@
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Avatar,
   Button,
@@ -10,30 +11,31 @@ import {
   ListItemButton,
   ListItemText,
   Switch,
-  TextField,
   Typography,
 } from '@mui/material';
 import React, { useEffect } from 'react';
-import DeleteIcon from '@mui/icons-material/Delete';
 
+import { blue } from '@mui/material/colors';
 import { useDispatch, useSelector } from 'react-redux';
+import { scrollable } from '../../api/helpers/formattingHelpers';
 import {
+  deleteRedisKey,
   getRedisKeys,
   getRedisValue,
   setSelectedRedisKey,
 } from '../../store/redis/redisActions';
+import { setParseJson } from '../../store/redis/redisSlice';
 import { GenericJsonEditor } from '../GenericJsonEditor';
-import {
-  setParseJson,
-  setSelectedKey,
-} from '../../store/redis/redisSlice';
-import { getAvatarColor } from '../../api/helpers/featureHelpers';
-import { blue } from '@mui/material/colors';
-import { scrollable } from '../../api/helpers/formattingHelpers';
+import Spinner from '../Spinner';
 
 const RedisKeyListItem = ({ keyName, onClick }) => {
-  const handleDelete = () => {
+  const dispatch = useDispatch();
+
+  const handleDeleteKey = (e) => {
     console.log('Deleting key', keyName);
+    e.stopPropagation();
+    e.preventDefault();
+    dispatch(deleteRedisKey(keyName));
   };
 
   return (
@@ -49,7 +51,7 @@ const RedisKeyListItem = ({ keyName, onClick }) => {
 
         <ListItemText primary={keyName ?? ''} />
 
-        <IconButton aria-label='comment' onClick={handleDelete}>
+        <IconButton aria-label='comment' onClick={handleDeleteKey}>
           <DeleteIcon />
         </IconButton>
       </ListItemButton>
@@ -58,7 +60,6 @@ const RedisKeyListItem = ({ keyName, onClick }) => {
 };
 
 const DashboardRedisManagementLayout = () => {
-  console.log('rendering DashboardRedisManagementLayout');
   const dispatch = useDispatch();
   const {
     redisKeys = [],
@@ -71,15 +72,16 @@ const DashboardRedisManagementLayout = () => {
     parseJson = false,
   } = useSelector((x) => x.redis);
 
-  console.log('selectedKey', selectedKey);
-
   const handleSelectKey = (key) => {
-    console.log('handleSelectKey', key);
     dispatch(setSelectedRedisKey(key));
   };
 
   const handleSetParseJson = (e) => {
     dispatch(setParseJson(e.target.checked));
+  };
+
+  const handleRefreshKeys = () => {
+    dispatch(getRedisKeys());
   };
 
   useEffect(() => {
@@ -99,27 +101,35 @@ const DashboardRedisManagementLayout = () => {
       <Grid item lg={12}>
         <Typography variant='h5'>Redis Management</Typography>
       </Grid>
-      <Grid item lg={6}>
-        {redisKeysLoading ? (
-          <Typography>Loading...</Typography>
-        ) : (
-          <List component='nav' sx={scrollable}>
-            {redisKeys.map((key, index) => (
-              // <ListItem key={index}>
-              //   <ListItemButton
-              //     key={index}
-              //     onClick={() => handleSelectKey(key)}>
-              //     {key}
-              //   </ListItemButton>
-              // </ListItem>
-              <RedisKeyListItem
-                key={`${key}-${index}`}
-                keyName={key}
-                onClick={() => handleSelectKey(key)}
-              />
-            ))}
-          </List>
-        )}
+
+      <Grid item lg={6} padding={2}>
+        <Grid container spacing={3}>
+          <Grid item lg={12} align='right'>
+            <Button onClick={handleRefreshKeys}>Refresh</Button>
+          </Grid>
+          <Grid item lg={12}>
+            {redisKeysLoading ? (
+              <Spinner />
+            ) : (
+              <List component='nav' sx={scrollable}>
+                {redisKeys.map((key, index) => (
+                  // <ListItem key={index}>
+                  //   <ListItemButton
+                  //     key={index}
+                  //     onClick={() => handleSelectKey(key)}>
+                  //     {key}
+                  //   </ListItemButton>
+                  // </ListItem>
+                  <RedisKeyListItem
+                    key={`${key}-${index}`}
+                    keyName={key}
+                    onClick={() => handleSelectKey(key)}
+                  />
+                ))}
+              </List>
+            )}
+          </Grid>
+        </Grid>
       </Grid>
       <Grid item lg={6}>
         <Grid container spacing={3}>
