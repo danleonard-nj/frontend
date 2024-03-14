@@ -13,9 +13,8 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-import React, { useEffect } from 'react';
-
 import { blue } from '@mui/material/colors';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { scrollable } from '../../api/helpers/formattingHelpers';
 import {
@@ -27,6 +26,25 @@ import {
 import { setParseJson } from '../../store/redis/redisSlice';
 import { GenericJsonEditor } from '../GenericJsonEditor';
 import Spinner from '../Spinner';
+
+const secondsToString = (seconds) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+  let timeString = '';
+
+  if (hours > 0) {
+    timeString += `${hours} hour(s) `;
+  }
+  if (minutes > 0) {
+    timeString += `${minutes} minute(s) `;
+  }
+  if (remainingSeconds > 0) {
+    timeString += `${remainingSeconds} second(s)`;
+  }
+
+  return timeString.trim(); // Trim any trailing whitespace
+};
 
 const RedisKeyListItem = ({ keyName, onClick }) => {
   const dispatch = useDispatch();
@@ -113,13 +131,6 @@ const DashboardRedisManagementLayout = () => {
             ) : (
               <List component='nav' sx={scrollable}>
                 {redisKeys.map((key, index) => (
-                  // <ListItem key={index}>
-                  //   <ListItemButton
-                  //     key={index}
-                  //     onClick={() => handleSelectKey(key)}>
-                  //     {key}
-                  //   </ListItemButton>
-                  // </ListItem>
                   <RedisKeyListItem
                     key={`${key}-${index}`}
                     keyName={key}
@@ -150,9 +161,16 @@ const DashboardRedisManagementLayout = () => {
           <Grid item align='right' lg={6}>
             <Button disabled={!selectedKey}>Delete</Button>
           </Grid>
-          <GenericJsonEditor
-            value={JSON.stringify(cacheValue, null, '\t')}
-          />
+          <Grid item lg={12}>
+            <GenericJsonEditor
+              value={JSON.stringify(cacheValue, null, '\t')}
+            />
+          </Grid>
+          <Grid item lg={12}>
+            <Typography variant='body2' align='right'>
+              TTL: {secondsToString(cacheValue?.ttl ?? 0)}
+            </Typography>
+          </Grid>
         </Grid>
       </Grid>
     </Grid>
