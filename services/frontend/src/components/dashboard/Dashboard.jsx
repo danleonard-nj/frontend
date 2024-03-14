@@ -17,6 +17,7 @@ import DashboardShipEngineLayout from '../layouts/DashboardShipEngineLayout';
 import DashboardTaskLayout from '../layouts/DashboardTaskLayout';
 import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
 import { DashboardPodcastLayout } from '../layouts/DashboardPodcastLayout';
+import { DashboardRedisManagementLayout } from '../layouts/DashboardRedisManagementLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -51,6 +52,9 @@ export default function Dashboard() {
         <DashboardApiEventHistoryLayout />
       )}
       {dashboardPage === 'podcasts' && <DashboardPodcastLayout />}
+      {dashboardPage === 'redis' && (
+        <DashboardRedisManagementLayout />
+      )}
     </Container>
   );
 }

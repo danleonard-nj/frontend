@@ -15,6 +15,7 @@ const pages = [
   'Torrents',
   'Events',
   'Podcasts',
+  'Redis',
 ];
 
 export { pages };

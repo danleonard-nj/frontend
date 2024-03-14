@@ -22,6 +22,7 @@ import taskReducer from './task/taskSlice';
 import torrentSlice from './torrents/torrentSlice';
 import weatherSlice from './weather/weatherSlice';
 import podcastSlice from './podcasts/podcastSlice';
+import redisSlice from './redis/redisSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -47,6 +48,7 @@ const rootReducer = combineReducers({
   torrents: torrentSlice,
   apiEvents: apiEventSlice,
   podcast: podcastSlice,
+  redis: redisSlice,
 });
 
 export default rootReducer;
