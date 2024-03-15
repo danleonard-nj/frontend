@@ -5,6 +5,7 @@ import {
   setCacheValue,
   setCacheValueLoading,
   setParseJson,
+  setRedisDiagnostics,
   setRedisKeys,
   setRedisKeysLoading,
   setSelectedKey,
@@ -25,12 +26,20 @@ export default class RedisActions {
         }
       };
 
+      const sortRedisKeys = (keys) => {
+        return keys.sort((a, b) => {
+          return a.localeCompare(b);
+        });
+      };
+
       dispatch(setRedisKeysLoading(true));
 
       const response = await this.redisApi.getKeys();
 
       response?.status === 200
-        ? dispatch(setRedisKeys(response.data?.keys || []))
+        ? dispatch(
+            setRedisKeys(sortRedisKeys(response.data?.keys || []))
+          )
         : handleErrorResponse(response);
 
       dispatch(setRedisKeysLoading(false));
@@ -90,6 +99,29 @@ export default class RedisActions {
       dispatch(setSelectedKey(key));
     };
   }
+
+  getRedisDiagnostics() {
+    return async (dispatch, getState) => {
+      // Handle success/failure toasts and formatting
+      const handleErrorResponse = ({ status, data }) => {
+        if (status !== 200) {
+          dispatch(
+            popErrorMessage(`${data?.error}: ${data?.message}`)
+          );
+        }
+      };
+
+      // dispatch(setCacheValueLoading(true));
+
+      const response = await this.redisApi.getDiagnostics();
+
+      response?.status === 200
+        ? setRedisDiagnostics(response.data)
+        : handleErrorResponse(response);
+
+      // dispatch(setCacheValueLoading(false));
+    };
+  }
 }
 
 export const {
@@ -97,4 +129,5 @@ export const {
   getRedisValue,
   setSelectedRedisKey,
   deleteRedisKey,
+  getRedisDiagnostics,
 } = new RedisActions();

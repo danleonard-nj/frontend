@@ -11,6 +11,8 @@ import {
   ListItemButton,
   ListItemText,
   Switch,
+  Tab,
+  Tabs,
   Typography,
 } from '@mui/material';
 import { blue } from '@mui/material/colors';
@@ -19,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { scrollable } from '../../api/helpers/formattingHelpers';
 import {
   deleteRedisKey,
+  getRedisDiagnostics,
   getRedisKeys,
   getRedisValue,
   setSelectedRedisKey,
@@ -77,7 +80,7 @@ const RedisKeyListItem = ({ keyName, onClick }) => {
   );
 };
 
-const DashboardRedisManagementLayout = () => {
+const RedisKeyTab = () => {
   const dispatch = useDispatch();
   const {
     redisKeys = [],
@@ -116,10 +119,6 @@ const DashboardRedisManagementLayout = () => {
 
   return (
     <Grid container spacing={3}>
-      <Grid item lg={12}>
-        <Typography variant='h5'>Redis Management</Typography>
-      </Grid>
-
       <Grid item lg={6} padding={2}>
         <Grid container spacing={3}>
           <Grid item lg={12} align='right'>
@@ -172,6 +171,50 @@ const DashboardRedisManagementLayout = () => {
             </Typography>
           </Grid>
         </Grid>
+      </Grid>
+    </Grid>
+  );
+};
+
+const RedisDiagnosticsTab = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getRedisDiagnostics());
+  }, []);
+
+  return (
+    <Grid container spacing={3}>
+      <Grid item lg={12}>
+        <Typography variant='h5'>Diagnostics</Typography>
+      </Grid>
+    </Grid>
+  );
+};
+
+const DashboardRedisManagementLayout = () => {
+  const [selectedTab, setSelectedTab] = React.useState('keys');
+
+  const handleSetTab = (tab) => {
+    console.log('Setting tab', tab);
+    setSelectedTab(tab);
+  };
+
+  return (
+    <Grid container spacing={3}>
+      <Grid item lg={12}>
+        {/* <Typography variant='h5'>Redis Management</Typography> */}
+        <Tabs
+          sx={{ marginBottom: '1rem' }}
+          value={selectedTab}
+          onChange={(e, tab) => handleSetTab(tab)}>
+          <Tab label='Keys' value='keys' />
+          <Tab label='Diagnostics' value='diagnostics' />
+        </Tabs>
+      </Grid>
+      <Grid item lg={12}>
+        {selectedTab === 'keys' && <RedisKeyTab />}
+        {selectedTab === 'diagnostics' && <RedisDiagnosticsTab />}
       </Grid>
     </Grid>
   );

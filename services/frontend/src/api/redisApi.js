@@ -46,4 +46,12 @@ export default class RedisManagementApi extends ApiBase {
 
     return this.send(endpoint.toString(), 'POST', req);
   }
+
+  async getDiagnostics() {
+    const endpoint = new URL(
+      `${this.baseUrl}/api/tools/redis/diagnostics`
+    );
+
+    return this.send(endpoint.toString(), 'GET');
+  }
 }
