@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy app files
 COPY . .
-RUN apk add --no-cache bash
+# RUN apk add --no-cache bash
 
 # Install dependencies (npm ci makes sure the exact versions in the lockfile gets installed)
 RUN npm ci 
