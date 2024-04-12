@@ -22,22 +22,22 @@ export default class GmailRuleApi extends ApiBase {
 
   async deleteRule(ruleId) {
     return await this.send(
-      `${this.baseUrl}/api/tools/gmail/rule/${ruleId}`,
+      `${this.baseUrl}/api/tools/google/gmail/rule/${ruleId}`,
       'DELETE'
     );
   }
 
   async createRule(createRuleRequest) {
     return await this.send(
-      `${this.baseUrl}/api/tools/gmail/rule`,
+      `${this.baseUrl}/api/tools/google/gmail/rule`,
       'POST',
       createRuleRequest
     );
   }
 
-  async createRule(updateRuleRequest) {
+  async updateRule(updateRuleRequest) {
     return await this.send(
-      `${this.baseUrl}/api/tools/gmail/rule`,
+      `${this.baseUrl}/api/tools/google/gmail/rule`,
       'PUT',
       updateRuleRequest
     );

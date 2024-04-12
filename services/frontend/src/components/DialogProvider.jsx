@@ -9,6 +9,7 @@ import { ScheduleHistoryViewDialog } from './schedule/dialogs/ScheduleHistoryVie
 import { DeleteTaskConfirmationDialog } from './task/dialogs/DeleteTaskConfirmationDialog';
 import { ChatGptHistoryViewDialog } from './chatgpt/dialogs/ChatGptHistoryViewDialog';
 import { MagnetLinkDialog } from './layouts/DashboardTorrentLayout';
+import { CreateEmailRuleDialog } from './email/dialogs/CreateEmailRuleDialog';
 
 export const DialogProvider = () => {
   return (
@@ -24,6 +25,7 @@ export const DialogProvider = () => {
       <ScheduleHistoryViewDialog />
       <ChatGptHistoryViewDialog />
       <MagnetLinkDialog id='magnet-link-dialog' />
+      <CreateEmailRuleDialog id='create-email-rule-dialog' />
     </>
   );
 };

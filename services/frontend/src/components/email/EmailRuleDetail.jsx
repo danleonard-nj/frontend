@@ -1,18 +1,69 @@
 import {
+  Box,
+  Button,
+  ButtonGroup,
+  Chip,
   FormControl,
   Grid,
   InputLabel,
+  List,
   MenuItem,
   Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
   TextField,
+  Typography,
 } from '@mui/material';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { actionType } from '../../api/data/email';
 import Spinner from '../Spinner';
 import DashboardTitle from '../dashboard/DashboardTitle';
+import { setEmailRule } from '../../store/email/emailSlice';
+import {
+  deleteEmailRule,
+  updateEmailRule,
+} from '../../store/email/emailActions';
+import { GenericJsonEditor } from '../GenericJsonEditor';
+
+const formatJson = (data) => {
+  return data ? JSON.stringify(data, null, 4) : '';
+};
+
+const jsonTableHeight = 250;
 
 const EmailRuleDetail = () => {
+  const dispatch = useDispatch();
+
   const { emailRuleLoading, emailRule } = useSelector((x) => x.email);
+
+  const handleRuleValueUpdate = (value, field) => {
+    dispatch(
+      setEmailRule({
+        ...emailRule,
+        [field]: value,
+      })
+    );
+  };
+
+  const handleDeleteRule = () => {
+    dispatch(deleteEmailRule(emailRule.rule_id));
+  };
+
+  const handleUpdateRule = () => {
+    dispatch(updateEmailRule(emailRule));
+  };
+
+  const onJsonChange = (value) => {
+    dispatch(
+      setEmailRule({
+        ...emailRule,
+        data: JSON.parse(value),
+      })
+    );
+  };
 
   return emailRuleLoading ? (
     <Spinner />
@@ -20,7 +71,15 @@ const EmailRuleDetail = () => {
     <>
       <Grid container spacing={3}>
         <Grid item lg={12}>
-          <DashboardTitle>{emailRule.name}</DashboardTitle>
+          <Box display='flex' justifyContent='space-between'>
+            <DashboardTitle>{emailRule.name}</DashboardTitle>
+            <ButtonGroup variant='text'>
+              <Button onClick={handleUpdateRule}>Save</Button>
+              <Button color='error' onClick={handleDeleteRule}>
+                Delete
+              </Button>
+            </ButtonGroup>
+          </Box>
         </Grid>
         <Grid item lg={12}>
           <Grid container spacing={3}>
@@ -33,9 +92,12 @@ const EmailRuleDetail = () => {
                 label='Rule Name'
                 fullWidth
                 variant='standard'
-                // onChange={(event) =>
-                //   handleChange(event.target.value, 'cron')
-                // }
+                onChange={(event) =>
+                  handleRuleValueUpdate(
+                    event.target.value,
+                    event.target.name
+                  )
+                }
               />
             </Grid>
             <Grid item lg={3} xs={12}>
@@ -48,9 +110,12 @@ const EmailRuleDetail = () => {
                 type='number'
                 fullWidth
                 variant='standard'
-                // onChange={(event) =>
-                //   handleChange(event.target.value, 'cron')
-                // }
+                onChange={(event) =>
+                  handleRuleValueUpdate(
+                    event.target.value,
+                    event.target.name
+                  )
+                }
               />
             </Grid>
             <Grid item lg={12} xs={12}>
@@ -62,9 +127,12 @@ const EmailRuleDetail = () => {
                 label='Rule Description'
                 fullWidth
                 variant='standard'
-                // onChange={(event) =>
-                //   handleChange(event.target.value, 'cron')
-                // }
+                onChange={(event) =>
+                  handleRuleValueUpdate(
+                    event.target.value,
+                    event.target.name
+                  )
+                }
               />
             </Grid>
             <Grid item lg={9} xs={12}>
@@ -76,9 +144,12 @@ const EmailRuleDetail = () => {
                 label='Query'
                 fullWidth
                 variant='standard'
-                // onChange={(event) =>
-                //   handleChange(event.target.value, 'cron')
-                // }
+                onChange={(event) =>
+                  handleRuleValueUpdate(
+                    event.target.value,
+                    event.target.name
+                  )
+                }
               />
             </Grid>
             <Grid item lg={3} xs={12}>
@@ -91,9 +162,13 @@ const EmailRuleDetail = () => {
                   value={emailRule?.action ?? ''}
                   name='action'
                   label='Action'
-                  // onChange={(event) => handleTaskChange(event)}
-                >
-                  {Object.keys(actionType).map((actionType) => (
+                  onChange={(event) =>
+                    handleRuleValueUpdate(
+                      event.target.value,
+                      event.target.name
+                    )
+                  }>
+                  {Object.values(actionType).map((actionType) => (
                     <MenuItem key={actionType} value={actionType}>
                       {actionType}
                     </MenuItem>
@@ -131,6 +206,28 @@ const EmailRuleDetail = () => {
                 variant='standard'
               />
             </Grid>
+          </Grid>
+          <Grid item lg={12} xs={12} marginTop='2rem'>
+            {Object.keys(emailRule.data).length > 0 && (
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Key</TableCell>
+                    <TableCell>Value</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Object.keys(emailRule.data).map((key) => (
+                    <TableRow hover key={key}>
+                      <TableCell>{key}</TableCell>
+                      <TableCell>
+                        {emailRule.data[key].toString()}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </Grid>
         </Grid>
       </Grid>

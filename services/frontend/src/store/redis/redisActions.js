@@ -111,12 +111,16 @@ export default class RedisActions {
         }
       };
 
+      console.log('getRedisDiagnostics');
+
       // dispatch(setCacheValueLoading(true));
 
       const response = await this.redisApi.getDiagnostics();
 
+      console.log('response', response);
+
       response?.status === 200
-        ? setRedisDiagnostics(response.data)
+        ? dispatch(setRedisDiagnostics(response.data))
         : handleErrorResponse(response);
 
       // dispatch(setCacheValueLoading(false));
