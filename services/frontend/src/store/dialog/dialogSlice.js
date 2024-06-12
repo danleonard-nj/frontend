@@ -21,6 +21,7 @@ export const dialogType = {
   chatGptViewHistoryDialog: 'chatGptViewHistoryDialog',
   magnetLinkDialog: 'magnetLinkDialog',
   createEmailRuleDialog: 'createEmailRuleDialog',
+  viewNestDeviceLogRecord: 'viewNestDeviceLogRecord',
 };
 
 const getInitialState = () => {

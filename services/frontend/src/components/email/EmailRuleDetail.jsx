@@ -2,11 +2,9 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Chip,
   FormControl,
   Grid,
   InputLabel,
-  List,
   MenuItem,
   Select,
   Table,
@@ -15,18 +13,16 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { actionType } from '../../api/data/email';
-import Spinner from '../Spinner';
-import DashboardTitle from '../dashboard/DashboardTitle';
-import { setEmailRule } from '../../store/email/emailSlice';
 import {
   deleteEmailRule,
   updateEmailRule,
 } from '../../store/email/emailActions';
-import { GenericJsonEditor } from '../GenericJsonEditor';
+import { setEmailRule } from '../../store/email/emailSlice';
+import Spinner from '../Spinner';
+import DashboardTitle from '../dashboard/DashboardTitle';
 
 const formatJson = (data) => {
   return data ? JSON.stringify(data, null, 4) : '';

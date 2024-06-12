@@ -28,6 +28,11 @@ import { HistoryTable } from '../nest/tables/HistoryTable';
 import { IntegrationTable } from '../nest/tables/IntegrationTable';
 import { NestAnalyticsPage } from '../nest/tabs/NestAnalyticsPage';
 import { WeatherPage } from '../nest/weather/WeatherPage';
+import { setSelectedDeviceLogId } from '../../store/nest/nestSlice';
+import {
+  dialogType,
+  openDialog,
+} from '../../store/dialog/dialogSlice';
 
 const NestDeviceHistoryPage = () => {
   const [hoursBack, setHoursBack] = useState(1);
@@ -49,8 +54,38 @@ const NestDeviceHistoryPage = () => {
     dispatch(getSensorHistory(deviceId, hoursBack));
   };
 
+  const handleViewDiagnosticInfo = (e, logId) => {
+    dispatch(setSelectedDeviceLogId(logId));
+    dispatch(openDialog(dialogType.viewNestDeviceLogRecord));
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  // Define the view column for the hsiotry table here as
+  // we need to dispatch an action when the button is clicked
+  // using the device ID
+  const columns = [
+    ...historyColumns,
+    {
+      field: 'view',
+      headerName: 'View',
+      width: 200,
+      renderCell: (params) => {
+        return (
+          <Button
+            variant='contained'
+            color='primary'
+            size='small'
+            onClick={(e) => handleViewDiagnosticInfo(e, params)}>
+            View
+          </Button>
+        );
+      },
+    },
+  ];
+
   useEffect(() => {
-    if (deviceId && hoursBack && hoursBack !== 0) {
+    if (deviceId && hoursBack !== 0) {
       dispatch(getSensorHistory(deviceId, hoursBack));
     }
   }, [deviceId, hoursBack]);
@@ -97,7 +132,7 @@ const NestDeviceHistoryPage = () => {
           <Grid item lg={12} sm={12} xs={12}>
             <HistoryTable
               rows={sensorHistory}
-              columns={historyColumns}
+              columns={columns}
               loading={sensorHistoryLoading}
             />
           </Grid>

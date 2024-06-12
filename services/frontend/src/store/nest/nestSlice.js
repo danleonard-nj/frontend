@@ -20,6 +20,7 @@ const nestInitialState = {
   sensorEvents: [],
   analyticsData: [],
   analyticsDataLoading: true,
+  selectedDeviceLogId: '',
 };
 
 const eventReducers = {
@@ -95,6 +96,9 @@ const nestSlice = createSlice({
     setAnalyticsDataLoading(state, { payload }) {
       state.analyticsDataLoading = payload;
     },
+    setSelectedDeviceLogId(state, { payload }) {
+      state.selectedDeviceLogId = payload;
+    },
   },
 });
 
@@ -116,6 +120,7 @@ export const {
   setSensorEvents,
   setAnalyticsData,
   setAnalyticsDataLoading,
+  setSelectedDeviceLogId,
 } = nestSlice.actions;
 
 export default nestSlice.reducer;

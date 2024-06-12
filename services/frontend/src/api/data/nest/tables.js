@@ -1,3 +1,5 @@
+import { Button } from '@mui/material';
+
 const historyColumns = [
   {
     field: 'timestamp',

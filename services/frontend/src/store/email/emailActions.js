@@ -27,6 +27,7 @@ class EmailActions {
         dispatch(popErrorMessage(errorMessage));
       } else {
         // Set the rules on success
+        data.sort((a, b) => a.name.localeCompare(b.name));
         dispatch(setEmailRules(data));
       }
 
