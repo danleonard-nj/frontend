@@ -12,15 +12,28 @@ import {
   getCarrierName,
   getQuotesByCarrierId,
 } from '../../api/helpers/shipEngineHelpers';
-import { closeDialog, dialogType } from '../../store/dialog/dialogSlice';
+import {
+  closeDialog,
+  dialogType,
+} from '../../store/dialog/dialogSlice';
 import Spinner from '../Spinner';
-import ShipEngineCarrierRateCard from './ShipEngineCarrierRateCard';
+import { ShipEngineCarrierRateCard } from './ShipEngineCarrierRateCard';
 
 const ShipEngineSelectCarrierDialog = () => {
   const dispatch = useDispatch();
-  const isOpen = useSelector((x) => x.dialog[dialogType.selectCarrier]);
+  const isOpen = useSelector(
+    (x) => x.dialog[dialogType.selectCarrier]
+  );
   const rate = useSelector((x) => x.shipEngine.rate) ?? {};
   const rateLoading = useSelector((x) => x.shipEngine.rateLoading);
+
+  const carrierEstimates =
+    useSelector((x) => x.shipEngine.estimate) ?? [];
+
+  const estimateLoading = useSelector(
+    (x) => x.shipEngine.estimateLoading
+  );
+
   const carrierNameLookup =
     useSelector((x) => x.shipEngine.carrierNameLookup) ?? [];
 
@@ -44,36 +57,31 @@ const ShipEngineSelectCarrierDialog = () => {
           container
           direction='row'
           padding={1}
-          justify='flex-start'
+          justifyContent='flex-start'
           alignItems='flex-start'
           spacing={1}>
-          {rateLoading ? (
+          {estimateLoading ? (
             <Container>
               <Spinner />
             </Container>
           ) : (
-            Object.keys(rate.quotes).map((carrierId) => (
-              <>
-                <Paper elevation={3} sx={{ padding: 2, marginTop: 3 }}>
+            carrierEstimates.map((carrierEstimate) => (
+              <Grid container spacing={2} key={carrierEstimate.id}>
+                <Grid item lg={12}>
+                  <h1>{carrierEstimate.carrier_friendly_name}</h1>
+                </Grid>
+                <Grid item lg={12}>
                   <Grid container spacing={3}>
-                    <Grid item lg={12}>
-                      <h1>{getCarrierName(carrierNameLookup, carrierId)}</h1>
-                      <Grid container spacing={3}>
-                        {getQuotesByCarrierId(rate.quotes, carrierId).map(
-                          (quote) => (
-                            <Grid item lg={4}>
-                              <ShipEngineCarrierRateCard
-                                quote={quote}
-                                key={quote.rate_id}
-                              />
-                            </Grid>
-                          )
-                        )}
+                    {carrierEstimate.estimates.map((estimate) => (
+                      <Grid item lg={4}>
+                        <ShipEngineCarrierRateCard
+                          estimate={estimate}
+                        />
                       </Grid>
-                    </Grid>
+                    ))}
                   </Grid>
-                </Paper>
-              </>
+                </Grid>
+              </Grid>
             ))
           )}
         </Grid>

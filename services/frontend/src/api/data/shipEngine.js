@@ -47,6 +47,9 @@ const shipEngineState = {
   serviceCodes: true,
   rate: {},
   rateLoading: true,
+  // Rate estimates
+  estimate: {},
+  estimateLoading: true,
   labelLoading: true,
   createShipment: defaultShipment,
   serviceCodeLookup: [],

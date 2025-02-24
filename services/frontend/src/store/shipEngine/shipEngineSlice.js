@@ -29,6 +29,14 @@ const rateReducers = {
   setRateLoading(state, { payload }) {
     state.rateLoading = true;
   },
+  // Rate estimates
+  setEstimate(state, { payload }) {
+    state.estimate = payload;
+    state.estimateLoading = false;
+  },
+  setEstimateLoading(state, { payload }) {
+    state.estimateLoading = payload;
+  },
 };
 
 const shipEngineReducers = {
@@ -99,6 +107,8 @@ export const {
   setLookups,
   setRate,
   setRateLoading,
+  setEstimate,
+  setEstimateLoading,
   setSelectedShipment,
   setServiceCodes,
   setShipEnginePagination,

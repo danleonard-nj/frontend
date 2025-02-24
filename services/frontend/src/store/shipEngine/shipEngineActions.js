@@ -8,6 +8,8 @@ import {
   setCarriers,
   setCreatedShipment,
   setCreateShipment,
+  setEstimate,
+  setEstimateLoading,
   setLabel,
   setLabelLoading,
   setLookups,
@@ -27,6 +29,28 @@ const tryParse = (data) => {
   }
 };
 
+const groupByCarrierId = (data) => {
+  // Exclude duplicate UPS carrier
+  const excludedCarrierId = 'se-485981';
+
+  const grouped = {};
+
+  data.forEach((item) => {
+    if (item.carrier_id === excludedCarrierId) return; // Skip excluded carrier
+
+    if (!grouped[item.carrier_id]) {
+      grouped[item.carrier_id] = {
+        carrier_id: item.carrier_id,
+        carrier_friendly_name: item.carrier_friendly_name,
+        estimates: [],
+      };
+    }
+    grouped[item.carrier_id].estimates.push(item);
+  });
+
+  return Object.values(grouped);
+};
+
 export default class ShipEngineActions {
   constructor() {
     this.shipEngineApi = new ShipEngineApi();
@@ -40,7 +64,8 @@ export default class ShipEngineActions {
 
       const pageNumber = state.shipEngine.pagination.pageNumber ?? 1;
       const pageSize = state.shipEngine.pagination.pageSize ?? 10;
-      const showCanceledShipments = state.shipEngine.showCanceledShipments;
+      const showCanceledShipments =
+        state.shipEngine.showCanceledShipments;
 
       const response = await this.shipEngineApi.getShipments(
         pageNumber,
@@ -114,7 +139,9 @@ export default class ShipEngineActions {
         }
       };
 
-      const response = await this.shipEngineApi.createLabel(shipmentId);
+      const response = await this.shipEngineApi.createLabel(
+        shipmentId
+      );
       handleCreateLabelResponse(response);
 
       dispatch(setLabel({ details: response.data, isError: false }));
@@ -140,13 +167,38 @@ export default class ShipEngineActions {
     };
   }
 
+  estimateRate() {
+    return async (dispatch, getState) => {
+      const state = getState();
+      dispatch(setEstimateLoading(true));
+
+      const shipment = state.shipEngine.createShipment;
+      console.log('estimateRate', shipment);
+
+      // Fetch rate estimate
+      const estimate = await this.shipEngineApi.estimateRates(
+        shipment
+      );
+
+      console.log(estimate);
+
+      const groupedEstimates = groupByCarrierId(estimate?.data ?? []);
+
+      console.log(groupedEstimates);
+
+      dispatch(setEstimate(groupedEstimates));
+      dispatch(setRateLoading(false));
+    };
+  }
+
   postCreateShipment() {
     return async (dispatch, getState) => {
       const state = getState();
 
-      const createdShipment = await this.shipEngineApi.postCreateShipment(
-        state.shipEngine?.createShipment
-      );
+      const createdShipment =
+        await this.shipEngineApi.postCreateShipment(
+          state.shipEngine?.createShipment
+        );
 
       dispatch(setCreatedShipment(createdShipment));
       dispatch(closeDialog(dialogType.createShipment));
@@ -159,8 +211,10 @@ export default class ShipEngineActions {
       const carriersResponse = await this.shipEngineApi.getCarriers();
       const carriers = carriersResponse?.data?.carriers;
 
-      const serviceCodesResponse = await this.shipEngineApi.getServiceCodes();
-      const serviceCodes = serviceCodesResponse?.data?.service_codes ?? [];
+      const serviceCodesResponse =
+        await this.shipEngineApi.getServiceCodes();
+      const serviceCodes =
+        serviceCodesResponse?.data?.service_codes ?? [];
 
       const serviceCodeLookup = [...serviceCodes].reduce(
         (obj, val) => ({ ...obj, [val.service_code]: val.name }),
@@ -179,14 +233,18 @@ export default class ShipEngineActions {
   updateCreateShipment(func) {
     return (dispatch, getState) => {
       const state = getState();
-      dispatch(setCreateShipment(func(state.shipEngine.createShipment)));
+      dispatch(
+        setCreateShipment(func(state.shipEngine.createShipment))
+      );
     };
   }
 
   updateShipEnginePagination(func) {
     return (dispatch, getState) => {
       const state = getState();
-      dispatch(setShipEnginePagination(func(state.shipEngine.pagination)));
+      dispatch(
+        setShipEnginePagination(func(state.shipEngine.pagination))
+      );
     };
   }
 }
@@ -197,6 +255,7 @@ export const {
   getLookups,
   postCreateShipment,
   getRate,
+  estimateRate,
   getServiceCodes,
   createLabel,
   cancelShipment,

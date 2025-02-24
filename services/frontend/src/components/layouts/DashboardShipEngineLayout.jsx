@@ -12,7 +12,10 @@ import {
 import { Box } from '@mui/system';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { dialogType, openDialog } from '../../store/dialog/dialogSlice';
+import {
+  dialogType,
+  openDialog,
+} from '../../store/dialog/dialogSlice';
 import {
   getBalances,
   getLookups,
@@ -27,7 +30,9 @@ import Spinner from '../Spinner';
 export default function DashboardShipEngineLayout() {
   const dispatch = useDispatch();
   const pagination = useSelector((x) => x.shipEngine.pagination);
-  const shipmentsLoading = useSelector((x) => x.shipEngine.shipmentsLoading);
+  const shipmentsLoading = useSelector(
+    (x) => x.shipEngine.shipmentsLoading
+  );
   const showCanceledShipments = useSelector(
     (x) => x.shipEngine.showCanceledShipments
   );
@@ -51,6 +56,10 @@ export default function DashboardShipEngineLayout() {
     dispatch(getShipments());
   };
 
+  const handleRefreshShipments = () => {
+    dispatch(getShipments());
+  };
+
   useEffect(() => {
     dispatch(getLookups());
     dispatch(getShipments());
@@ -71,6 +80,12 @@ export default function DashboardShipEngineLayout() {
               id='ship-engine-create-shipment-button'
               onClick={openCreateShipmentDialog}>
               Create Shipment
+            </Button>
+            <Button
+              variant='contained'
+              id='ship-engine-refresh-button'
+              onClick={handleRefreshShipments}>
+              Refresh
             </Button>
             <FormControlLabel
               control={

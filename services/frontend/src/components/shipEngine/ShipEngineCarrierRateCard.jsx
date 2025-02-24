@@ -5,6 +5,7 @@ import {
   CardActions,
   Card,
   CardContent,
+  Divider,
 } from '@mui/material';
 import React from 'react';
 import { useDispatch } from 'react-redux';
@@ -15,10 +16,82 @@ import {
 } from '../../store/dialog/dialogSlice';
 import { updateCreateShipment } from '../../store/shipEngine/shipEngineActions';
 
-export default function ShipEngineCarrierRateCard({ quote }) {
+const getTotalShippingCost = (estimate) => {
+  const rateDetails = estimate?.rate_details ?? [];
+
+  return rateDetails.reduce(
+    (acc, item) => acc + (item?.amount?.amount ?? 0),
+    0
+  );
+};
+
+const RateSummary = ({ estimate }) => {
+  return (
+    <Grid container spacing={1}>
+      <Grid item lg={6}>
+        Confirm:
+      </Grid>
+      <Grid item lg={6}>
+        ${estimate?.confirmation_amount?.amount ?? 0}
+      </Grid>
+      <Grid item lg={6}>
+        Insurance:
+      </Grid>
+      <Grid item lg={6}>
+        ${estimate?.insurance_amount?.amount ?? 0}
+      </Grid>
+      <Grid item lg={6}>
+        Other:
+      </Grid>
+      <Grid item lg={6}>
+        ${estimate?.other_amount?.amount ?? 0}
+      </Grid>
+      <Grid item lg={6}>
+        Total:
+      </Grid>
+      <Grid item lg={6}>
+        ${getTotalShippingCost(estimate)}
+      </Grid>
+    </Grid>
+  );
+};
+
+const RateDetailItem = ({ item }) => {
+  return (
+    <>
+      <Grid container spacing={1}>
+        <Grid item lg={6}>
+          {item?.carrier_description.toUpperCase()}
+        </Grid>
+        <Grid item lg={6}>
+          ${item?.amount?.amount ?? 0}
+        </Grid>
+      </Grid>
+      <Divider />
+    </>
+  );
+};
+
+const RateDetail = ({ estimate }) => {
+  return (
+    <Grid container spacing={1}>
+      {estimate?.rate_details.map((item) => (
+        <>
+          <RateDetailItem item={item} />
+        </>
+      ))}
+    </Grid>
+  );
+};
+
+export const ShipEngineCarrierRateCard = ({ estimate }) => {
   const dispatch = useDispatch();
 
-  const handleSelectCarrier = ({ carrier_id, service_code, service_type }) => {
+  const handleSelectCarrier = ({
+    carrier_id,
+    service_code,
+    service_type,
+  }) => {
     dispatch(
       updateCreateShipment((shipment) => ({
         ...shipment,
@@ -32,7 +105,14 @@ export default function ShipEngineCarrierRateCard({ quote }) {
   };
 
   return (
-    <Card sx={{ minWidth: 275 }}>
+    <Card
+      sx={{
+        minWidth: 275,
+        minHeight: 300,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}>
       <CardContent>
         <Typography
           sx={{ fontSize: 14, marginBottom: 1 }}
@@ -40,44 +120,29 @@ export default function ShipEngineCarrierRateCard({ quote }) {
           gutterBottom>
           <Grid container spacing={1}>
             <Grid item lg={9}>
-              {new Date(quote.delivery_date).toLocaleDateString()}
+              {new Date(
+                estimate.estimated_delivery_date
+              ).toLocaleDateString()}
             </Grid>
             <Grid item lg={3} align='right'>
-              {quote.transit_time} {quote.transit_time > 1 ? 'days' : 'day'}
+              {estimate?.delivery_days}{' '}
+              {estimate?.delivery_days > 1 ? 'days' : 'day'}
             </Grid>
           </Grid>
         </Typography>
         <Typography variant='h5' component='div'>
-          {quote.carrier.service_type}
+          {estimate?.service_type ?? 'standard'}
         </Typography>
         <Typography sx={{ mb: 1.5 }} color='text.secondary'>
-          {quote.carrier.package_type}
+          {estimate?.package_type ?? 'package'}
         </Typography>
         <Typography variant='body2'>
           <Grid container spacing={1}>
             <Grid item lg={6}>
-              Confirmation:
+              <RateSummary estimate={estimate} />
             </Grid>
             <Grid item lg={6}>
-              ${quote.cost.confirmation_amount}
-            </Grid>
-            <Grid item lg={6}>
-              Insurance:
-            </Grid>
-            <Grid item lg={6}>
-              ${quote.cost.insurance_amount}
-            </Grid>
-            <Grid item lg={6}>
-              Other:
-            </Grid>
-            <Grid item lg={6}>
-              ${quote.cost.other_amount}
-            </Grid>
-            <Grid item lg={6}>
-              Total:
-            </Grid>
-            <Grid item lg={6}>
-              ${quote.cost.total_amount}
+              <RateDetail estimate={estimate} />
             </Grid>
           </Grid>
         </Typography>
@@ -89,10 +154,16 @@ export default function ShipEngineCarrierRateCard({ quote }) {
           align='right'
           variant='contained'
           color='secondary'
-          onClick={() => handleSelectCarrier(quote.carrier)}>
+          onClick={() =>
+            handleSelectCarrier({
+              carrier_id: estimate.carrier_id,
+              service_code: estimate.service_code,
+              service_type: estimate.service_type,
+            })
+          }>
           Select
         </Button>
       </CardActions>
     </Card>
   );
-}
+};

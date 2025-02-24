@@ -49,6 +49,15 @@ export default class ShipEngineApi extends ApiBase {
     return response;
   }
 
+  async estimateRates(shipment) {
+    const response = await this.send(
+      `${this.baseUrl}/api/shipengine/rates/estimate`,
+      'POST',
+      shipment
+    );
+    return response;
+  }
+
   async cancelShipment(shipmentId) {
     const response = await this.send(
       `${this.baseUrl}/api/shipengine/shipment/${shipmentId}/cancel`,
