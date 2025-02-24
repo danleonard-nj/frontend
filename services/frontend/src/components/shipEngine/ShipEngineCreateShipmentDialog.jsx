@@ -31,38 +31,43 @@ import {
 } from '../../store/dialog/dialogSlice';
 import {
   estimateRate,
-  getRate,
   postCreateShipment,
   updateCreateShipment,
 } from '../../store/shipEngine/shipEngineActions';
-import { clearRate } from '../../store/shipEngine/shipEngineSlice';
 import ShipEngineSelectCarrierDialog from './ShipEngineSelectCarrierDialog';
 
+/**
+ * ShipEngineCreateShipmentDialog Component
+ *
+ * Renders a dialog that allows users to create a shipment. This includes sections for:
+ * - Shipper (origin) information
+ * - Destination information
+ * - Package details
+ * - Carrier selection & quote
+ *
+ * It uses Redux to manage the shipment state and dispatches actions for updating
+ * shipment details, estimating rates, and creating shipments.
+ */
 export default function ShipEngineCreateShipmentDialog() {
   const dispatch = useDispatch();
 
+  // Retrieve dialog open state, shipment details, and carrier lookup from Redux store.
   const isOpen = useSelector(
-    (x) => x.dialog[dialogType.createShipment]
+    (state) => state.dialog[dialogType.createShipment]
   );
   const createShipment = useSelector(
-    (x) => x.shipEngine.createShipment
+    (state) => state.shipEngine.createShipment
   );
   const carrierNameLookup = useSelector(
-    (x) => x.shipEngine.carrierNameLookup
+    (state) => state.shipEngine.carrierNameLookup
   );
 
+  // Close the create shipment dialog
   const handleClose = () => {
     dispatch(closeDialog(dialogType.createShipment));
   };
 
-  const handleSelectOriginStateChange = (event) => {
-    dispatch(
-      updateCreateShipment((shipment) =>
-        reduceSelectOrigin(shipment, event)
-      )
-    );
-  };
-
+  // Handler for when the destination state selection changes.
   const handleSelectDestinationStateChange = (event) => {
     dispatch(
       updateCreateShipment((shipment) =>
@@ -71,6 +76,7 @@ export default function ShipEngineCreateShipmentDialog() {
     );
   };
 
+  // Handler for updating shipper (origin) fields.
   const handleOriginChange = (event) => {
     dispatch(
       updateCreateShipment((shipment) =>
@@ -79,6 +85,7 @@ export default function ShipEngineCreateShipmentDialog() {
     );
   };
 
+  // Handler for updating destination fields.
   const handleDestinationChange = (event) => {
     dispatch(
       updateCreateShipment((shipment) =>
@@ -87,6 +94,8 @@ export default function ShipEngineCreateShipmentDialog() {
     );
   };
 
+  // Generic handler for updating shipment details (e.g., package dimensions).
+  // Optionally parses the value (e.g., converting string to integer).
   const handleChange = (event, value = null) => {
     dispatch(
       updateCreateShipment((shipment) =>
@@ -95,21 +104,23 @@ export default function ShipEngineCreateShipmentDialog() {
     );
   };
 
+  // Handler to estimate rates.
+  // 1. Dispatches the rate estimation action.
+  // 2. Closes the current dialog.
+  // 3. Opens the carrier selection dialog.
   const handleGetRate = () => {
-    // Estimate rates
     console.log('estimate rates');
     dispatch(estimateRate());
-
-    // dispatch(clearRate());
     dispatch(closeDialog(dialogType.createShipment));
     dispatch(openDialog(dialogType.selectCarrier));
-    // dispatch(getRate());
   };
 
+  // Handler to create the shipment.
   const handleCreateShipment = () => {
     dispatch(postCreateShipment());
   };
 
+  // Update full names for origin and destination when first or last names change.
   useEffect(() => {
     dispatch(
       updateCreateShipment((shipment) => ({
@@ -133,7 +144,10 @@ export default function ShipEngineCreateShipmentDialog() {
 
   return (
     <>
+      {/* Dialog for selecting carrier (shown conditionally by Redux state) */}
       <ShipEngineSelectCarrierDialog />
+
+      {/* Main Create Shipment Dialog */}
       <Dialog
         open={isOpen}
         keepMounted
@@ -151,6 +165,7 @@ export default function ShipEngineCreateShipmentDialog() {
             alignItems='flex-start'
             spacing={1}>
             <Grid container spacing={2}>
+              {/* Shipper (Origin) Information */}
               <Grid item lg={6}>
                 <Paper elevation={2} sx={{ padding: 2 }}>
                   <Typography
@@ -205,7 +220,7 @@ export default function ShipEngineCreateShipmentDialog() {
                         value={
                           createShipment?.origin?.city_locality ?? ''
                         }
-                        onChange={handleSelectOriginStateChange}
+                        onChange={handleOriginChange}
                       />
                     </Grid>
                     <Grid item lg={6}>
@@ -215,7 +230,7 @@ export default function ShipEngineCreateShipmentDialog() {
                         value={
                           createShipment?.origin?.state_province ?? ''
                         }
-                        onChange={handleSelectOriginStateChange}
+                        onChange={handleOriginChange}
                         fullWidth>
                         {states.map((state) => (
                           <MenuItem
@@ -249,6 +264,8 @@ export default function ShipEngineCreateShipmentDialog() {
                   </Grid>
                 </Paper>
               </Grid>
+
+              {/* Destination Information */}
               <Grid item lg={6}>
                 <Paper elevation={2} sx={{ padding: 2 }}>
                   <Typography
@@ -354,6 +371,8 @@ export default function ShipEngineCreateShipmentDialog() {
                   </Grid>
                 </Paper>
               </Grid>
+
+              {/* Package Details Section */}
               <Grid item lg={6}>
                 <Paper elevation={2} sx={{ padding: 2 }}>
                   <Typography
@@ -481,6 +500,8 @@ export default function ShipEngineCreateShipmentDialog() {
                   </Grid>
                 </Paper>
               </Grid>
+
+              {/* Carrier Selection & Quote */}
               <Grid item lg={6}>
                 <Paper elevation={2} sx={{ padding: 2 }}>
                   <Grid container spacing={2}>

@@ -17,7 +17,7 @@ const shipmentReducers = {
     state.shipmentsLoading = false;
   },
   setShipmentsLoading(state, { payload }) {
-    state.shipmentsLoading = true;
+    state.shipmentsLoading = payload ?? true;
   },
 };
 

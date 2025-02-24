@@ -119,8 +119,14 @@ export default class ShipEngineActions {
 
   cancelShipment(shipmentId) {
     return async (dispatch, getState) => {
+      // Set shipment table loading
+      dispatch(setShipmentsLoading());
+
+      // Cancel the shipment
       await this.shipEngineApi.cancelShipment(shipmentId);
-      dispatch(setShipments());
+
+      // Fetch shipments again after canceling (this will also update the loading flag)
+      dispatch(this.getShipments());
     };
   }
 
