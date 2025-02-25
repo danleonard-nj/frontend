@@ -6,11 +6,11 @@ export default class ShipEngineApi extends ApiBase {
     super(serviceScopes.shipEngine);
   }
 
-  async getShipments(pageNumber, pageSize) {
+  async getShipments(pageNumber, pageSize, cancelled = false) {
     const response = await this.send(
       `${this.baseUrl}/api/shipengine/shipment?page_number=${
         pageNumber ?? 1
-      }&page_size=${pageSize}`,
+      }&page_size=${pageSize}&cancelled=${cancelled.toString()}`,
       'GET'
     );
     return response;

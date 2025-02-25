@@ -69,7 +69,8 @@ export default class ShipEngineActions {
 
       const response = await this.shipEngineApi.getShipments(
         pageNumber,
-        pageSize
+        pageSize,
+        showCanceledShipments
       );
 
       const shipments = response?.data;
@@ -88,7 +89,7 @@ export default class ShipEngineActions {
         );
         dispatch(setShipments(filteredShipments ?? []));
       } else {
-        dispatch(setShipments(shipments ?? []));
+        dispatch(setShipments(shipments?.shipments ?? []));
       }
     };
   }
