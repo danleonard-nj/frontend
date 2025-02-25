@@ -202,10 +202,17 @@ export default class ShipEngineActions {
     return async (dispatch, getState) => {
       const state = getState();
 
+      const createRequest = {
+        ...state.shipEngine.createShipment,
+        dimensions: {
+          height: state.shipEngine.createShipment.height,
+          length: state.shipEngine.createShipment.length,
+          width: state.shipEngine.createShipment.width,
+        },
+      };
+
       const createdShipment =
-        await this.shipEngineApi.postCreateShipment(
-          state.shipEngine?.createShipment
-        );
+        await this.shipEngineApi.postCreateShipment(createRequest);
 
       dispatch(setCreatedShipment(createdShipment));
       dispatch(closeDialog(dialogType.createShipment));

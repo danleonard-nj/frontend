@@ -1,6 +1,5 @@
 const defaultShipment = {
   carrier_id: null,
-  created_date: '2020-12-29T10:23:02.28Z',
   destination: {
     address_one: '525 S Winchester Blvd',
     city_locality: 'San Jose',
@@ -12,7 +11,6 @@ const defaultShipment = {
     state_province: 'CA',
     zip_code: '95128',
   },
-  id: null,
   origin: {
     address_one: '4009 Marathon Blvd',
     city_locality: 'Austin',
@@ -30,7 +28,7 @@ const defaultShipment = {
   weight: 17.0,
   width: 12.0,
   service_code: 'usps_priority_mail',
-  ship_date: '2020-12-29T00:00:00Z',
+  ship_date: new Date().toISOString(),
   shipment_status: 'label_purchased',
   insurance_provider: 'carrier',
   total_weight: 17.0,
