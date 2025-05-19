@@ -3,18 +3,14 @@ import {
   DialogContent,
   DialogTitle,
   Grid,
-  Paper,
   Container,
+  Button,
 } from '@mui/material';
-import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  getCarrierName,
-  getQuotesByCarrierId,
-} from '../../api/helpers/shipEngineHelpers';
 import {
   closeDialog,
   dialogType,
+  openDialog,
 } from '../../store/dialog/dialogSlice';
 import Spinner from '../Spinner';
 import { ShipEngineCarrierRateCard } from './ShipEngineCarrierRateCard';
@@ -34,6 +30,11 @@ const ShipEngineSelectCarrierDialog = () => {
 
   const handleClose = () => {
     dispatch(closeDialog(dialogType.createShipment));
+  };
+
+  const handleGoBack = () => {
+    dispatch(openDialog(dialogType.createShipment));
+    dispatch(closeDialog(dialogType.selectCarrier));
   };
 
   return (
@@ -80,6 +81,7 @@ const ShipEngineSelectCarrierDialog = () => {
             ))
           )}
         </Grid>
+        <Button onClick={handleGoBack}>Back</Button>
       </DialogContent>
     </Dialog>
   );

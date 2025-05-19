@@ -128,85 +128,111 @@ function DestinationInfo({
   handleDestinationChange,
   handleSelectDestinationStateChange,
 }) {
+  const dispatch = useDispatch();
+
+  const handleCopyAddressFromShipper = () => {
+    dispatch(
+      updateCreateShipment((shipment) => ({
+        ...shipment,
+        destination: {
+          ...shipment.destination,
+          ...shipment.origin, // copy all origin fields to destination
+        },
+      }))
+    );
+  };
+
   return (
     <Paper elevation={2} sx={{ padding: 2 }}>
       <Typography component='h2' variant='h6' color='white'>
         Destination
       </Typography>
-      <Grid container spacing={3}>
-        <Grid item lg={6}>
-          <TextField
-            label='First Name'
-            name='first_name'
-            fullWidth
-            variant='standard'
-            value={createShipment?.destination?.first_name ?? ''}
-            onChange={handleDestinationChange}
-          />
-        </Grid>
-        <Grid item lg={6}>
-          <TextField
-            label='Last Name'
-            fullWidth
-            variant='standard'
-            name='last_name'
-            value={createShipment?.destination?.last_name ?? ''}
-            onChange={handleDestinationChange}
-          />
-        </Grid>
-        <Grid item lg={12}>
-          <TextField
-            label='Street Address'
-            name='address_one'
-            fullWidth
-            variant='standard'
-            value={createShipment?.destination?.address_one ?? ''}
-            onChange={handleDestinationChange}
-          />
-        </Grid>
-        <Grid item lg={6}>
-          <TextField
-            label='City'
-            fullWidth
-            variant='standard'
-            name='city_locality'
-            value={createShipment?.destination?.city_locality ?? ''}
-            onChange={handleDestinationChange}
-          />
-        </Grid>
-        <Grid item lg={6}>
-          <Select
-            label='State'
-            name='state_province'
-            value={createShipment?.destination?.state_province ?? ''}
-            onChange={handleSelectDestinationStateChange}
-            fullWidth>
-            {states.map((state) => (
-              <MenuItem key={state.code} value={state.code}>
-                {state.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </Grid>
-        <Grid item lg={6}>
-          <TextField
-            label='Zip Code'
-            fullWidth
-            variant='standard'
-            name='zip_code'
-            value={createShipment?.destination?.zip_code ?? ''}
-            onChange={handleDestinationChange}
-          />
-        </Grid>
-        <Grid item lg={6}>
-          <TextField
-            label='Phone'
-            fullWidth
-            variant='standard'
-            name='phone'
-            value={createShipment?.destination?.phone ?? ''}
-            onChange={handleDestinationChange}
-          />
+
+      <Grid item lg={12}>
+        <Grid container spacing={3}>
+          <Grid item lg={6}>
+            <TextField
+              label='First Name'
+              name='first_name'
+              fullWidth
+              variant='standard'
+              value={createShipment?.destination?.first_name ?? ''}
+              onChange={handleDestinationChange}
+            />
+          </Grid>
+          <Grid item lg={6}>
+            <TextField
+              label='Last Name'
+              fullWidth
+              variant='standard'
+              name='last_name'
+              value={createShipment?.destination?.last_name ?? ''}
+              onChange={handleDestinationChange}
+            />
+          </Grid>
+          <Grid item lg={12}>
+            <TextField
+              label='Street Address'
+              name='address_one'
+              fullWidth
+              variant='standard'
+              value={createShipment?.destination?.address_one ?? ''}
+              onChange={handleDestinationChange}
+            />
+          </Grid>
+          <Grid item lg={6}>
+            <TextField
+              label='City'
+              fullWidth
+              variant='standard'
+              name='city_locality'
+              value={createShipment?.destination?.city_locality ?? ''}
+              onChange={handleDestinationChange}
+            />
+          </Grid>
+          <Grid item lg={6}>
+            <Select
+              label='State'
+              name='state_province'
+              value={
+                createShipment?.destination?.state_province ?? ''
+              }
+              onChange={handleSelectDestinationStateChange}
+              fullWidth>
+              {states.map((state) => (
+                <MenuItem key={state.code} value={state.code}>
+                  {state.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </Grid>
+          <Grid item lg={6}>
+            <TextField
+              label='Zip Code'
+              fullWidth
+              variant='standard'
+              name='zip_code'
+              value={createShipment?.destination?.zip_code ?? ''}
+              onChange={handleDestinationChange}
+            />
+          </Grid>
+          <Grid item lg={6}>
+            <TextField
+              label='Phone'
+              fullWidth
+              variant='standard'
+              name='phone'
+              value={createShipment?.destination?.phone ?? ''}
+              onChange={handleDestinationChange}
+            />
+          </Grid>
+          <Grid item lg={12}>
+            <Button
+              variant='contained'
+              onClick={handleCopyAddressFromShipper}>
+              Use Shipper Address
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
     </Paper>
