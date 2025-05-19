@@ -1,6 +1,6 @@
 import autoBind from 'auto-bind';
 import ShipEngineApi from '../../api/shipEngine';
-import { popErrorMessage } from '../alert/alertActions';
+import { popErrorMessage, popMessage } from '../alert/alertActions';
 import { closeDialog, dialogType } from '../dialog/dialogSlice';
 
 import {
@@ -154,6 +154,22 @@ export default class ShipEngineActions {
     };
   }
 
+  voidLabel(labelId) {
+    return async (dispatch, getState) => {
+      const { status, data } = await this.shipEngineApi.voidLabel(
+        labelId
+      );
+
+      if (!status || status !== 200) {
+        dispatch(
+          popErrorMessage(`Failed to void label: ${data?.message}`)
+        );
+      } else {
+        dispatch(popMessage(`Label voided successfully: ${data}`));
+      }
+    };
+  }
+
   getServiceCodes() {
     return async (dispatch, getState) => {
       const response = await this.shipEngineApi.getServiceCodes();
@@ -276,4 +292,5 @@ export const {
   getLabel,
   getCarriers,
   getShipments,
+  voidLabel,
 } = new ShipEngineActions();

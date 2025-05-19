@@ -1,8 +1,10 @@
 import { Card, Container, Grid, Typography } from '@mui/material';
-import React from 'react';
 import { useSelector } from 'react-redux';
 import Spinner from '../../Spinner';
-import ShipEngineCreateLabelButton from './components/ShipEngineCreateLabelButton';
+import {
+  ShipEngineVoidLabelButton,
+  ShipEngineCreateLabelButton,
+} from './components/ShipEngineCreateLabelButton';
 import ShipEngineLabelDetailTable from './components/ShipEngineLabelDetailTable';
 
 export default function ShipEngineShipmentLabelDetail() {
@@ -24,8 +26,11 @@ export default function ShipEngineShipmentLabelDetail() {
           </Grid>
         ) : showLabelDetails() ? (
           <>
-            <Grid item lg={8}>
+            <Grid item lg={6}>
               <Typography variant='h5'>Label</Typography>
+            </Grid>
+            <Grid item lg={6} align='right'>
+              {showLabelDetails() && <ShipEngineVoidLabelButton />}
             </Grid>
             <Grid item lg={12}>
               <ShipEngineLabelDetailTable />

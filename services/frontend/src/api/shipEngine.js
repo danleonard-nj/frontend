@@ -82,6 +82,14 @@ export default class ShipEngineApi extends ApiBase {
     return response?.label;
   }
 
+  async voidLabel(labelId) {
+    const response = await this.send(
+      `${this.baseUrl}/api/shipengine/labels/${labelId}/void`,
+      'PUT'
+    );
+    return response;
+  }
+
   async postCreateShipment(shipment) {
     const response = await this.send(
       `${this.baseUrl}/api/shipengine/shipment`,

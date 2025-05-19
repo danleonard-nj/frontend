@@ -1,10 +1,15 @@
 import { Button, Grid, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { createLabel } from '../../../../store/shipEngine/shipEngineActions';
+import {
+  createLabel,
+  voidLabel,
+} from '../../../../store/shipEngine/shipEngineActions';
 
 const ShipEngineCreateLabelButton = () => {
   const dispatch = useDispatch();
-  const selectedShipment = useSelector((x) => x.shipEngine.selectedShipment);
+  const selectedShipment = useSelector(
+    (x) => x.shipEngine.selectedShipment
+  );
 
   const handleCreateLabel = () => {
     dispatch(createLabel(selectedShipment));
@@ -27,4 +32,24 @@ const ShipEngineCreateLabelButton = () => {
   );
 };
 
-export default ShipEngineCreateLabelButton;
+const ShipEngineVoidLabelButton = () => {
+  const label = useSelector((x) => x.shipEngine.label);
+  const dispatch = useDispatch();
+
+  const handleVoidLabel = () => {
+    // Dispatch the action to void the label
+    dispatch(voidLabel(label.id));
+  };
+
+  return (
+    <Button
+      color='error'
+      variant='contained'
+      size='small'
+      onClick={handleVoidLabel}>
+      Void Label
+    </Button>
+  );
+};
+
+export { ShipEngineCreateLabelButton, ShipEngineVoidLabelButton };
