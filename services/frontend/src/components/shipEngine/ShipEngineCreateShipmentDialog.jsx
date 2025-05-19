@@ -19,7 +19,6 @@ import {
   reduceDestination,
   reduceOrigin,
   reduceSelectDestination,
-  reduceSelectOrigin,
   reduceShipment,
   states,
   tryParseInt,
@@ -36,22 +35,341 @@ import {
 } from '../../store/shipEngine/shipEngineActions';
 import ShipEngineSelectCarrierDialog from './ShipEngineSelectCarrierDialog';
 
-/**
- * ShipEngineCreateShipmentDialog Component
- *
- * Renders a dialog that allows users to create a shipment. This includes sections for:
- * - Shipper (origin) information
- * - Destination information
- * - Package details
- * - Carrier selection & quote
- *
- * It uses Redux to manage the shipment state and dispatches actions for updating
- * shipment details, estimating rates, and creating shipments.
- */
+/* Subcomponent: Shipper Information */
+function ShipperInfo({ createShipment, handleOriginChange }) {
+  return (
+    <Paper elevation={2} sx={{ padding: 2 }}>
+      <Typography component='h2' variant='h6' color='white'>
+        Shipper
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item lg={6}>
+          <TextField
+            label='First Name'
+            name='first_name'
+            value={createShipment?.origin?.first_name ?? ''}
+            fullWidth
+            variant='standard'
+            onChange={handleOriginChange}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='Last Name'
+            name='last_name'
+            fullWidth
+            variant='standard'
+            value={createShipment?.origin?.last_name ?? ''}
+            onChange={handleOriginChange}
+          />
+        </Grid>
+        <Grid item lg={12}>
+          <TextField
+            label='Street Address'
+            name='address_one'
+            fullWidth
+            variant='standard'
+            value={createShipment?.origin?.address_one ?? ''}
+            onChange={handleOriginChange}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='City'
+            fullWidth
+            variant='standard'
+            name='city_locality'
+            value={createShipment?.origin?.city_locality ?? ''}
+            onChange={handleOriginChange}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <Select
+            label='State'
+            name='state_province'
+            value={createShipment?.origin?.state_province ?? ''}
+            onChange={handleOriginChange}
+            fullWidth>
+            {states.map((state) => (
+              <MenuItem key={state.code} value={state.code}>
+                {state.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='Zip Code'
+            fullWidth
+            variant='standard'
+            name='zip_code'
+            value={createShipment?.origin?.zip_code ?? ''}
+            onChange={handleOriginChange}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='Phone'
+            fullWidth
+            variant='standard'
+            name='phone'
+            value={createShipment?.origin?.phone ?? ''}
+            onChange={handleOriginChange}
+          />
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+}
+
+/* Subcomponent: Destination Information */
+function DestinationInfo({
+  createShipment,
+  handleDestinationChange,
+  handleSelectDestinationStateChange,
+}) {
+  return (
+    <Paper elevation={2} sx={{ padding: 2 }}>
+      <Typography component='h2' variant='h6' color='white'>
+        Destination
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item lg={6}>
+          <TextField
+            label='First Name'
+            name='first_name'
+            fullWidth
+            variant='standard'
+            value={createShipment?.destination?.first_name ?? ''}
+            onChange={handleDestinationChange}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='Last Name'
+            fullWidth
+            variant='standard'
+            name='last_name'
+            value={createShipment?.destination?.last_name ?? ''}
+            onChange={handleDestinationChange}
+          />
+        </Grid>
+        <Grid item lg={12}>
+          <TextField
+            label='Street Address'
+            name='address_one'
+            fullWidth
+            variant='standard'
+            value={createShipment?.destination?.address_one ?? ''}
+            onChange={handleDestinationChange}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='City'
+            fullWidth
+            variant='standard'
+            name='city_locality'
+            value={createShipment?.destination?.city_locality ?? ''}
+            onChange={handleDestinationChange}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <Select
+            label='State'
+            name='state_province'
+            value={createShipment?.destination?.state_province ?? ''}
+            onChange={handleSelectDestinationStateChange}
+            fullWidth>
+            {states.map((state) => (
+              <MenuItem key={state.code} value={state.code}>
+                {state.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='Zip Code'
+            fullWidth
+            variant='standard'
+            name='zip_code'
+            value={createShipment?.destination?.zip_code ?? ''}
+            onChange={handleDestinationChange}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='Phone'
+            fullWidth
+            variant='standard'
+            name='phone'
+            value={createShipment?.destination?.phone ?? ''}
+            onChange={handleDestinationChange}
+          />
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+}
+
+/* Subcomponent: Package Details */
+function PackageDetails({ createShipment, handleChange }) {
+  return (
+    <Paper elevation={2} sx={{ padding: 2 }}>
+      <Typography component='h2' variant='h6' color='white'>
+        Package Details
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item lg={4}>
+          <TextField
+            label='Length'
+            name='length'
+            fullWidth
+            variant='standard'
+            value={createShipment?.length ?? ''}
+            onChange={(event) =>
+              handleChange(event, parseInt(event.target.value))
+            }
+            InputProps={{
+              type: 'number',
+              endAdornment: (
+                <InputAdornment position='end'>in</InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+        <Grid item lg={4}>
+          <TextField
+            label='Width'
+            name='width'
+            fullWidth
+            variant='standard'
+            value={createShipment?.width ?? ''}
+            onChange={(event) =>
+              handleChange(event, tryParseInt(event.target.value))
+            }
+            InputProps={{
+              type: 'number',
+              endAdornment: (
+                <InputAdornment position='end'>in</InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+        <Grid item lg={4}>
+          <TextField
+            label='Height'
+            name='height'
+            fullWidth
+            variant='standard'
+            value={createShipment?.height ?? ''}
+            onChange={(event) =>
+              handleChange(event, tryParseInt(event.target.value))
+            }
+            InputProps={{
+              type: 'number',
+              endAdornment: (
+                <InputAdornment position='end'>in</InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='Weight'
+            name='weight'
+            fullWidth
+            variant='standard'
+            value={createShipment?.weight ?? ''}
+            onChange={(event) =>
+              handleChange(event, tryParseInt(event.target.value))
+            }
+            InputProps={{
+              type: 'number',
+              endAdornment: (
+                <InputAdornment position='end'>lb</InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+        <Grid item lg={6}>
+          <TextField
+            label='Insured Value'
+            name='insured_value'
+            fullWidth
+            variant='standard'
+            value={createShipment?.insured_value ?? ''}
+            onChange={(event) =>
+              handleChange(event, parseInt(event.target.value))
+            }
+            InputProps={{
+              type: 'number',
+              startAdornment: (
+                <InputAdornment position='start'>$</InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+}
+
+/* Subcomponent: Carrier Selection & Quote */
+function CarrierSelection({
+  createShipment,
+  carrierNameLookup,
+  handleGetRate,
+}) {
+  return (
+    <Paper elevation={2} sx={{ padding: 2 }}>
+      <Grid container spacing={2}>
+        <Grid item lg={10}>
+          <Typography component='h2' variant='h6' color='white'>
+            Carrier
+          </Typography>
+        </Grid>
+        <Grid item lg={2} align='right'>
+          <Button variant='contained' onClick={handleGetRate}>
+            Quote
+          </Button>
+        </Grid>
+      </Grid>
+      <Grid container spacing={3}>
+        <Grid item lg={6}>
+          <Grid container spacing={3}>
+            {createShipment?.carrier_id && (
+              <>
+                <Grid item lg={6}>
+                  <b>Selected Carrier</b>
+                </Grid>
+                <Grid item lg={6}>
+                  <i>
+                    {getCarrierName(
+                      carrierNameLookup,
+                      createShipment.carrier_id
+                    )}
+                  </i>
+                </Grid>
+                <Grid item lg={6}>
+                  <b>Selected Service</b>
+                </Grid>
+                <Grid item lg={6}>
+                  <i>{createShipment.service_type}</i>
+                </Grid>
+              </>
+            )}
+          </Grid>
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+}
+
+/* Main Component: Create Shipment Dialog */
 export default function ShipEngineCreateShipmentDialog() {
   const dispatch = useDispatch();
-
-  // Retrieve dialog open state, shipment details, and carrier lookup from Redux store.
   const isOpen = useSelector(
     (state) => state.dialog[dialogType.createShipment]
   );
@@ -62,12 +380,10 @@ export default function ShipEngineCreateShipmentDialog() {
     (state) => state.shipEngine.carrierNameLookup
   );
 
-  // Close the create shipment dialog
   const handleClose = () => {
     dispatch(closeDialog(dialogType.createShipment));
   };
 
-  // Handler for when the destination state selection changes.
   const handleSelectDestinationStateChange = (event) => {
     dispatch(
       updateCreateShipment((shipment) =>
@@ -76,7 +392,6 @@ export default function ShipEngineCreateShipmentDialog() {
     );
   };
 
-  // Handler for updating shipper (origin) fields.
   const handleOriginChange = (event) => {
     dispatch(
       updateCreateShipment((shipment) =>
@@ -85,7 +400,6 @@ export default function ShipEngineCreateShipmentDialog() {
     );
   };
 
-  // Handler for updating destination fields.
   const handleDestinationChange = (event) => {
     dispatch(
       updateCreateShipment((shipment) =>
@@ -94,8 +408,6 @@ export default function ShipEngineCreateShipmentDialog() {
     );
   };
 
-  // Generic handler for updating shipment details (e.g., package dimensions).
-  // Optionally parses the value (e.g., converting string to integer).
   const handleChange = (event, value = null) => {
     dispatch(
       updateCreateShipment((shipment) =>
@@ -104,23 +416,17 @@ export default function ShipEngineCreateShipmentDialog() {
     );
   };
 
-  // Handler to estimate rates.
-  // 1. Dispatches the rate estimation action.
-  // 2. Closes the current dialog.
-  // 3. Opens the carrier selection dialog.
   const handleGetRate = () => {
-    console.log('estimate rates');
     dispatch(estimateRate());
     dispatch(closeDialog(dialogType.createShipment));
     dispatch(openDialog(dialogType.selectCarrier));
   };
 
-  // Handler to create the shipment.
   const handleCreateShipment = () => {
     dispatch(postCreateShipment());
   };
 
-  // Update full names for origin and destination when first or last names change.
+  // Update full names when first or last names change.
   useEffect(() => {
     dispatch(
       updateCreateShipment((shipment) => ({
@@ -144,9 +450,8 @@ export default function ShipEngineCreateShipmentDialog() {
 
   return (
     <>
-      {/* Dialog for selecting carrier (shown conditionally by Redux state) */}
+      {/* Carrier selection dialog */}
       <ShipEngineSelectCarrierDialog />
-
       {/* Main Create Shipment Dialog */}
       <Dialog
         open={isOpen}
@@ -165,391 +470,33 @@ export default function ShipEngineCreateShipmentDialog() {
             alignItems='flex-start'
             spacing={1}>
             <Grid container spacing={2}>
-              {/* Shipper (Origin) Information */}
               <Grid item lg={6}>
-                <Paper elevation={2} sx={{ padding: 2 }}>
-                  <Typography
-                    component='h2'
-                    variant='h6'
-                    color='white'>
-                    Shipper
-                  </Typography>
-                  <Grid container spacing={3}>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='First Name'
-                        name='first_name'
-                        value={
-                          createShipment?.origin?.first_name ?? ''
-                        }
-                        fullWidth
-                        variant='standard'
-                        onChange={handleOriginChange}
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='Last Name'
-                        name='last_name'
-                        fullWidth
-                        variant='standard'
-                        value={
-                          createShipment?.origin?.last_name ?? ''
-                        }
-                        onChange={handleOriginChange}
-                      />
-                    </Grid>
-                    <Grid item lg={12}>
-                      <TextField
-                        label='Street Address'
-                        name='address_one'
-                        fullWidth
-                        value={
-                          createShipment?.origin?.address_one ?? ''
-                        }
-                        variant='standard'
-                        onChange={handleOriginChange}
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='City'
-                        fullWidth
-                        variant='standard'
-                        name='city_locality'
-                        value={
-                          createShipment?.origin?.city_locality ?? ''
-                        }
-                        onChange={handleOriginChange}
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <Select
-                        label='State'
-                        name='state_province'
-                        value={
-                          createShipment?.origin?.state_province ?? ''
-                        }
-                        onChange={handleOriginChange}
-                        fullWidth>
-                        {states.map((state) => (
-                          <MenuItem
-                            key={state.code}
-                            value={state.code}>
-                            {state.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='Zip Code'
-                        fullWidth
-                        variant='standard'
-                        name='zip_code'
-                        value={createShipment?.origin?.zip_code ?? ''}
-                        onChange={handleOriginChange}
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='Phone'
-                        fullWidth
-                        variant='standard'
-                        name='phone'
-                        onChange={handleOriginChange}
-                        value={createShipment?.origin?.phone ?? ''}
-                      />
-                    </Grid>
-                  </Grid>
-                </Paper>
+                <ShipperInfo
+                  createShipment={createShipment}
+                  handleOriginChange={handleOriginChange}
+                />
               </Grid>
-
-              {/* Destination Information */}
               <Grid item lg={6}>
-                <Paper elevation={2} sx={{ padding: 2 }}>
-                  <Typography
-                    component='h2'
-                    variant='h6'
-                    color='white'>
-                    Destination
-                  </Typography>
-                  <Grid container spacing={3}>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='First Name'
-                        name='first_name'
-                        fullWidth
-                        variant='standard'
-                        value={
-                          createShipment?.destination?.first_name ??
-                          ''
-                        }
-                        onChange={handleDestinationChange}
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='Last Name'
-                        fullWidth
-                        variant='standard'
-                        name='last_name'
-                        value={
-                          createShipment?.destination?.last_name ?? ''
-                        }
-                        onChange={handleDestinationChange}
-                      />
-                    </Grid>
-                    <Grid item lg={12}>
-                      <TextField
-                        label='Street Address'
-                        name='address_one'
-                        fullWidth
-                        variant='standard'
-                        onChange={handleDestinationChange}
-                        value={
-                          createShipment?.destination?.address_one ??
-                          ''
-                        }
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='City'
-                        fullWidth
-                        variant='standard'
-                        name='city_locality'
-                        onChange={handleDestinationChange}
-                        value={
-                          createShipment?.destination
-                            ?.city_locality ?? ''
-                        }
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <Select
-                        label='State'
-                        name='state_province'
-                        value={
-                          createShipment.destination.state_province
-                        }
-                        onChange={handleSelectDestinationStateChange}
-                        fullWidth>
-                        {states.map((state) => (
-                          <MenuItem
-                            key={state.code}
-                            value={state.code}>
-                            {state.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='Zip Code'
-                        fullWidth
-                        variant='standard'
-                        name='zip_code'
-                        onChange={handleDestinationChange}
-                        value={
-                          createShipment?.destination?.zip_code ?? ''
-                        }
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='Phone'
-                        fullWidth
-                        variant='standard'
-                        name='phone'
-                        onChange={handleDestinationChange}
-                        value={
-                          createShipment?.destination?.phone ?? ''
-                        }
-                      />
-                    </Grid>
-                  </Grid>
-                </Paper>
+                <DestinationInfo
+                  createShipment={createShipment}
+                  handleDestinationChange={handleDestinationChange}
+                  handleSelectDestinationStateChange={
+                    handleSelectDestinationStateChange
+                  }
+                />
               </Grid>
-
-              {/* Package Details Section */}
               <Grid item lg={6}>
-                <Paper elevation={2} sx={{ padding: 2 }}>
-                  <Typography
-                    component='h2'
-                    variant='h6'
-                    color='white'>
-                    Package Details
-                  </Typography>
-                  <Grid container spacing={3}>
-                    <Grid item lg={4}>
-                      <TextField
-                        label='Length'
-                        name='length'
-                        fullWidth
-                        variant='standard'
-                        value={createShipment?.length ?? ''}
-                        onChange={(event) =>
-                          handleChange(
-                            event,
-                            parseInt(event.target.value)
-                          )
-                        }
-                        InputProps={{
-                          type: 'number',
-                          endAdornment: (
-                            <InputAdornment position='end'>
-                              in
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Grid>
-                    <Grid item lg={4}>
-                      <TextField
-                        label='Width'
-                        fullWidth
-                        name='width'
-                        value={createShipment?.width ?? ''}
-                        onChange={(event) =>
-                          handleChange(
-                            event,
-                            tryParseInt(event.target.value)
-                          )
-                        }
-                        variant='standard'
-                        InputProps={{
-                          type: 'number',
-                          endAdornment: (
-                            <InputAdornment position='end'>
-                              in
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Grid>
-                    <Grid item lg={4}>
-                      <TextField
-                        label='Height'
-                        name='height'
-                        fullWidth
-                        value={createShipment?.height ?? ''}
-                        onChange={(event) =>
-                          handleChange(
-                            event,
-                            tryParseInt(event.target.value)
-                          )
-                        }
-                        variant='standard'
-                        InputProps={{
-                          type: 'number',
-                          endAdornment: (
-                            <InputAdornment position='end'>
-                              in
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='Weight'
-                        name='weight'
-                        fullWidth
-                        variant='standard'
-                        value={createShipment?.weight ?? ''}
-                        onChange={(event) =>
-                          handleChange(
-                            event,
-                            tryParseInt(event.target.value)
-                          )
-                        }
-                        InputProps={{
-                          type: 'number',
-                          endAdornment: (
-                            <InputAdornment position='end'>
-                              lb
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Grid>
-                    <Grid item lg={6}>
-                      <TextField
-                        label='Insured Value'
-                        fullWidth
-                        variant='standard'
-                        name='insured_value'
-                        value={createShipment?.insured_value ?? ''}
-                        onChange={(event) =>
-                          handleChange(
-                            event,
-                            parseInt(event.target.value)
-                          )
-                        }
-                        InputProps={{
-                          type: 'number',
-                          startAdornment: (
-                            <InputAdornment position='start'>
-                              $
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
-                </Paper>
+                <PackageDetails
+                  createShipment={createShipment}
+                  handleChange={handleChange}
+                />
               </Grid>
-
-              {/* Carrier Selection & Quote */}
               <Grid item lg={6}>
-                <Paper elevation={2} sx={{ padding: 2 }}>
-                  <Grid container spacing={2}>
-                    <Grid item lg={10}>
-                      <Typography
-                        component='h2'
-                        variant='h6'
-                        color='white'>
-                        Carrier
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={2} align='right'>
-                      <Button
-                        variant='contained'
-                        onClick={handleGetRate}>
-                        Quote
-                      </Button>
-                    </Grid>
-                  </Grid>
-
-                  <Grid container spacing={3}>
-                    <Grid item lg={6}>
-                      <Grid container spacing={3}>
-                        {createShipment?.carrier_id && (
-                          <>
-                            <Grid item lg={6}>
-                              <b>Selected Carrier</b>
-                            </Grid>
-                            <Grid item lg={6}>
-                              <i>
-                                {getCarrierName(
-                                  carrierNameLookup,
-                                  createShipment.carrier_id
-                                )}
-                              </i>
-                            </Grid>
-                            <Grid item lg={6}>
-                              <b>Selected Service</b>
-                            </Grid>
-                            <Grid item lg={6}>
-                              <i>{createShipment.service_type}</i>
-                            </Grid>
-                          </>
-                        )}
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Paper>
+                <CarrierSelection
+                  createShipment={createShipment}
+                  carrierNameLookup={carrierNameLookup}
+                  handleGetRate={handleGetRate}
+                />
               </Grid>
             </Grid>
           </Grid>

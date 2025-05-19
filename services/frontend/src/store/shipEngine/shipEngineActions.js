@@ -83,14 +83,14 @@ export default class ShipEngineActions {
         }))
       );
 
-      if (!showCanceledShipments) {
-        const filteredShipments = (shipments?.shipments ?? []).filter(
-          (x) => x.shipment_status !== 'Canceled'
-        );
-        dispatch(setShipments(filteredShipments ?? []));
-      } else {
-        dispatch(setShipments(shipments?.shipments ?? []));
-      }
+      // if (!showCanceledShipments) {
+      //   const filteredShipments = (shipments?.shipments ?? []).filter(
+      //     (x) => x.shipment_status !== 'Canceled'
+      //   );
+      //   dispatch(setShipments(filteredShipments ?? []));
+      // } else {
+      dispatch(setShipments(shipments?.shipments ?? []));
+      // }
     };
   }
 
@@ -133,25 +133,24 @@ export default class ShipEngineActions {
 
   createLabel(shipmentId) {
     return async (dispatch, getState) => {
-      const handleCreateLabelResponse = ({ status, data }) => {
-        const message = tryParse(data);
-        if (status !== 200) {
-          dispatch(
-            popErrorMessage(
-              message
-                ? `Failed to create label from shipment: ${message}`
-                : `Failed to create label from shipment`
-            )
-          );
-        }
-      };
-
-      const response = await this.shipEngineApi.createLabel(
+      const { status, data } = await this.shipEngineApi.createLabel(
         shipmentId
       );
-      handleCreateLabelResponse(response);
 
-      dispatch(setLabel({ details: response.data, isError: false }));
+      // Parse the response
+      const message = tryParse(data);
+
+      if (!status || status !== 200) {
+        dispatch(
+          popErrorMessage(
+            `Failed to create label from shipment: ${data?.message}`
+          )
+        );
+      } else {
+        // Set the new label
+        const label = data?.label;
+        dispatch(setLabel({ details: label }));
+      }
     };
   }
 

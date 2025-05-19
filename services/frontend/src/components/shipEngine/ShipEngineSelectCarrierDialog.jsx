@@ -24,8 +24,6 @@ const ShipEngineSelectCarrierDialog = () => {
   const isOpen = useSelector(
     (x) => x.dialog[dialogType.selectCarrier]
   );
-  const rate = useSelector((x) => x.shipEngine.rate) ?? {};
-  const rateLoading = useSelector((x) => x.shipEngine.rateLoading);
 
   const carrierEstimates =
     useSelector((x) => x.shipEngine.estimate) ?? [];
@@ -33,9 +31,6 @@ const ShipEngineSelectCarrierDialog = () => {
   const estimateLoading = useSelector(
     (x) => x.shipEngine.estimateLoading
   );
-
-  const carrierNameLookup =
-    useSelector((x) => x.shipEngine.carrierNameLookup) ?? [];
 
   const handleClose = () => {
     dispatch(closeDialog(dialogType.createShipment));
