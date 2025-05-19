@@ -36,9 +36,11 @@ const ShipEngineVoidLabelButton = () => {
   const label = useSelector((x) => x.shipEngine.label);
   const dispatch = useDispatch();
 
+  const labelId = label?.details?.label_id;
+
   const handleVoidLabel = () => {
     // Dispatch the action to void the label
-    dispatch(voidLabel(label.id));
+    dispatch(voidLabel(labelId));
   };
 
   return (

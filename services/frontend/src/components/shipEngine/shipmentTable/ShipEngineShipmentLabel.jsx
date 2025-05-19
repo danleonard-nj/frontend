@@ -15,6 +15,10 @@ export default function ShipEngineShipmentLabelDetail() {
     return label?.details?.label !== null;
   };
 
+  const isVoidable = () => {
+    return !label?.details?.label?.voided;
+  };
+
   return (
     <Card elevation={3} sx={{ padding: 1 }}>
       <Grid container spacing={3}>
@@ -30,7 +34,9 @@ export default function ShipEngineShipmentLabelDetail() {
               <Typography variant='h5'>Label</Typography>
             </Grid>
             <Grid item lg={6} align='right'>
-              {showLabelDetails() && <ShipEngineVoidLabelButton />}
+              {showLabelDetails() && isVoidable() && (
+                <ShipEngineVoidLabelButton />
+              )}
             </Grid>
             <Grid item lg={12}>
               <ShipEngineLabelDetailTable />

@@ -161,11 +161,17 @@ export default class ShipEngineActions {
       );
 
       if (!status || status !== 200) {
-        dispatch(
-          popErrorMessage(`Failed to void label: ${data?.message}`)
-        );
+        if (data?.shipengine_status !== 200) {
+          dispatch(
+            popErrorMessage(
+              `Failed to void label: ${JSON.stringify(data)}`
+            )
+          );
+        }
       } else {
-        dispatch(popMessage(`Label voided successfully: ${data}`));
+        dispatch(
+          popMessage(`Label ${labelId} has been voided successfully`)
+        );
       }
     };
   }
