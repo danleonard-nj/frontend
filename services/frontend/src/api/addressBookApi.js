@@ -44,7 +44,7 @@ export default class AddressBookApi extends ApiBase {
 
   async fetchAddresses() {
     const res = await this.send(
-      `${this.baseUrl}/api/address?page_size=100&page_number=1`,
+      `${this.baseUrl}/api/shipengine/addresses?page_size=100&page_number=1`,
       'GET'
     );
     return (res.data.addresses || []).map(fromBackendAddress);
@@ -52,7 +52,7 @@ export default class AddressBookApi extends ApiBase {
 
   async addAddress(address) {
     const res = await this.send(
-      `${this.baseUrl}/api/address`,
+      `${this.baseUrl}/api/shipengine/addresses`,
       'POST',
       toBackendAddress(address)
     );
@@ -61,7 +61,7 @@ export default class AddressBookApi extends ApiBase {
 
   async editAddress(id, address) {
     const res = await this.send(
-      `${this.baseUrl}/api/address/${id}`,
+      `${this.baseUrl}/api/shipengine/addresses/${id}`,
       'PUT',
       toBackendAddress(address)
     );
@@ -69,17 +69,20 @@ export default class AddressBookApi extends ApiBase {
   }
 
   async deleteAddress(id) {
-    await this.send(`${this.baseUrl}/api/address/${id}`, 'DELETE');
+    await this.send(
+      `${this.baseUrl}/api/shipengine/addresses/${id}`,
+      'DELETE'
+    );
   }
 
   async setDefaultAddress(id) {
     await this.send(
-      `${this.baseUrl}/api/address/${id}/default`,
+      `${this.baseUrl}/api/shipengine/addresses/${id}/default`,
       'PUT'
     );
     // Refetch the address to get updated default status
     const addrRes = await this.send(
-      `${this.baseUrl}/api/address/${id}`,
+      `${this.baseUrl}/api/shipengine/addresses/${id}`,
       'GET'
     );
     return fromBackendAddress(addrRes.data.address || addrRes.data);
@@ -87,7 +90,7 @@ export default class AddressBookApi extends ApiBase {
 
   async getDefaultAddress() {
     const res = await this.send(
-      `${this.baseUrl}/api/address/default`,
+      `${this.baseUrl}/api/shipengine/addresses/default`,
       'GET'
     );
     return fromBackendAddress(res.data.address);
@@ -95,7 +98,7 @@ export default class AddressBookApi extends ApiBase {
 
   async validateAddress(address) {
     const res = await this.send(
-      `${this.baseUrl}/api/address/validate`,
+      `${this.baseUrl}/api/shipengine/addresses/validate`,
       'POST',
       toBackendAddress(address)
     );
