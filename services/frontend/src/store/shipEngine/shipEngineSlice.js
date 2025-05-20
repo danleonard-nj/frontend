@@ -21,13 +21,24 @@ const shipmentReducers = {
   },
 };
 
+const addressBookReducers = {
+  setAddressBook(state, { payload }) {
+    state.shipments = payload;
+    state.shipmentsLoading = false;
+  },
+  setAddressBookLoading(state, { payload }) {
+    state.shipmentsLoading = payload ?? true;
+  },
+};
+
 const rateReducers = {
   setRate(state, { payload }) {
     state.rate = payload;
     state.rateLoading = false;
   },
   setRateLoading(state, { payload }) {
-    state.rateLoading = true;
+    // Switched to using estimate loading state
+    state.estimateLoading = true;
   },
   // Rate estimates
   setEstimate(state, { payload }) {
@@ -92,6 +103,7 @@ const shipEngineSlice = createSlice({
     ...labelReducers,
     ...shipmentReducers,
     ...rateReducers,
+    ...addressBookReducers,
   },
 });
 

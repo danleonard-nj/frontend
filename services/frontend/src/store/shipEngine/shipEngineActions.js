@@ -187,11 +187,17 @@ export default class ShipEngineActions {
   getRate() {
     return async (dispatch, getState) => {
       const state = getState();
-      dispatch(setRateLoading());
-      const rate = await this.shipEngineApi.getRate(
+
+      dispatch(setEstimateLoading(true));
+
+      const { data } = await this.shipEngineApi.getRate(
         state.shipEngine.createShipment
       );
-      dispatch(setRate(rate));
+
+      const groupedEstimates = groupByCarrierId(data ?? []);
+
+      dispatch(setEstimate(groupedEstimates));
+      dispatch(setEstimateLoading(false));
     };
   }
 

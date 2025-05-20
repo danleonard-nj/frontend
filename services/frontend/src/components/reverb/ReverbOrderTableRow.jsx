@@ -1,17 +1,16 @@
 import { Button, TableCell, TableRow } from '@mui/material';
-import React from 'react';
 import { useDispatch } from 'react-redux';
 import {
   formatCurrency,
   formatDate,
   isShipButtonDisabled,
 } from '../../api/helpers/reverbHelpers';
-import { dialogType, openDialog } from '../../store/dialog/dialogSlice';
 import {
   initialOrderDetail,
   setSelectedOrder,
   updateOrderDetail,
 } from '../../store/reverb/reverbSlice';
+import { createOrderShipment } from '../../store/reverb/reverbActions';
 
 const ReverbOrderTableRow = ({ order }) => {
   const dispatch = useDispatch();
@@ -19,7 +18,7 @@ const ReverbOrderTableRow = ({ order }) => {
   const handleShip = (order) => {
     dispatch(setSelectedOrder(order));
     dispatch(updateOrderDetail(initialOrderDetail));
-    dispatch(openDialog(dialogType.orderDetail));
+    dispatch(createOrderShipment(order));
   };
 
   return (

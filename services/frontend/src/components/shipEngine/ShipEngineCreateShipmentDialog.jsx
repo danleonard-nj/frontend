@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonGroup,
   Dialog,
   DialogActions,
   DialogContent,
@@ -30,6 +31,7 @@ import {
 } from '../../store/dialog/dialogSlice';
 import {
   estimateRate,
+  getRate,
   postCreateShipment,
   updateCreateShipment,
 } from '../../store/shipEngine/shipEngineActions';
@@ -347,19 +349,29 @@ function CarrierSelection({
   createShipment,
   carrierNameLookup,
   handleGetRate,
+  handleGetEstimate,
 }) {
   return (
     <Paper elevation={2} sx={{ padding: 2 }}>
       <Grid container spacing={2}>
-        <Grid item lg={10}>
+        <Grid item lg={6}>
           <Typography component='h2' variant='h6' color='white'>
             Carrier
           </Typography>
         </Grid>
-        <Grid item lg={2} align='right'>
-          <Button variant='contained' onClick={handleGetRate}>
-            Quote
-          </Button>
+        <Grid item lg={6} align='right'>
+          <ButtonGroup variant='contained'>
+            <Button
+              onClick={handleGetEstimate}
+              title='Estimate shipping rates based on current shipment details (does not include surcharges, insurance, etc.)'>
+              Estimate
+            </Button>
+            <Button
+              onClick={handleGetRate}
+              title='Get available rates and select a carrier'>
+              Rate
+            </Button>
+          </ButtonGroup>
         </Grid>
       </Grid>
       <Grid container spacing={3}>
@@ -443,6 +455,12 @@ export default function ShipEngineCreateShipmentDialog() {
   };
 
   const handleGetRate = () => {
+    dispatch(getRate());
+    dispatch(closeDialog(dialogType.createShipment));
+    dispatch(openDialog(dialogType.selectCarrier));
+  };
+
+  const handleGetEstimate = () => {
     dispatch(estimateRate());
     dispatch(closeDialog(dialogType.createShipment));
     dispatch(openDialog(dialogType.selectCarrier));
@@ -522,6 +540,7 @@ export default function ShipEngineCreateShipmentDialog() {
                   createShipment={createShipment}
                   carrierNameLookup={carrierNameLookup}
                   handleGetRate={handleGetRate}
+                  handleGetEstimate={handleGetEstimate}
                 />
               </Grid>
             </Grid>
