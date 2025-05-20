@@ -221,7 +221,7 @@ export default class ShipEngineActions {
       console.log(groupedEstimates);
 
       dispatch(setEstimate(groupedEstimates));
-      dispatch(setRateLoading(false));
+      dispatch(setEstimateLoading(false));
     };
   }
 
