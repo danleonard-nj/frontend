@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getCarrierName,
@@ -36,6 +36,7 @@ import {
   updateCreateShipment,
 } from '../../store/shipEngine/shipEngineActions';
 import ShipEngineSelectCarrierDialog from './ShipEngineSelectCarrierDialog';
+import AddressBook from './AddressBook';
 
 /* Subcomponent: Shipper Information */
 function ShipperInfo({ createShipment, handleOriginChange }) {
@@ -417,6 +418,7 @@ export default function ShipEngineCreateShipmentDialog() {
   const carrierNameLookup = useSelector(
     (state) => state.shipEngine.carrierNameLookup
   );
+  const [addressBookOpen, setAddressBookOpen] = useState(false);
 
   const handleClose = () => {
     dispatch(closeDialog(dialogType.createShipment));
@@ -470,6 +472,36 @@ export default function ShipEngineCreateShipmentDialog() {
     dispatch(postCreateShipment());
   };
 
+  // Add handler to apply address to shipper or destination
+  const handleApplyAddress = (address, target) => {
+    if (!address || !target) return;
+    dispatch(
+      updateCreateShipment((shipment) => {
+        if (target === 'shipper') {
+          return {
+            ...shipment,
+            origin: {
+              ...shipment.origin,
+              ...address,
+              name: `${address.first_name} ${address.last_name}`,
+            },
+          };
+        } else if (target === 'destination') {
+          return {
+            ...shipment,
+            destination: {
+              ...shipment.destination,
+              ...address,
+              name: `${address.first_name} ${address.last_name}`,
+            },
+          };
+        }
+        return shipment;
+      })
+    );
+    setAddressBookOpen(false);
+  };
+
   // Update full names when first or last names change.
   useEffect(() => {
     dispatch(
@@ -496,6 +528,22 @@ export default function ShipEngineCreateShipmentDialog() {
     <>
       {/* Carrier selection dialog */}
       <ShipEngineSelectCarrierDialog />
+      {/* Address Book Dialog */}
+      <Dialog
+        open={addressBookOpen}
+        onClose={() => setAddressBookOpen(false)}
+        maxWidth='md'
+        fullWidth>
+        <DialogTitle>Address Book</DialogTitle>
+        <DialogContent>
+          <AddressBook onApplyAddress={handleApplyAddress} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddressBookOpen(false)}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
       {/* Main Create Shipment Dialog */}
       <Dialog
         open={isOpen}
@@ -514,6 +562,13 @@ export default function ShipEngineCreateShipmentDialog() {
             alignItems='flex-start'
             spacing={1}>
             <Grid container spacing={2}>
+              <Grid item lg={12}>
+                <Button
+                  variant='outlined'
+                  onClick={() => setAddressBookOpen(true)}>
+                  Open Address Book
+                </Button>
+              </Grid>
               <Grid item lg={6}>
                 <ShipperInfo
                   createShipment={createShipment}
