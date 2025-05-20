@@ -1,4 +1,4 @@
-FROM node:16-alpine as builder
+FROM node:20-alpine as builder
 
 # Set the working directory to /app inside the container
 WORKDIR /app
@@ -16,7 +16,7 @@ ENV GENERATE_SOURCEMAP=false
 RUN npm run build
 
 # Bundle static assets with nginx
-FROM nginx:1.21.0-alpine as production
+FROM nginx:alpine as production
 
 ENV NODE_ENV production
 RUN apk add --no-cache bash

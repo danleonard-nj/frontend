@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -14,14 +14,15 @@ import store from './store/createStore';
 import { msalConfig } from './msalConfig';
 
 const msalInstance = new PublicClientApplication(msalConfig);
+const container = document.getElementById('root');
+const root = createRoot(container);
 
-ReactDOM.render(
+root.render(
   <MsalProvider instance={msalInstance}>
     <Provider store={store}>
       <App />
     </Provider>
-  </MsalProvider>,
-  document.getElementById('root')
+  </MsalProvider>
 );
 
 reportWebVitals();
