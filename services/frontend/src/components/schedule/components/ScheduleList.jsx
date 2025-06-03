@@ -44,7 +44,7 @@ const ScheduleListGrid = ({ children }) => (
   </Grid>
 );
 
-const ListBoxHeader = (handleNewScheduleOnClick) => (
+const ListBoxHeader = ({ handleNewScheduleOnClick }) => (
   <ScheduleListGrid>
     <Grid item lg={6} xs={6}>
       <TitleTypography>Schedules</TitleTypography>
