@@ -1,8 +1,10 @@
+// services/frontend/src/components/dashboard/Dashboard.jsx
 import { Container } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { DashboardApiEventHistoryLayout } from '../layouts/DashboardApiEventHistoryLayout';
 import { DashboardBankingLayout } from '../layouts/DashboardBankingLayout';
+import { DashboardCalendarLayout } from '../layouts/DashboardCalendarLayout'; // Added calendar layout
 import { DashboardChatGPTLayout } from '../layouts/DashboardChatGPTLayout';
 import { DashoardEmailRuleLayout } from '../layouts/DashboardEmailRuleLayout';
 import { DashboardFeatureLayout } from '../layouts/DashboardFeatureLayout';
@@ -47,6 +49,10 @@ export default function Dashboard() {
       {dashboardPage === 'chatgpt' && <DashboardChatGPTLayout />}
       {dashboardPage === 'nest' && <DashboardNestLayout />}
       {dashboardPage === 'banking' && <DashboardBankingLayout />}
+      {dashboardPage === 'calendar' && (
+        <DashboardCalendarLayout />
+      )}{' '}
+      {/* Added calendar page */}
       {dashboardPage === 'torrents' && <DashboardTorrentLayout />}
       {dashboardPage === 'events' && (
         <DashboardApiEventHistoryLayout />

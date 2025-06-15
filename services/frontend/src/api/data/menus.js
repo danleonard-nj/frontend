@@ -16,6 +16,7 @@ const pages = [
   'Events',
   'Podcasts',
   'Redis',
+  'Calendar',
 ];
 
 export { pages };

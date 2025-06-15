@@ -1,7 +1,9 @@
+// services/frontend/src/store/rootReducer.js
 import { combineReducers } from '@reduxjs/toolkit';
 import alertReducer from './alert/alertSlice';
 import apiEventSlice from './apiEvents/apiEventSlice';
 import bankSlice from './bank/bankSlice';
+import calendarSlice from './calendar/calendarSlice'; // Added calendar slice
 import chatGptSlice from './chatgpt/chatGptSlice';
 import dashboardReducer from './dashboard/dashboardSlice';
 import dialogReducer from './dialog/dialogSlice';
@@ -45,6 +47,7 @@ const rootReducer = combineReducers({
   chatgpt: chatGptSlice,
   nest: nestSlice,
   bank: bankSlice,
+  calendar: calendarSlice, // Added calendar to the reducer
   weather: weatherSlice,
   torrents: torrentSlice,
   apiEvents: apiEventSlice,
