@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const calendarInitialState = {
   prompt: '',
+  images: [],
   generatedEvent: null,
   isGenerating: false,
   isSaving: false,
@@ -16,6 +17,18 @@ const calendarSlice = createSlice({
   reducers: {
     setPrompt(state, { payload }) {
       state.prompt = payload;
+    },
+    setImages(state, { payload }) {
+      state.images = payload;
+    },
+    addImage(state, { payload }) {
+      state.images.push(payload);
+    },
+    removeImage(state, { payload }) {
+      state.images = state.images.filter((img) => img.id !== payload);
+    },
+    clearImages(state) {
+      state.images = [];
     },
     setGeneratedEvent(state, { payload }) {
       state.generatedEvent = payload;
@@ -43,6 +56,10 @@ const calendarSlice = createSlice({
 
 export const {
   setPrompt,
+  setImages,
+  addImage,
+  removeImage,
+  clearImages,
   setGeneratedEvent,
   setIsGenerating,
   setIsSaving,

@@ -18,7 +18,7 @@ export default class CalendarActions {
     autoBind(this);
   }
 
-  generateCalendarEvent(prompt) {
+  generateCalendarEvent(data) {
     return async (dispatch, getState) => {
       const handleErrorResponse = ({ data, status }) => {
         const errorMessage = `${status}: Failed to generate calendar event: ${getErrorMessage(
@@ -41,17 +41,44 @@ export default class CalendarActions {
       dispatch(clearError());
 
       try {
+        // Validate input data
+        let hasContent = false;
+
+        if (typeof data === 'string') {
+          // Legacy format - just a prompt string
+          hasContent = data.trim().length > 0;
+        } else if (typeof data === 'object') {
+          // New format - object with prompt and images
+          const { prompt = '', images = [] } = data;
+          hasContent = prompt.trim().length > 0 || images.length > 0;
+
+          if (!hasContent) {
+            throw new Error(
+              'Please provide either a text description or upload images'
+            );
+          }
+        } else {
+          throw new Error('Invalid input format');
+        }
+
+        if (!hasContent) {
+          throw new Error(
+            'Please provide a description for the calendar event'
+          );
+        }
+
         const response = await this.calendarApi.generateCalendarEvent(
-          prompt
+          data
         );
 
         response.status === 200
           ? handleSuccessResponse(response)
           : handleErrorResponse(response);
       } catch (error) {
+        console.error('Calendar generation error:', error);
         handleErrorResponse({
-          data: error.message,
-          status: 'Network Error',
+          data: error.message || 'Unknown error occurred',
+          status: 'Client Error',
         });
       }
 
@@ -79,6 +106,11 @@ export default class CalendarActions {
       dispatch(clearError());
 
       try {
+        // Validate event data
+        if (!eventData || !eventData.summary) {
+          throw new Error('Event must have a title');
+        }
+
         const response = await this.calendarApi.saveCalendarEvent(
           eventData
         );
@@ -87,16 +119,28 @@ export default class CalendarActions {
           ? handleSuccessResponse(response)
           : handleErrorResponse(response);
       } catch (error) {
+        console.error('Calendar save error:', error);
         handleErrorResponse({
-          data: error.message,
-          status: 'Network Error',
+          data: error.message || 'Unknown error occurred',
+          status: 'Client Error',
         });
       }
 
       dispatch(setIsSaving(false));
     };
   }
+
+  // Helper action to clear images and reset form
+  resetCalendarForm() {
+    return async (dispatch) => {
+      dispatch(clearError());
+      // Could add additional cleanup logic here if needed
+    };
+  }
 }
 
-export const { generateCalendarEvent, saveCalendarEvent } =
-  new CalendarActions();
+export const {
+  generateCalendarEvent,
+  saveCalendarEvent,
+  resetCalendarForm,
+} = new CalendarActions();
