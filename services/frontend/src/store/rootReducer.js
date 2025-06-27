@@ -10,10 +10,6 @@ import dialogReducer from './dialog/dialogSlice';
 import emailSlice from './email/emailSlice';
 import featureSlice from './features/featureSlice';
 import fitnessSlice from './fitness/fitnessSlice';
-import deviceReducer from './kasa/deviceSlice';
-import flowReducer from './kasa/flowSlice';
-import presetReducer from './kasa/presetSlice';
-import sceneReducer from './kasa/sceneSlice';
 import kubeLogsSlice from './kubeLogs/kubeLogSlice';
 import locationSlice from './locations/locationSlice';
 import nestSlice from './nest/nestSlice';
@@ -33,10 +29,6 @@ const rootReducer = combineReducers({
   alert: alertReducer,
   dashboard: dashboardReducer,
   dialog: dialogReducer,
-  device: deviceReducer,
-  scene: sceneReducer,
-  flow: flowReducer,
-  preset: presetReducer,
   shipEngine: shipEngineReducer,
   reverb: reverbReducer,
   fitness: fitnessSlice,

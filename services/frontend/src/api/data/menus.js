@@ -1,8 +1,6 @@
 const pages = [
   'Schedules',
   'Tasks',
-  'Kasa',
-  'Scenes',
   'ShipEngine',
   'Reverb',
   'Locations',

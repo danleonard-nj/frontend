@@ -30,24 +30,11 @@ const LocationDetailContainer = () => {
     <>
       <Tabs
         value={locationTab}
-        onChange={(event, tab) => handleTabChange(tab)}
-        id='kasa-scene-layout-tabs'>
-        <Tab
-          label='Query'
-          value={0}
-          id='kasa-scene-layout-scene-tab'
-        />
+        onChange={(event, tab) => handleTabChange(tab)}>
+        <Tab label='Query' value={0} />
 
-        <Tab
-          label='Locations'
-          value={1}
-          id='kasa-scene-layout-scene-tab'
-        />
-        <Tab
-          label='Marker'
-          value={2}
-          id='kasa-scene-layout-scene-tab'
-        />
+        <Tab label='Locations' value={1} />
+        <Tab label='Marker' value={2} />
       </Tabs>
 
       {locationTab === 0 && <LocationQuerySettings />}
