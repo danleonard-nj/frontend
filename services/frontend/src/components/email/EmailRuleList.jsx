@@ -9,19 +9,33 @@ import { setSelectedEmailRule } from '../../store/email/emailSlice';
 import Spinner from '../Spinner';
 import { getEmailRule } from '../../store/email/emailActions';
 import { scrollable } from '../../api/helpers/formattingHelpers';
+import { useEffect, useState } from 'react';
 
 const EmailRuleList = () => {
   const dispatch = useDispatch();
 
-  const { emailRules, emailRulesLoading } = useSelector(
+  // const [selectedEmailRule, setSelectedEmailRule] = useState(null);
+
+  const { emailRules, emailRulesLoading, emailRule } = useSelector(
     (x) => x.email
   );
 
   const handleSelectRule = (rule) => {
     console.log('Selected rule: ', rule);
+    // Update the state so we re-render
+    // setSelectedEmailRule(rule);
+
     dispatch(setSelectedEmailRule(rule));
     dispatch(getEmailRule(rule.rule_id));
   };
+
+  // Set the default selected rule if none is selected
+  useEffect(() => {
+    if (!emailRule?.rule_id && emailRules.length > 0) {
+      // setSelectedEmailRule(emailRules[0]);
+      handleSelectRule(emailRules[0]);
+    }
+  }, [emailRules, dispatch]);
 
   return emailRulesLoading ? (
     <Spinner />

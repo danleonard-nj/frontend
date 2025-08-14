@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   clearEmailRule,
+  getEmailRule,
   getEmailRules,
 } from '../../store/email/emailActions';
 import { EmailRuleDetail } from '../email/EmailRuleDetail';
@@ -19,11 +20,12 @@ import {
   dialogType,
   openDialog,
 } from '../../store/dialog/dialogSlice';
-import { setEmailRule } from '../../store/email/emailSlice';
+import { setSelectedEmailRule } from '../../store/email/emailSlice';
 
 const DashoardEmailRuleLayout = () => {
   const dispatch = useDispatch();
-  const { selectedEmailRule } = useSelector((x) => x.email);
+  const { selectedEmailRule, emailRules, emailRulesLoading } =
+    useSelector((x) => x.email);
 
   const handleOpenCreateDialog = () => {
     dispatch(clearEmailRule());
@@ -34,9 +36,10 @@ const DashoardEmailRuleLayout = () => {
     dispatch(getEmailRules());
   };
 
+  // Fetch rules on mount
   useEffect(() => {
     dispatch(getEmailRules());
-  }, []);
+  }, [dispatch]);
 
   return (
     <Container>
@@ -51,6 +54,14 @@ const DashoardEmailRuleLayout = () => {
             <ButtonGroup>
               <Button onClick={handleRefresh}>Refresh</Button>
               <Button onClick={handleOpenCreateDialog}>Create</Button>
+              <Button
+                component='a'
+                href='https://rules-admin.dan-leonard.com'
+                target='_blank'
+                rel='noopener noreferrer'
+                color='secondary'>
+                Rules Admin →
+              </Button>
             </ButtonGroup>
           </Box>
         </Grid>
