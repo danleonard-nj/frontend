@@ -44,11 +44,11 @@ export default function Dashboard() {
       )}
       {dashboardPage === 'features' && <DashboardFeatureLayout />}
       {dashboardPage === 'email' && <DashoardEmailRuleLayout />}
-      {dashboardPage === 'chatgpt' && <DashboardChatGPTLayout />}
-      {dashboardPage === 'nest' && <DashboardNestLayout />}
+      {/* {dashboardPage === 'chatgpt' && <DashboardChatGPTLayout />} */}
+      {/* {dashboardPage === 'nest' && <DashboardNestLayout />} */}
       {dashboardPage === 'banking' && <DashboardBankingLayout />}
       {dashboardPage === 'calendar' && <DashboardCalendarLayout />}
-      {dashboardPage === 'torrents' && <DashboardTorrentLayout />}
+      {/* {dashboardPage === 'torrents' && <DashboardTorrentLayout />} */}
       {dashboardPage === 'events' && (
         <DashboardApiEventHistoryLayout />
       )}
