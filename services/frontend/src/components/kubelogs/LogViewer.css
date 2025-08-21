@@ -1,0 +1,208 @@
+/* Custom styles for Kubernetes Log Viewer */
+
+/* Terminal-like scrollbar */
+.log-container::-webkit-scrollbar {
+  width: 12px;
+}
+
+.log-container::-webkit-scrollbar-track {
+  background: #161b22;
+  border-radius: 6px;
+}
+
+.log-container::-webkit-scrollbar-thumb {
+  background: #484f58;
+  border-radius: 6px;
+  border: 2px solid #161b22;
+}
+
+.log-container::-webkit-scrollbar-thumb:hover {
+  background: #6e7681;
+}
+
+.log-container::-webkit-scrollbar-corner {
+  background: #161b22;
+}
+
+/* Log level animations */
+.log-level-error {
+  animation: errorPulse 1s ease-in-out;
+}
+
+.log-level-warn {
+  animation: warnPulse 1s ease-in-out;
+}
+
+@keyframes errorPulse {
+  0% {
+    background-color: rgba(248, 81, 73, 0.2);
+  }
+  50% {
+    background-color: rgba(248, 81, 73, 0.4);
+  }
+  100% {
+    background-color: rgba(248, 81, 73, 0.1);
+  }
+}
+
+/* Spinner animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes warnPulse {
+  0% {
+    background-color: rgba(255, 193, 7, 0.2);
+  }
+  50% {
+    background-color: rgba(255, 193, 7, 0.4);
+  }
+  100% {
+    background-color: rgba(255, 193, 7, 0.1);
+  }
+}
+
+/* Streaming indicator */
+.streaming-indicator {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Log syntax highlighting */
+.log-json {
+  color: #79c0ff;
+}
+
+.log-timestamp {
+  color: #7d8590;
+  font-weight: normal;
+}
+
+.log-error {
+  color: #f85149;
+  font-weight: bold;
+}
+
+.log-warn {
+  color: #d29922;
+  font-weight: bold;
+}
+
+.log-info {
+  color: #58a6ff;
+}
+
+.log-debug {
+  color: #a5a5a5;
+}
+
+.log-trace {
+  color: #8b949e;
+}
+
+/* Log line hover effects */
+.log-line:hover {
+  background-color: rgba(177, 186, 196, 0.12) !important;
+  cursor: text;
+}
+
+/* Selection highlighting */
+.log-line::selection,
+.log-line *::selection {
+  background-color: rgba(58, 117, 215, 0.3);
+}
+
+/* Log container focus */
+.log-container:focus {
+  outline: 2px solid #58a6ff;
+  outline-offset: 2px;
+}
+
+/* Custom Material-UI overrides for dark theme */
+.MuiPaper-root.log-controls {
+  background-color: #21262d;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+}
+
+.MuiChip-root.log-chip {
+  background-color: #21262d;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+}
+
+/* Loading spinner container */
+.log-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  background-color: #0d1117;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+}
+
+/* Empty state */
+.log-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  color: #7d8590;
+  background-color: #0d1117;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .log-container {
+    height: 400px;
+    font-size: 12px;
+  }
+
+  .log-controls .MuiGrid-container {
+    flex-direction: column;
+  }
+
+  .log-controls .MuiStack-root {
+    flex-wrap: wrap;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .log-container {
+    border: 2px solid #ffffff;
+  }
+
+  .log-line {
+    border-left-width: 4px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .log-level-error,
+  .log-level-warn,
+  .streaming-indicator {
+    animation: none;
+  }
+}

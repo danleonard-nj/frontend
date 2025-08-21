@@ -13,6 +13,10 @@ const kubeLogsInitalState = {
   selectedPod: '',
   selectedLogsTab: 0,
   logTail: 5000,
+  isStreaming: false,
+  streamingInterval: 5000,
+  lastLogTimestamp: null,
+  accumulatedLogs: [],
 };
 
 const kubeLogsSlice = createSlice({
@@ -21,6 +25,10 @@ const kubeLogsSlice = createSlice({
   reducers: {
     setLogs(state, { payload }) {
       state.logs = payload;
+    },
+    appendLogs(state, { payload }) {
+      state.logs = [...state.logs, ...payload];
+      state.accumulatedLogs = [...state.accumulatedLogs, ...payload];
     },
     setLogsLoading(state, { payload }) {
       state.logsLoading = payload;
@@ -49,11 +57,25 @@ const kubeLogsSlice = createSlice({
     setSelectedPod(state, { payload }) {
       state.selectedPod = payload;
     },
+    setIsStreaming(state, { payload }) {
+      state.isStreaming = payload;
+    },
+    setStreamingInterval(state, { payload }) {
+      state.streamingInterval = payload;
+    },
+    setLastLogTimestamp(state, { payload }) {
+      state.lastLogTimestamp = payload;
+    },
+    clearAccumulatedLogs(state) {
+      state.accumulatedLogs = [];
+      state.logs = [];
+    },
   },
 });
 
 export const {
   setLogs,
+  appendLogs,
   setSelectedNamespace,
   setPods,
   setNamespaces,
@@ -62,6 +84,10 @@ export const {
   setLogTail,
   setSelectedPod,
   setLogsLoading,
+  setIsStreaming,
+  setStreamingInterval,
+  setLastLogTimestamp,
+  clearAccumulatedLogs,
 } = kubeLogsSlice.actions;
 
 export default kubeLogsSlice.reducer;

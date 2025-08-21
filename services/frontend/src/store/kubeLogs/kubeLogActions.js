@@ -3,10 +3,12 @@ import KubeLogsApi from '../../api/kubeLogsApi';
 import { popErrorMessage } from '../alert/alertActions';
 import {
   setLogs,
+  appendLogs,
   setLogsLoading,
   setNamespaces,
   setPods,
   setSelectedNamespacePods,
+  setLastLogTimestamp,
 } from './kubeLogSlice';
 
 export default class KubeLogActions {
@@ -64,7 +66,7 @@ export default class KubeLogActions {
     };
   }
 
-  getLogs(namespace, pod) {
+  getLogs(namespace, pod, append = false) {
     return async (dispatch, getState) => {
       dispatch(setLogsLoading(true));
 
@@ -72,7 +74,29 @@ export default class KubeLogActions {
         if (status !== 200) {
           dispatch(popErrorMessage('Failed to fetch logs for pod'));
         } else {
-          dispatch(setLogs(data?.logs));
+          const logs = data?.logs || [];
+
+          if (append && logs.length > 0) {
+            // When appending, only add new logs
+            dispatch(appendLogs(logs));
+          } else {
+            // When not appending, replace all logs
+            dispatch(setLogs(logs));
+          }
+
+          // Update last log timestamp if logs exist
+          if (logs.length > 0) {
+            const lastLog = logs[logs.length - 1];
+            // Extract timestamp from log if available
+            const timestampMatch = lastLog.match(
+              /^(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|[+-]\d{2}:\d{2})?)/
+            );
+            if (timestampMatch) {
+              dispatch(setLastLogTimestamp(timestampMatch[1]));
+            } else {
+              dispatch(setLastLogTimestamp(new Date().toISOString()));
+            }
+          }
         }
       };
 
@@ -93,5 +117,9 @@ export default class KubeLogActions {
   }
 }
 
-export const { getPods, getLogs, filterPodsByNamespace } =
-  new KubeLogActions();
+export const {
+  getPods,
+  getLogs,
+  // getLogsWithTimestamp,
+  filterPodsByNamespace,
+} = new KubeLogActions();
