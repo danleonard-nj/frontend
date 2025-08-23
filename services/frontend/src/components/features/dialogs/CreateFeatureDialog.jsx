@@ -107,12 +107,12 @@ export default function CreateFeatureDialog() {
 
                 <Grid item lg={6}>
                   <FormControl fullWidth>
-                    <InputLabel id='demo-simple-select-label'>
+                    <InputLabel id='select-feature-label'>
                       Feature Type
                     </InputLabel>
 
                     <Select
-                      labelId='demo-simple-select-label'
+                      labelId='select-feature-label'
                       label='Feature Type'
                       name='feature_type'
                       onChange={handleChange}
@@ -135,7 +135,7 @@ export default function CreateFeatureDialog() {
                       />
                     </FormControl>
                   )}
-                  {feature.feature_type == featureType.string && (
+                  {feature.feature_type == featureType.text && (
                     <TextField
                       label='Value'
                       name='value'

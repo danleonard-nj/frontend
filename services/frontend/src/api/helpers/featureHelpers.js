@@ -2,7 +2,7 @@ import { blue, green, red } from '@mui/material/colors';
 
 const featureType = {
   boolean: 'boolean',
-  string: 'string',
+  text: 'text',
   json: 'json',
   number: 'number',
 };
@@ -13,7 +13,7 @@ const getAvatarLetter = (typeName) => {
 
 const getAvatarColor = (type) => {
   switch (type) {
-    case featureType.string:
+    case featureType.text:
       return green[500];
     case featureType.boolean:
       return blue[500];

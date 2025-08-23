@@ -227,7 +227,7 @@ const EnhancedKubernetesLogs = () => {
           clearInterval(streamingIntervalRef.current);
           streamingIntervalRef.current = null;
         }
-        
+
         // Start new streaming with updated interval (no state changes to avoid re-render)
         const intervalMs = STREAMING_INTERVALS[newInterval];
         streamingIntervalRef.current = setInterval(() => {
@@ -235,7 +235,7 @@ const EnhancedKubernetesLogs = () => {
             fetchLogs(true);
           }
         }, intervalMs);
-        
+
         // Show notification after a delay to avoid interfering with dropdown
         setTimeout(() => {
           showNotification(
@@ -341,8 +341,10 @@ const EnhancedKubernetesLogs = () => {
               <Select
                 value={streamingInterval}
                 onChange={handleStreamingIntervalChange}
-                onOpen={() => { dropdownInteractionRef.current = true; }}
-                onClose={() => { 
+                onOpen={() => {
+                  dropdownInteractionRef.current = true;
+                }}
+                onClose={() => {
                   dropdownInteractionRef.current = false;
                   // Update logs after a brief delay to allow for final updates
                   setTimeout(() => {
