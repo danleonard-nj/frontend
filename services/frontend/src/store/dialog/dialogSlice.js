@@ -14,6 +14,7 @@ export const dialogType = {
   createReminderLocation: 'createReminderLocation',
   editReminderNotification: 'editReminderNotification',
   createFeatureDialog: 'createFeatureDialog',
+  editFeatureDialog: 'editFeatureDialog',
   scheduleHistoryViewDialog: 'scheduleHistoryViewDialog',
   chatGptViewHistoryDialog: 'chatGptViewHistoryDialog',
   magnetLinkDialog: 'magnetLinkDialog',

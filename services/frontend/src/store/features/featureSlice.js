@@ -67,6 +67,9 @@ const featureSlice = createSlice({
           : feature;
       });
     },
+    setEditFeature(state, { payload }) {
+      state.editFeature = payload;
+    },
   },
 });
 
@@ -84,6 +87,7 @@ export const {
   createFeatureFetched,
   createFeatureFetching,
   openSnackbar,
+  setEditFeature,
 } = featureSlice.actions;
 
 export default featureSlice.reducer;

@@ -110,6 +110,8 @@ export default class FeatureActions {
         dispatch(
           popMessage(`Feature '${featureKey}' updated successfully!`)
         );
+        // Refresh features so list reflects new value
+        dispatch(this.getFeatures());
       };
 
       const response = await this.featureApi.setFeature(

@@ -1,6 +1,7 @@
 import { ChatGptHistoryViewDialog } from './chatgpt/dialogs/ChatGptHistoryViewDialog';
 import { CreateEmailRuleDialog } from './email/dialogs/CreateEmailRuleDialog';
 import CreateFeatureDialog from './features/dialogs/CreateFeatureDialog';
+import EditFeatureDialog from './features/dialogs/EditFeatureDialog';
 import { MagnetLinkDialog } from './layouts/DashboardTorrentLayout';
 import { NestDeviceLogRecordDialog } from './nest/NestDeviceLogRecordDialog';
 import ReverbOrderDetailDialog from './reverb/ReverbOrderDetailDialog';
@@ -17,6 +18,7 @@ export const DialogProvider = () => {
       <DeleteTaskConfirmationDialog />
       <ReverbOrderDetailDialog />
       <CreateFeatureDialog />
+      <EditFeatureDialog />
       <ScheduleHistoryViewDialog />
       <ChatGptHistoryViewDialog />
       <MagnetLinkDialog id='magnet-link-dialog' />

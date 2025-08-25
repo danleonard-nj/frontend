@@ -2,6 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import {
   Avatar,
+  Chip,
   IconButton,
   ListItem,
   ListItemText,
@@ -20,21 +21,32 @@ import {
   deleteFeature,
   updateFeatureValue,
 } from '../../store/features/featureActions';
+import {
+  openDialog,
+  dialogType,
+} from '../../store/dialog/dialogSlice';
+import { setEditFeature } from '../../store/features/featureSlice';
 
 const FeatureListItem = ({ feature }) => {
   const dispatch = useDispatch();
-  const [featureValue, setFeatureValue] = useState(feature?.value ?? '');
+  const [featureValue, setFeatureValue] = useState(
+    feature?.value ?? ''
+  );
 
   const handleDelete = () => {
     dispatch(
-      popErrorMessage('Delete is not currently supported from the frontend')
+      popErrorMessage(
+        'Delete is not currently supported from the frontend'
+      )
     );
     // dispatch(deleteFeature(feature?.feature_id));
   };
 
   const handleSetFeature = (event) => {
     setFeatureValue(event.target.checked);
-    dispatch(updateFeatureValue(feature.feature_key, event.target.checked));
+    dispatch(
+      updateFeatureValue(feature.feature_key, event.target.checked)
+    );
   };
 
   //   useEffect(() => {
@@ -68,10 +80,22 @@ const FeatureListItem = ({ feature }) => {
         />
       )}
 
-      {feature.feature_type !== featureType.boolean && (
-        <IconButton aria-label='comment'>
-          <EditIcon />
-        </IconButton>
+      {feature.feature_type === featureType.text && (
+        <>
+          <Chip
+            size='small'
+            label={feature?.value ?? ''}
+            sx={{ mr: 1, maxWidth: 120 }}
+          />
+          <IconButton
+            aria-label='edit'
+            onClick={() => {
+              dispatch(setEditFeature(feature));
+              dispatch(openDialog(dialogType.editFeatureDialog));
+            }}>
+            <EditIcon />
+          </IconButton>
+        </>
       )}
       <IconButton aria-label='comment' onClick={handleDelete}>
         <DeleteIcon />
