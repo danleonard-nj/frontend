@@ -1,5 +1,5 @@
 import { Container } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
 import FeatureList from '../features/FeatureList';
 import { FeatureTopMenu } from '../features/FeatureTopMenu';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,10 +16,25 @@ const DashboardFeatureLayout = () => {
     dispatch(getFeatures());
   }, []);
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+
   return (
     <Container>
-      <FeatureTopMenu />
-      {featuresLoading ? <Spinner /> : <FeatureList />}
+      <FeatureTopMenu
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        typeFilter={typeFilter}
+        onTypeFilterChange={setTypeFilter}
+      />
+      {featuresLoading ? (
+        <Spinner />
+      ) : (
+        <FeatureList
+          searchTerm={searchTerm}
+          typeFilter={typeFilter}
+        />
+      )}
     </Container>
   );
 };
