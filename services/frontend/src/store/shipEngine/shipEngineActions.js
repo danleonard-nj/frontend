@@ -31,17 +31,21 @@ const tryParse = (data) => {
 
 const groupByCarrierId = (data) => {
   // Exclude duplicate UPS carrier
-  const excludedCarrierId = 'se-485981';
+  // const excludedCarrierId = 'se-485981';
+  const shipEngineUps = 'se-485981';
 
   const grouped = {};
 
   data.forEach((item) => {
-    if (item.carrier_id === excludedCarrierId) return; // Skip excluded carrier
+    // if (item.carrier_id === excludedCarrierId) return; // Skip excluded carrier
 
     if (!grouped[item.carrier_id]) {
       grouped[item.carrier_id] = {
         carrier_id: item.carrier_id,
-        carrier_friendly_name: item.carrier_friendly_name,
+        carrier_friendly_name:
+          item.carrier_id == shipEngineUps
+            ? 'UPS (ShipEngine)'
+            : item.carrier_friendly_name,
         estimates: [],
       };
     }
@@ -113,8 +117,8 @@ export default class ShipEngineActions {
 
   getBalances() {
     return async (dispatch, getState) => {
-      const balances = await this.shipEngineApi.getBalances();
-      dispatch(setBalances(balances));
+      // const balances = await this.shipEngineApi.getBalances();
+      dispatch(setBalances({}));
     };
   }
 

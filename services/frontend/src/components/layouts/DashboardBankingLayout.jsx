@@ -30,9 +30,9 @@ const DashboardBankingLayout = () => {
     dispatch(setSelectedTab(tab));
   };
 
-  useEffect(() => {
-    dispatch(getBalances());
-  }, []);
+  // useEffect(() => {
+  //   dispatch(getBalances());
+  // }, []);
 
   const BalanceTab = () => {
     return balancesLoading ? (
