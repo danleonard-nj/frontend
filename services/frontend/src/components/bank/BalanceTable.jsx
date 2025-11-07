@@ -20,17 +20,17 @@ const BalanceTable = ({ balances }) => {
 
   const handleBalanceRowClick = (balance) => {
     dispatch(setSelectedBankKey(balance.bank_key));
-    dispatch(setSelectedTab('transactions'));
+    dispatch(setSelectedTab('history'));
   };
 
   return (
     <Table>
       <TableHead>
         <TableRow>
+          <TableCell>Sync Date</TableCell>
           <TableCell>Bank</TableCell>
           <TableCell>Balance</TableCell>
           <TableCell>Sync Type</TableCell>
-          <TableCell>Sync Date</TableCell>
           <TableCell>Message BK</TableCell>
           <TableCell>GPT</TableCell>
           <TableCell>Tokens Used</TableCell>

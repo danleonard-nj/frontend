@@ -27,6 +27,7 @@ export default class BankApi extends ApiBase {
 
     url.searchParams.append('start_timestamp', startDate);
     url.searchParams.append('end_timestamp', endDate);
+    url.searchParams.append('group_institutions', 'true');
     keys.forEach((key) => url.searchParams.append('bank_key', key));
 
     return await this.send(url.toString(), 'GET');

@@ -7,6 +7,8 @@ import {
   setBalanceLoading,
   setBalances,
   setBalancesLoading,
+  setBalanceHistory,
+  setBalanceHistoryLoading,
   setTransactions,
   setTransactionsLoading,
 } from './bankSlice';
@@ -109,7 +111,55 @@ export default class BankActions {
       dispatch(setTransactionsLoading(false));
     };
   }
+
+  getBalanceHistory() {
+    return async (dispatch, getState) => {
+      const {
+        balanceHistoryParams: { startDate, endDate },
+        selectedBankKey,
+      } = getState().bank;
+
+      const handleErrorResponse = ({ data, status }) => {
+        dispatch(
+          popErrorMessage(
+            `${status}: Failed to fetch balance history for bank key '${selectedBankKey}': ${getErrorMessage(
+              data
+            )}`
+          )
+        );
+      };
+
+      dispatch(setBalanceHistoryLoading(true));
+
+      // Set default date range if not provided (last 2 years)
+      const defaultEndDate = new Date();
+      const defaultStartDate = new Date();
+      defaultStartDate.setFullYear(
+        defaultStartDate.getFullYear() - 2
+      );
+
+      const response = await this.bankApi.getBalanceHistory(
+        getISODate(startDate || defaultStartDate),
+        getISODate(endDate || defaultEndDate),
+        [selectedBankKey]
+      );
+
+      if (response.status === 200) {
+        // The API returns an object with bank_key as keys, extract the array for selected bank
+        const historyData = response.data[selectedBankKey] || [];
+        dispatch(setBalanceHistory(historyData));
+      } else {
+        handleErrorResponse(response);
+      }
+
+      dispatch(setBalanceHistoryLoading(false));
+    };
+  }
 }
 
-export const { getBalances, getBalance, getTransactions } =
-  new BankActions();
+export const {
+  getBalances,
+  getBalance,
+  getTransactions,
+  getBalanceHistory,
+} = new BankActions();

@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getBalances } from '../../store/bank/bankActions';
 import { setSelectedTab } from '../../store/bank/bankSlice';
 import Spinner from '../Spinner';
-import { TransactionsTab } from '../bank/TransactionsTab';
+import { BalanceHistoryTab } from '../bank/BalanceHistoryTab';
 import { BalanceTable } from '../bank/BalanceTable';
 
 const DashboardBankingLayout = () => {
@@ -60,8 +60,8 @@ const DashboardBankingLayout = () => {
               onChange={(event, tab) => handleSetSelectedTab(tab)}>
               <Tab label='Balances' value='balances' />
               <Tab
-                label='Transactions'
-                value='transactions'
+                label='Balance History'
+                value='history'
                 disabled={!selectedBankKey}
               />
             </Tabs>
@@ -80,7 +80,7 @@ const DashboardBankingLayout = () => {
             </Tooltip>
           </div>
           {selectedTab === 'balances' && <BalanceTab />}
-          {selectedTab === 'transactions' && <TransactionsTab />}
+          {selectedTab === 'history' && <BalanceHistoryTab />}
         </Grid>
       </Grid>
     </Paper>

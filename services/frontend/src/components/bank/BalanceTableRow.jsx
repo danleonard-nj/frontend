@@ -23,13 +23,13 @@ const BalanceTableRow = ({
       sx={{ cursor: 'pointer' }}
       selected={rowSelected}
       onClick={() => handleBalanceRowClick(balance)}>
-      <TableCell>{balance.bank_key}</TableCell>
-      <TableCell>{formatCurrency(balance.balance ?? 0)}</TableCell>
-      <TableCell>{balance.sync_type}</TableCell>
       <TableCell>
         {balance.timestamp &&
           new Date(balance.timestamp * 1000).toLocaleString()}
       </TableCell>
+      <TableCell>{balance.bank_key}</TableCell>
+      <TableCell>{formatCurrency(balance.balance ?? 0)}</TableCell>
+      <TableCell>{balance.sync_type}</TableCell>
       <TableCell>
         {balance?.sync_type === 'email' ? (
           <Link
