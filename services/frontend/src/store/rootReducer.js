@@ -22,6 +22,7 @@ import weatherSlice from './weather/weatherSlice';
 import podcastSlice from './podcasts/podcastSlice';
 import redisSlice from './redis/redisSlice';
 import addressBookReducer from './addressBook/addressBookSlice';
+import tsPostsSlice from './tsPosts/tsPostsSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -46,6 +47,7 @@ const rootReducer = combineReducers({
   podcast: podcastSlice,
   redis: redisSlice,
   addressBook: addressBookReducer,
+  tsPosts: tsPostsSlice,
 });
 
 export default rootReducer;

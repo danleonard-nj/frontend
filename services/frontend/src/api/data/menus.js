@@ -12,6 +12,7 @@ const pages = [
   // 'Torrents',
   'Events',
   'Redis',
+  'TsPosts',
   'Locations',
   'Reverb',
   'ShipEngine',

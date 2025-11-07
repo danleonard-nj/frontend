@@ -18,6 +18,7 @@ import DashboardTaskLayout from '../layouts/DashboardTaskLayout';
 import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
 import { DashboardPodcastLayout } from '../layouts/DashboardPodcastLayout';
 import { DashboardRedisManagementLayout } from '../layouts/DashboardRedisManagementLayout';
+import { DashboardTsPostsLayout } from '../layouts/DashboardTsPostsLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -56,6 +57,7 @@ export default function Dashboard() {
       {dashboardPage === 'redis' && (
         <DashboardRedisManagementLayout />
       )}
+      {dashboardPage === 'tsposts' && <DashboardTsPostsLayout />}
     </Box>
   );
 }
