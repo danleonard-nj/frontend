@@ -22,6 +22,10 @@ const TsPostsList = ({ posts }) => {
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
+      // Handle Unix timestamp (if it's a number)
+      if (typeof dateString === 'number') {
+        return new Date(dateString * 1000).toLocaleString();
+      }
       return new Date(dateString).toLocaleString();
     } catch (e) {
       return dateString;
@@ -76,8 +80,8 @@ const TsPostsList = ({ posts }) => {
                   <Box>
                     <Typography variant='caption' display='block'>
                       {formatDate(
-                        post.created_at ||
-                          post.published_timestamp * 1000 ||
+                        post.published_timestamp ||
+                          post.created_at ||
                           post.timestamp
                       )}
                     </Typography>

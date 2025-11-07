@@ -6,8 +6,22 @@ export default class TsPostsApi extends ApiBase {
     super(serviceScopes.kubeTools);
   }
 
-  async getPosts() {
+  async getPosts(
+    limit = 10,
+    startTimestamp = null,
+    endTimestamp = null
+  ) {
     const endpoint = new URL(`${this.baseUrl}/api/tools/ts/posts`);
+    endpoint.searchParams.append('limit', limit);
+
+    if (startTimestamp) {
+      endpoint.searchParams.append('start_timestamp', startTimestamp);
+    }
+
+    if (endTimestamp) {
+      endpoint.searchParams.append('end_timestamp', endTimestamp);
+    }
+
     return await this.send(endpoint.toString(), 'GET');
   }
 

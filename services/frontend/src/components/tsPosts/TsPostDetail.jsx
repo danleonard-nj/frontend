@@ -52,21 +52,6 @@ const TsPostDetail = ({ post, loading }) => {
       {/* Original Post */}
       <Card sx={{ mb: 2 }}>
         <CardContent>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 2,
-            }}>
-            <Typography variant='h5' component='div'>
-              {post.title ||
-                `Post #${post._id || post.id || post.post_id}`}
-            </Typography>
-            {hasAiAnalysis && (
-              <Chip label='AI Analyzed' color='success' />
-            )}
-          </Box>
           <Typography
             variant='caption'
             color='text.secondary'
@@ -101,6 +86,7 @@ const TsPostDetail = ({ post, loading }) => {
             sx={{ whiteSpace: 'pre-wrap', mb: 2 }}>
             {stripHtml(post.content) ||
               post.text ||
+              post.title ||
               'No content available'}
           </Typography>
         </CardContent>

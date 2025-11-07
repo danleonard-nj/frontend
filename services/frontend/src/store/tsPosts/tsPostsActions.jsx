@@ -6,6 +6,9 @@ import {
   setPostsLoading,
   setSelectedPost,
   setSelectedPostLoading,
+  setLimit,
+  setStartTimestamp,
+  setEndTimestamp,
 } from './tsPostsSlice';
 
 export default class TsPostsActions {
@@ -16,9 +19,16 @@ export default class TsPostsActions {
 
   getPosts() {
     return async (dispatch, getState) => {
+      const state = getState();
+      const { limit, startTimestamp, endTimestamp } = state.tsPosts;
+
       dispatch(setPostsLoading(true));
 
-      const response = await this.tsPostsApi.getPosts();
+      const response = await this.tsPostsApi.getPosts(
+        limit,
+        startTimestamp,
+        endTimestamp
+      );
 
       if (response.status === 200) {
         // Extract posts array from response data
