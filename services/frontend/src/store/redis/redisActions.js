@@ -84,11 +84,50 @@ export default class RedisActions {
 
       const response = await this.redisApi.deleteKey(key);
 
-      response?.status === 200
-        ? dispatch(popMessage(`Key '${key}' deleted successfully`))
-        : handleErrorResponse(response);
+      if (response?.status === 200) {
+        dispatch(popMessage(`Key '${key}' deleted successfully`));
+        // Refresh keys and clear selection/cache if the deleted key was selected
+        const {
+          redis: { selectedKey },
+        } = getState();
+        if (selectedKey === key) {
+          dispatch(setSelectedKey(''));
+          dispatch(setCacheValue({}));
+        }
+        dispatch(this.getRedisKeys());
+      } else {
+        handleErrorResponse(response);
+      }
 
       // dispatch(setCacheValueLoading(false));
+    };
+  }
+
+  setRedisValue(key, value, parseJson = false) {
+    return async (dispatch, getState) => {
+      const handleErrorResponse = ({ status, data }) => {
+        if (status !== 200) {
+          dispatch(
+            popErrorMessage(`${data?.error}: ${data?.message}`)
+          );
+        }
+      };
+
+      const response = await this.redisApi.setValue(
+        key,
+        value,
+        parseJson
+      );
+
+      if (response?.status === 200) {
+        dispatch(popMessage(`Key '${key}' saved`));
+        // Re-fetch to reflect TTL/value from server
+        dispatch(this.getRedisValue(key, parseJson));
+        // refresh list in case a new key was created
+        dispatch(this.getRedisKeys());
+      } else {
+        handleErrorResponse(response);
+      }
     };
   }
 
@@ -134,4 +173,5 @@ export const {
   setSelectedRedisKey,
   deleteRedisKey,
   getRedisDiagnostics,
+  setRedisValue,
 } = new RedisActions();
