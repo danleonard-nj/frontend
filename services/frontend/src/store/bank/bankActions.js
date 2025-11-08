@@ -16,6 +16,18 @@ import { orderBy } from 'lodash';
 
 const getISODate = (date) => date.toISOString().split('T')[0];
 
+const getStartOfDayTimestamp = (date) => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return Math.floor(d.getTime() / 1000);
+};
+
+const getEndOfDayTimestamp = (date) => {
+  const d = new Date(date);
+  d.setHours(23, 59, 59, 999);
+  return Math.floor(d.getTime() / 1000);
+};
+
 export default class BankActions {
   constructor() {
     this.bankApi = new BankApi();
@@ -139,8 +151,8 @@ export default class BankActions {
       );
 
       const response = await this.bankApi.getBalanceHistory(
-        getISODate(startDate || defaultStartDate),
-        getISODate(endDate || defaultEndDate),
+        getStartOfDayTimestamp(startDate || defaultStartDate),
+        getEndOfDayTimestamp(endDate || defaultEndDate),
         [selectedBankKey]
       );
 
