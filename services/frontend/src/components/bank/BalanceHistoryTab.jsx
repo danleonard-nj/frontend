@@ -13,11 +13,19 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getBalanceHistory } from '../../store/bank/bankActions';
-import { setBalanceHistoryParams } from '../../store/bank/bankSlice';
+import {
+  setBalanceHistoryParams,
+  setSelectedBalance,
+} from '../../store/bank/bankSlice';
+import {
+  openDialog,
+  dialogType,
+} from '../../store/dialog/dialogSlice';
 import Spinner from '../Spinner';
+import { useLongPress } from './hooks/useLongPress';
 import {
   formatCurrency,
   getGmailLink,
@@ -54,6 +62,14 @@ const BalanceHistoryTab = () => {
     e.preventDefault();
     window.open(getGmailLink(messageBk), '_blank');
   };
+
+  const handleDeleteBalance = useCallback(
+    (balance) => {
+      dispatch(setSelectedBalance(balance));
+      dispatch(openDialog(dialogType.deleteBalance));
+    },
+    [dispatch]
+  );
 
   if (balanceHistoryLoading) {
     return <Spinner />;
@@ -112,36 +128,53 @@ const BalanceHistoryTab = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {balanceHistory.map((balance) => (
-            <TableRow key={balance.balance_id} hover>
-              <TableCell>
-                {balance.timestamp &&
-                  new Date(balance.timestamp * 1000).toLocaleString()}
-              </TableCell>
-              <TableCell>{balance.bank_key}</TableCell>
-              <TableCell>
-                {formatCurrency(balance.balance ?? 0)}
-              </TableCell>
-              <TableCell>{balance.sync_type}</TableCell>
-              <TableCell>
-                {balance?.sync_type === 'email' ? (
-                  <Link
-                    onClick={(e) =>
-                      handleGmailLinkClick(e, balance.message_bk)
-                    }
-                    sx={{ cursor: 'pointer' }}>
-                    {balance.message_bk}
-                  </Link>
-                ) : (
-                  <Typography variant='body2'>N/A</Typography>
-                )}
-              </TableCell>
-              <TableCell>
-                {balance.gpt_tokens > 0 ? 'true' : 'false'}
-              </TableCell>
-              <TableCell>{balance?.gpt_tokens ?? 0}</TableCell>
-            </TableRow>
-          ))}
+          {balanceHistory.map((balance) => {
+            const BalanceRowLongPress = () => {
+              const longPressEvent = useLongPress(
+                () => handleDeleteBalance(balance),
+                { delay: 500 }
+              );
+
+              return (
+                <TableRow
+                  key={balance.balance_id}
+                  hover
+                  {...longPressEvent}
+                  sx={{ cursor: 'pointer', userSelect: 'none' }}>
+                  <TableCell>
+                    {balance.timestamp &&
+                      new Date(
+                        balance.timestamp * 1000
+                      ).toLocaleString()}
+                  </TableCell>
+                  <TableCell>{balance.bank_key}</TableCell>
+                  <TableCell>
+                    {formatCurrency(balance.balance ?? 0)}
+                  </TableCell>
+                  <TableCell>{balance.sync_type}</TableCell>
+                  <TableCell>
+                    {balance?.sync_type === 'email' ? (
+                      <Link
+                        onClick={(e) =>
+                          handleGmailLinkClick(e, balance.message_bk)
+                        }
+                        sx={{ cursor: 'pointer' }}>
+                        {balance.message_bk}
+                      </Link>
+                    ) : (
+                      <Typography variant='body2'>N/A</Typography>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {balance.gpt_tokens > 0 ? 'true' : 'false'}
+                  </TableCell>
+                  <TableCell>{balance?.gpt_tokens ?? 0}</TableCell>
+                </TableRow>
+              );
+            };
+
+            return <BalanceRowLongPress key={balance.balance_id} />;
+          })}
         </TableBody>
       </Table>
     </Paper>

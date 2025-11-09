@@ -9,6 +9,7 @@ import { ScheduleAddLinkDialog } from './schedule/dialogs/ScheduleAddLinkDialog'
 import { ScheduleDeleteConfirmDialog } from './schedule/dialogs/ScheduleDeleteConfirmDialog';
 import { ScheduleHistoryViewDialog } from './schedule/dialogs/ScheduleHistoryViewDialog';
 import { DeleteTaskConfirmationDialog } from './task/dialogs/DeleteTaskConfirmationDialog';
+import { DeleteBalanceConfirmDialog } from './bank/dialogs/DeleteBalanceConfirmDialog';
 
 export const DialogProvider = () => {
   return (
@@ -16,6 +17,7 @@ export const DialogProvider = () => {
       <ScheduleDeleteConfirmDialog />
       <ScheduleAddLinkDialog />
       <DeleteTaskConfirmationDialog />
+      <DeleteBalanceConfirmDialog />
       <ReverbOrderDetailDialog />
       <CreateFeatureDialog />
       <EditFeatureDialog />

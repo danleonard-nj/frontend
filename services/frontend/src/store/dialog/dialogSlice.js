@@ -6,6 +6,7 @@ export const dialogType = {
   deleteAction: 'deleteActionDialog',
   deleteSchedule: 'deleteSchedule',
   deleteTask: 'deleteTask',
+  deleteBalance: 'deleteBalance',
   addPreset: 'addPreset',
   createShipment: 'createShipment',
   selectCarrier: 'selectCarrier',

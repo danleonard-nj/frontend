@@ -44,4 +44,11 @@ export default class BankApi extends ApiBase {
 
     return await this.send(url.toString(), 'GET');
   }
+
+  async deleteBalance(balanceId) {
+    return await this.send(
+      `${this.baseUrl}/api/tools/bank/balances/${balanceId}`,
+      'DELETE'
+    );
+  }
 }

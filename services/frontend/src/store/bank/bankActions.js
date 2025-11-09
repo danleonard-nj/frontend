@@ -167,6 +167,29 @@ export default class BankActions {
       dispatch(setBalanceHistoryLoading(false));
     };
   }
+
+  deleteBalance(balanceId) {
+    return async (dispatch, getState) => {
+      const handleErrorResponse = ({ data, status }) => {
+        dispatch(
+          popErrorMessage(
+            `${status}: Failed to delete balance: ${getErrorMessage(
+              data
+            )}`
+          )
+        );
+      };
+
+      const response = await this.bankApi.deleteBalance(balanceId);
+
+      if (response.status === 200 || response.status === 204) {
+        // Refresh the balance history after successful deletion
+        dispatch(this.getBalanceHistory());
+      } else {
+        handleErrorResponse(response);
+      }
+    };
+  }
 }
 
 export const {
@@ -174,4 +197,5 @@ export const {
   getBalance,
   getTransactions,
   getBalanceHistory,
+  deleteBalance,
 } = new BankActions();
