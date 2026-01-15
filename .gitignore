@@ -1,3 +1,4 @@
 services/frontend/src/api/data/configProvider.js
 services/frontend/removePackages.js
 services/frontend/src/store/speechToText/speechToTextActions.js
+services/frontend/deploy.bat

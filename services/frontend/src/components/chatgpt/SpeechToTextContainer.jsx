@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
-import SendIcon from '@mui/icons-material/Send';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -57,6 +57,7 @@ const SpeechToTextContainer = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
   const handleMessageChange = (event) => {
     dispatch(setMessage(event.target.value));
@@ -67,30 +68,48 @@ const SpeechToTextContainer = () => {
     dispatch(clearMessage());
   };
 
-  const handleSendMessage = () => {
+  const handleCopyToClipboard = async () => {
     if (!message.trim()) return;
 
-    console.log('Sending message:', message);
-    // Here you would send the message to your backend
-    // For example: dispatch(sendChatMessage(message));
-
-    // Clear message after sending
-    dispatch(clearMessage());
+    try {
+      await navigator.clipboard.writeText(message);
+      console.log('Message copied to clipboard');
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
   };
 
   /**
-   * Transcribe audio chunk using Redux action
+   * Process the recorded audio by sending it to the backend for transcription
    */
-  const transcribeAudioChunk = useCallback(
-    async (audioBlob) => {
-      try {
-        await dispatch(transcribeAudio(audioBlob));
-      } catch (error) {
-        console.error('Transcription error:', error);
-      }
-    },
-    [dispatch]
-  );
+  const processRecordedAudio = useCallback(async () => {
+    if (audioChunksRef.current.length === 0) {
+      console.warn('No audio chunks to process');
+      return;
+    }
+
+    try {
+      // Combine all audio chunks into a single blob
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: 'audio/webm;codecs=opus',
+      });
+
+      console.log('Processing audio blob:', {
+        size: audioBlob.size,
+        type: audioBlob.type,
+        chunkCount: audioChunksRef.current.length,
+      });
+
+      // Clear the chunks
+      audioChunksRef.current = [];
+
+      // Send to backend for transcription
+      const result = await dispatch(transcribeAudio(audioBlob));
+      console.log('Transcription result:', result);
+    } catch (error) {
+      console.error('Transcription error:', error);
+    }
+  }, [dispatch]);
 
   /**
    * Start recording audio
@@ -106,6 +125,7 @@ const SpeechToTextContainer = () => {
       });
 
       streamRef.current = stream;
+      audioChunksRef.current = [];
 
       // Determine best supported mime type
       let mimeType = 'audio/webm;codecs=opus';
@@ -123,10 +143,16 @@ const SpeechToTextContainer = () => {
 
       mediaRecorderRef.current = mediaRecorder;
 
-      mediaRecorder.ondataavailable = async (event) => {
+      // Collect audio data - this will only fire when recording stops
+      mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          await transcribeAudioChunk(event.data);
+          audioChunksRef.current.push(event.data);
         }
+      };
+
+      // Process audio when recording stops
+      mediaRecorder.onstop = async () => {
+        await processRecordedAudio();
       };
 
       mediaRecorder.onerror = (event) => {
@@ -134,8 +160,8 @@ const SpeechToTextContainer = () => {
         stopRecording();
       };
 
-      // Start recording with 1-second chunks
-      mediaRecorder.start(1000);
+      // Start recording - no timeslice parameter means single chunk
+      mediaRecorder.start();
       dispatch(setIsRecording(true));
     } catch (error) {
       console.error('Failed to start recording:', error);
@@ -143,7 +169,7 @@ const SpeechToTextContainer = () => {
         'Microphone access is required for voice input. Please grant permission and try again.'
       );
     }
-  }, [dispatch, transcribeAudioChunk]);
+  }, [dispatch, processRecordedAudio]);
 
   /**
    * Stop recording audio
@@ -204,8 +230,8 @@ const SpeechToTextContainer = () => {
           color='text.secondary'
           sx={{ mb: 2 }}>
           Type your message or click the microphone button to use
-          voice input. Speech will be transcribed and appended to your
-          message in real-time.
+          voice input. The transcribed text will be appended to your
+          message.
         </Typography>
 
         {error && (
@@ -243,34 +269,34 @@ const SpeechToTextContainer = () => {
               alignItems: 'center',
               gap: 1,
             }}>
-            {isTranscribing && (
+            {isTranscribing ? (
               <CircularProgress
-                size={20}
+                size={36}
                 thickness={4}
                 sx={{ color: 'primary.main' }}
               />
-            )}
-
-            <IconButton
-              onClick={handleMicClick}
-              color={isRecording ? 'error' : 'primary'}
-              size='small'
-              sx={{
-                backgroundColor: isRecording
-                  ? 'error.light'
-                  : 'action.hover',
-                '&:hover': {
+            ) : (
+              <IconButton
+                onClick={handleMicClick}
+                color={isRecording ? 'error' : 'primary'}
+                size='small'
+                sx={{
                   backgroundColor: isRecording
-                    ? 'error.main'
-                    : 'action.selected',
-                },
-                transition: 'all 0.2s ease-in-out',
-              }}
-              title={
-                isRecording ? 'Stop recording' : 'Start recording'
-              }>
-              {isRecording ? <MicOffIcon /> : <MicIcon />}
-            </IconButton>
+                    ? 'error.light'
+                    : 'action.hover',
+                  '&:hover': {
+                    backgroundColor: isRecording
+                      ? 'error.main'
+                      : 'action.selected',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+                title={
+                  isRecording ? 'Stop recording' : 'Start recording'
+                }>
+                {isRecording ? <MicOffIcon /> : <MicIcon />}
+              </IconButton>
+            )}
           </Box>
         </Box>
 
@@ -292,15 +318,19 @@ const SpeechToTextContainer = () => {
               variant='outlined'
               startIcon={<ClearIcon />}
               onClick={handleClearMessage}
-              disabled={!message.trim() || isRecording}>
+              disabled={
+                !message.trim() || isRecording || isTranscribing
+              }>
               Clear
             </Button>
             <Button
               variant='contained'
-              endIcon={<SendIcon />}
-              onClick={handleSendMessage}
-              disabled={!message.trim() || isRecording}>
-              Send Message
+              endIcon={<ContentCopyIcon />}
+              onClick={handleCopyToClipboard}
+              disabled={
+                !message.trim() || isRecording || isTranscribing
+              }>
+              Copy to Clipboard
             </Button>
           </Box>
         </Box>

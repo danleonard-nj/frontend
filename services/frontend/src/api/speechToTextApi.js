@@ -19,23 +19,33 @@ export default class SpeechToTextApi extends ApiBase {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'audio.webm');
 
+    console.log('Sending audio to backend:', {
+      blobSize: audioBlob.size,
+      blobType: audioBlob.type,
+    });
+
     // Get auth token for the request
     const token = await this.getToken();
 
-    const response = await fetch(`${this.baseUrl}/api/transcribe`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        // Don't set Content-Type - browser sets it with boundary for multipart/form-data
-      },
-      body: formData,
-    });
+    const response = await fetch(
+      `${this.baseUrl}/api/tools/transcribe`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Don't set Content-Type - browser sets it with boundary for multipart/form-data
+        },
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Transcription failed: ${response.statusText}`);
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log('Backend response:', result);
+    return result;
   }
 
   /**
@@ -43,6 +53,9 @@ export default class SpeechToTextApi extends ApiBase {
    * @returns {Promise<Array>} List of past transcriptions
    */
   async getTranscriptionHistory() {
-    return this.send(`${this.baseUrl}/api/transcribe/history`, 'GET');
+    return this.send(
+      `${this.baseUrl}/api/tools/transcribe/history`,
+      'GET'
+    );
   }
 }
