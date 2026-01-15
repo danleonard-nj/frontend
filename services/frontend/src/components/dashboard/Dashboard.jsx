@@ -19,6 +19,7 @@ import { DashboardTorrentLayout } from '../layouts/DashboardTorrentLayout';
 import { DashboardPodcastLayout } from '../layouts/DashboardPodcastLayout';
 import { DashboardRedisManagementLayout } from '../layouts/DashboardRedisManagementLayout';
 import { DashboardTsPostsLayout } from '../layouts/DashboardTsPostsLayout';
+import { DashboardSpeechToTextLayout } from '../layouts/DashboardSpeechToTextLayout';
 
 export default function Dashboard() {
   const dashboardPage = useSelector((x) => x.dashboard.page);
@@ -58,6 +59,9 @@ export default function Dashboard() {
         <DashboardRedisManagementLayout />
       )}
       {dashboardPage === 'tsposts' && <DashboardTsPostsLayout />}
+      {dashboardPage === 'speechtotext' && (
+        <DashboardSpeechToTextLayout />
+      )}
     </Box>
   );
 }

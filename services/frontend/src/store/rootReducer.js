@@ -23,6 +23,7 @@ import podcastSlice from './podcasts/podcastSlice';
 import redisSlice from './redis/redisSlice';
 import addressBookReducer from './addressBook/addressBookSlice';
 import tsPostsSlice from './tsPosts/tsPostsSlice';
+import speechToTextSlice from './speechToText/speechToTextSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -48,6 +49,7 @@ const rootReducer = combineReducers({
   redis: redisSlice,
   addressBook: addressBookReducer,
   tsPosts: tsPostsSlice,
+  speechToText: speechToTextSlice,
 });
 
 export default rootReducer;

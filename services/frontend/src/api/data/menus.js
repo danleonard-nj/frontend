@@ -7,6 +7,7 @@ const pages = [
   'Calendar',
   'Podcasts',
   'Features',
+  'SpeechToText',
   // 'ChatGPT',
   // 'Nest',
   // 'Torrents',
