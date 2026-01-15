@@ -16,13 +16,15 @@ import {
   ListItem,
   ListItemText,
   Divider,
-  Tab,
-  Tabs,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ClearIcon from '@mui/icons-material/Clear';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setMessage,
@@ -54,7 +56,6 @@ const SpeechToTextContainer = () => {
     lastTranscription,
   } = useSelector((x) => x.speechToText);
 
-  const [selectedTab, setSelectedTab] = useState(0);
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -304,16 +305,30 @@ const SpeechToTextContainer = () => {
         <Box
           sx={{
             display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
             justifyContent: 'space-between',
-            alignItems: 'center',
+            alignItems: { xs: 'stretch', sm: 'center' },
+            gap: { xs: 2, sm: 0 },
           }}>
-          <Typography variant='caption' color='text.secondary'>
+          <Typography
+            variant='caption'
+            color='text.secondary'
+            sx={{
+              textAlign: { xs: 'center', sm: 'left' },
+              order: { xs: 2, sm: 1 },
+            }}>
             {message.length} characters
             {isRecording && ' • Recording...'}
             {isTranscribing && ' • Transcribing...'}
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              flexDirection: { xs: 'column', sm: 'row' },
+              order: { xs: 1, sm: 2 },
+            }}>
             <Button
               variant='outlined'
               startIcon={<ClearIcon />}
@@ -336,75 +351,52 @@ const SpeechToTextContainer = () => {
         </Box>
       </Paper>
 
-      {/* Tabs for History and Settings */}
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Tabs
-          value={selectedTab}
-          onChange={(e, newValue) => setSelectedTab(newValue)}>
-          <Tab label='Recent Transcriptions' />
-          <Tab label='Settings' />
-        </Tabs>
-
-        {selectedTab === 0 && (
-          <Box sx={{ mt: 2 }}>
-            {transcriptionHistoryLoading ? (
-              <CircularProgress />
-            ) : transcriptionHistory.length > 0 ? (
-              <List>
-                {transcriptionHistory
-                  .slice(0, 10)
-                  .map((item, index) => (
-                    <React.Fragment key={index}>
-                      <ListItem alignItems='flex-start'>
-                        <ListItemText
-                          primary={item.text}
-                          secondary={
-                            item.timestamp
-                              ? new Date(
-                                  item.timestamp
-                                ).toLocaleString()
-                              : 'Just now'
-                          }
-                        />
-                      </ListItem>
-                      {index < transcriptionHistory.length - 1 && (
-                        <Divider />
-                      )}
-                    </React.Fragment>
-                  ))}
-              </List>
-            ) : (
-              <Typography
-                variant='body2'
-                color='text.secondary'
-                sx={{ mt: 2 }}>
-                No transcription history yet. Start recording to
-                create your first transcription!
-              </Typography>
-            )}
-          </Box>
-        )}
-
-        {selectedTab === 1 && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant='body2' color='text.secondary'>
-              Settings panel - Coming soon!
-            </Typography>
+      {/* Collapsible Recent Transcriptions Section */}
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls='recent-transcriptions-content'
+          id='recent-transcriptions-header'>
+          <Typography variant='h6'>Recent Transcriptions</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          {transcriptionHistoryLoading ? (
+            <CircularProgress />
+          ) : transcriptionHistory.length > 0 ? (
+            <List>
+              {transcriptionHistory
+                .slice(0, 10)
+                .map((item, index) => (
+                  <React.Fragment key={index}>
+                    <ListItem alignItems='flex-start'>
+                      <ListItemText
+                        primary={item.text}
+                        secondary={
+                          item.timestamp
+                            ? new Date(
+                                item.timestamp
+                              ).toLocaleString()
+                            : 'Just now'
+                        }
+                      />
+                    </ListItem>
+                    {index < transcriptionHistory.length - 1 && (
+                      <Divider />
+                    )}
+                  </React.Fragment>
+                ))}
+            </List>
+          ) : (
             <Typography
               variant='body2'
               color='text.secondary'
-              sx={{ mt: 1 }}>
-              Future features:
+              sx={{ mt: 2 }}>
+              No transcription history yet. Start recording to create
+              your first transcription!
             </Typography>
-            <ul>
-              <li>Language selection</li>
-              <li>Audio quality settings</li>
-              <li>Transcription model selection</li>
-              <li>Auto-send on completion</li>
-            </ul>
-          </Box>
-        )}
-      </Paper>
+          )}
+        </AccordionDetails>
+      </Accordion>
     </Box>
   );
 };
