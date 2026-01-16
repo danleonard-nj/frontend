@@ -49,13 +49,57 @@ export default class SpeechToTextApi extends ApiBase {
   }
 
   /**
+   * Transcribe uploaded audio file
+   *
+   * @param {File} audioFile - Audio file to transcribe
+   * @returns {Promise<{text: string}>} Transcribed text
+   */
+  async transcribeFile(audioFile) {
+    const formData = new FormData();
+    formData.append('audio', audioFile, audioFile.name);
+
+    console.log('Uploading audio file:', {
+      fileName: audioFile.name,
+      fileSize: audioFile.size,
+      fileType: audioFile.type,
+    });
+
+    // Get auth token for the request
+    const token = await this.getToken();
+
+    const response = await fetch(
+      `${this.baseUrl}/api/tools/transcribe`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Don't set Content-Type - browser sets it with boundary for multipart/form-data
+        },
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Transcription failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('Backend response:', result);
+    return result;
+  }
+
+  /**
    * Get transcription history (if backend stores history)
    * @returns {Promise<Array>} List of past transcriptions
    */
   async getTranscriptionHistory() {
-    return this.send(
+    console.log('SpeechToTextApi: getTranscriptionHistory called');
+    console.log('BaseUrl:', this.baseUrl);
+    const result = await this.send(
       `${this.baseUrl}/api/tools/transcribe/history`,
       'GET'
     );
+    console.log('SpeechToTextApi: history result:', result);
+    return result;
   }
 }

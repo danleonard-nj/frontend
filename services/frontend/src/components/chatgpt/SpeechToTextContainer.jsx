@@ -19,12 +19,16 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ClearIcon from '@mui/icons-material/Clear';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setMessage,
@@ -34,6 +38,7 @@ import {
 } from '../../store/speechToText/speechToTextSlice';
 import {
   transcribeAudio,
+  transcribeFile,
   getTranscriptionHistory,
 } from '../../store/speechToText/speechToTextActions';
 
@@ -59,6 +64,7 @@ const SpeechToTextContainer = () => {
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const fileInputRef = useRef(null);
 
   const handleMessageChange = (event) => {
     dispatch(setMessage(event.target.value));
@@ -202,10 +208,65 @@ const SpeechToTextContainer = () => {
     }
   }, [isRecording, startRecording, stopRecording]);
 
+  /**
+   * Handle file upload
+   */
+  const handleFileUpload = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  /**
+   * Process uploaded audio file
+   */
+  const handleFileChange = useCallback(
+    async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      // Validate file type
+      const validTypes = [
+        'audio/mpeg',
+        'audio/mp3',
+        'audio/wav',
+        'audio/webm',
+        'audio/ogg',
+        'audio/m4a',
+        'audio/mp4',
+      ];
+
+      if (
+        !validTypes.includes(file.type) &&
+        !file.name.match(/\.(mp3|wav|webm|ogg|m4a|mp4)$/i)
+      ) {
+        alert(
+          'Please upload a valid audio file (MP3, WAV, WEBM, OGG, M4A)'
+        );
+        return;
+      }
+
+      // Validate file size (e.g., 25MB limit)
+      const maxSize = 25 * 1024 * 1024; // 25MB
+      if (file.size > maxSize) {
+        alert('File size must be less than 25MB');
+        return;
+      }
+
+      try {
+        await dispatch(transcribeFile(file));
+      } catch (error) {
+        console.error('File upload error:', error);
+      }
+
+      // Clear the input so the same file can be uploaded again
+      event.target.value = '';
+    },
+    [dispatch]
+  );
+
   // Load transcription history on mount
   useEffect(() => {
-    // Uncomment when backend history endpoint is ready
-    // dispatch(getTranscriptionHistory());
+    console.log('Loading transcription history on mount...');
+    dispatch(getTranscriptionHistory());
   }, [dispatch]);
 
   // Cleanup on unmount
@@ -230,10 +291,19 @@ const SpeechToTextContainer = () => {
           variant='body2'
           color='text.secondary'
           sx={{ mb: 2 }}>
-          Type your message or click the microphone button to use
-          voice input. The transcribed text will be appended to your
-          message.
+          Type your message, click the microphone button to record
+          audio, or upload an audio file. The transcribed text will be
+          appended to your message.
         </Typography>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type='file'
+          accept='audio/*,.mp3,.wav,.webm,.ogg,.m4a'
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
 
         {error && (
           <Typography color='error' variant='body2' sx={{ mb: 2 }}>
@@ -306,10 +376,20 @@ const SpeechToTextContainer = () => {
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'column', sm: 'row' },
             justifyContent: 'space-between',
             alignItems: { xs: 'stretch', sm: 'center' },
             gap: { xs: 2, sm: 0 },
+            alignItems: { xs: 'stretch', sm: 'center' },
+            gap: { xs: 2, sm: 0 },
           }}>
+          <Typography
+            variant='caption'
+            color='text.secondary'
+            sx={{
+              textAlign: { xs: 'center', sm: 'left' },
+              order: { xs: 2, sm: 1 },
+            }}>
           <Typography
             variant='caption'
             color='text.secondary'
@@ -329,6 +409,13 @@ const SpeechToTextContainer = () => {
               flexDirection: { xs: 'column', sm: 'row' },
               order: { xs: 1, sm: 2 },
             }}>
+            <Button
+              variant='outlined'
+              startIcon={<UploadFileIcon />}
+              onClick={handleFileUpload}
+              disabled={isRecording || isTranscribing}>
+              Upload Audio
+            </Button>
             <Button
               variant='outlined'
               startIcon={<ClearIcon />}
@@ -393,7 +480,52 @@ const SpeechToTextContainer = () => {
               sx={{ mt: 2 }}>
               No transcription history yet. Start recording to create
               your first transcription!
+      {/* Collapsible Recent Transcriptions Section */}
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls='recent-transcriptions-content'
+          id='recent-transcriptions-header'>
+          <Typography variant='h6'>Recent Transcriptions</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          {transcriptionHistoryLoading ? (
+            <CircularProgress />
+          ) : transcriptionHistory.length > 0 ? (
+            <List>
+              {transcriptionHistory
+                .slice(0, 10)
+                .map((item, index) => (
+                  <React.Fragment key={index}>
+                    <ListItem alignItems='flex-start'>
+                      <ListItemText
+                        primary={item.text}
+                        secondary={
+                          item.timestamp
+                            ? new Date(
+                                item.timestamp
+                              ).toLocaleString()
+                            : 'Just now'
+                        }
+                      />
+                    </ListItem>
+                    {index < transcriptionHistory.length - 1 && (
+                      <Divider />
+                    )}
+                  </React.Fragment>
+                ))}
+            </List>
+          ) : (
+            <Typography
+              variant='body2'
+              color='text.secondary'
+              sx={{ mt: 2 }}>
+              No transcription history yet. Start recording to create
+              your first transcription!
             </Typography>
+          )}
+        </AccordionDetails>
+      </Accordion>
           )}
         </AccordionDetails>
       </Accordion>
