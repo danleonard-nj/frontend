@@ -16,7 +16,6 @@ import {
   ListItem,
   ListItemText,
   Divider,
-  Accordion,
   AccordionSummary,
   AccordionDetails,
   Accordion,
