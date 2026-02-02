@@ -18,9 +18,8 @@ import {
   Divider,
   AccordionSummary,
   AccordionDetails,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
@@ -34,12 +33,17 @@ import {
   clearMessage,
   setIsRecording,
   clearError,
+  setDiarizeEnabled,
+  setCurrentAudioFile,
+  setTranscriptionSegments,
+  setActiveSegmentIndex,
 } from '../../store/speechToText/speechToTextSlice';
 import {
   transcribeAudio,
   transcribeFile,
   getTranscriptionHistory,
 } from '../../store/speechToText/speechToTextActions';
+import DiarizedTranscript from './DiarizedTranscript';
 
 /**
  * Speech-to-Text Input Component with Redux Integration
@@ -58,12 +62,21 @@ const SpeechToTextContainer = () => {
     transcriptionHistoryLoading,
     error,
     lastTranscription,
+    diarizeEnabled,
+    currentAudioFile,
+    transcriptionSegments,
+    audioCurrentTime,
+    activeSegmentIndex,
   } = useSelector((x) => x.speechToText);
 
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const audioChunksRef = useRef([]);
   const fileInputRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const [audioLevel, setAudioLevel] = useState(0);
 
   const handleMessageChange = (event) => {
     dispatch(setMessage(event.target.value));
@@ -72,6 +85,10 @@ const SpeechToTextContainer = () => {
 
   const handleClearMessage = () => {
     dispatch(clearMessage());
+    // Also clear diarized transcript data
+    dispatch(setTranscriptionSegments(null));
+    dispatch(setCurrentAudioFile(null));
+    dispatch(setActiveSegmentIndex(-1));
   };
 
   const handleCopyToClipboard = async () => {
@@ -109,13 +126,15 @@ const SpeechToTextContainer = () => {
       // Clear the chunks
       audioChunksRef.current = [];
 
-      // Send to backend for transcription
-      const result = await dispatch(transcribeAudio(audioBlob));
+      // Send to backend for transcription with diarization enabled if toggle is on
+      const result = await dispatch(
+        transcribeAudio(audioBlob, diarizeEnabled),
+      );
       console.log('Transcription result:', result);
     } catch (error) {
       console.error('Transcription error:', error);
     }
-  }, [dispatch]);
+  }, [dispatch, diarizeEnabled]);
 
   /**
    * Start recording audio
@@ -132,6 +151,47 @@ const SpeechToTextContainer = () => {
 
       streamRef.current = stream;
       audioChunksRef.current = [];
+
+      // Set up audio level monitoring
+      try {
+        const audioContext = new (
+          window.AudioContext || window.webkitAudioContext
+        )();
+        const analyser = audioContext.createAnalyser();
+        const microphone =
+          audioContext.createMediaStreamSource(stream);
+
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8;
+        microphone.connect(analyser);
+
+        audioContextRef.current = audioContext;
+        analyserRef.current = analyser;
+
+        // Start monitoring audio levels
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const updateLevel = () => {
+          if (analyserRef.current && streamRef.current) {
+            analyser.getByteFrequencyData(dataArray);
+
+            // Calculate average volume (0-255)
+            const average =
+              dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+            // Normalize to 0-1 range with some amplification
+            const normalized = Math.min((average / 128) * 1.5, 1);
+
+            setAudioLevel(normalized);
+            animationFrameRef.current =
+              requestAnimationFrame(updateLevel);
+          }
+        };
+        updateLevel();
+      } catch (audioError) {
+        console.warn(
+          'Audio level monitoring not available:',
+          audioError,
+        );
+      }
 
       // Determine best supported mime type
       let mimeType = 'audio/webm;codecs=opus';
@@ -172,7 +232,7 @@ const SpeechToTextContainer = () => {
     } catch (error) {
       console.error('Failed to start recording:', error);
       alert(
-        'Microphone access is required for voice input. Please grant permission and try again.'
+        'Microphone access is required for voice input. Please grant permission and try again.',
       );
     }
   }, [dispatch, processRecordedAudio]);
@@ -192,6 +252,18 @@ const SpeechToTextContainer = () => {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
+
+    // Clean up audio monitoring
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    analyserRef.current = null;
+    setAudioLevel(0);
 
     dispatch(setIsRecording(false));
   }, [dispatch]);
@@ -238,7 +310,7 @@ const SpeechToTextContainer = () => {
         !file.name.match(/\.(mp3|wav|webm|ogg|m4a|mp4)$/i)
       ) {
         alert(
-          'Please upload a valid audio file (MP3, WAV, WEBM, OGG, M4A)'
+          'Please upload a valid audio file (MP3, WAV, WEBM, OGG, M4A)',
         );
         return;
       }
@@ -251,7 +323,7 @@ const SpeechToTextContainer = () => {
       }
 
       try {
-        await dispatch(transcribeFile(file));
+        await dispatch(transcribeFile(file, diarizeEnabled));
       } catch (error) {
         console.error('File upload error:', error);
       }
@@ -259,7 +331,7 @@ const SpeechToTextContainer = () => {
       // Clear the input so the same file can be uploaded again
       event.target.value = '';
     },
-    [dispatch]
+    [dispatch, diarizeEnabled],
   );
 
   // Load transcription history on mount
@@ -275,6 +347,12 @@ const SpeechToTextContainer = () => {
         streamRef.current
           .getTracks()
           .forEach((track) => track.stop());
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
       }
     };
   }, []);
@@ -294,6 +372,30 @@ const SpeechToTextContainer = () => {
           audio, or upload an audio file. The transcribed text will be
           appended to your message.
         </Typography>
+
+        {/* Diarization Toggle */}
+        <Box sx={{ mb: 2 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={diarizeEnabled}
+                onChange={(e) =>
+                  dispatch(setDiarizeEnabled(e.target.checked))
+                }
+                disabled={isRecording || isTranscribing}
+              />
+            }
+            label='Enable speaker diarization'
+          />
+          <Typography
+            variant='caption'
+            color='text.secondary'
+            display='block'
+            sx={{ ml: 4 }}>
+            When enabled, the transcript will be broken down by
+            speaker with playback synchronization.
+          </Typography>
+        </Box>
 
         {/* Hidden file input */}
         <input
@@ -346,26 +448,70 @@ const SpeechToTextContainer = () => {
                 sx={{ color: 'primary.main' }}
               />
             ) : (
-              <IconButton
-                onClick={handleMicClick}
-                color={isRecording ? 'error' : 'primary'}
-                size='small'
-                sx={{
-                  backgroundColor: isRecording
-                    ? 'error.light'
-                    : 'action.hover',
-                  '&:hover': {
+              <Box
+                sx={{ position: 'relative', display: 'inline-flex' }}>
+                {/* Animated audio level rings */}
+                {isRecording && (
+                  <>
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        border: 2,
+                        borderColor: 'error.main',
+                        transform: 'translate(-50%, -50%)',
+                        opacity: audioLevel * 0.6,
+                        transition: 'all 0.1s ease-out',
+                        pointerEvents: 'none',
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        width: 40 + audioLevel * 16,
+                        height: 40 + audioLevel * 16,
+                        borderRadius: '50%',
+                        border: 1.5,
+                        borderColor: 'error.light',
+                        transform: 'translate(-50%, -50%)',
+                        opacity: audioLevel * 0.4,
+                        transition: 'all 0.15s ease-out',
+                        pointerEvents: 'none',
+                      }}
+                    />
+                  </>
+                )}
+                <IconButton
+                  onClick={handleMicClick}
+                  color={isRecording ? 'error' : 'primary'}
+                  size='small'
+                  sx={{
                     backgroundColor: isRecording
-                      ? 'error.main'
-                      : 'action.selected',
-                  },
-                  transition: 'all 0.2s ease-in-out',
-                }}
-                title={
-                  isRecording ? 'Stop recording' : 'Start recording'
-                }>
-                {isRecording ? <MicOffIcon /> : <MicIcon />}
-              </IconButton>
+                      ? 'error.light'
+                      : 'action.hover',
+                    '&:hover': {
+                      backgroundColor: isRecording
+                        ? 'error.main'
+                        : 'action.selected',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                    transform:
+                      isRecording && audioLevel > 0.3
+                        ? `scale(${1 + audioLevel * 0.1})`
+                        : 'scale(1)',
+                  }}
+                  title={
+                    isRecording ? 'Stop recording' : 'Start recording'
+                  }>
+                  {isRecording ? <MicOffIcon /> : <MicIcon />}
+                </IconButton>
+              </Box>
             )}
           </Box>
         </Box>
@@ -375,20 +521,10 @@ const SpeechToTextContainer = () => {
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', sm: 'row' },
-            flexDirection: { xs: 'column', sm: 'row' },
             justifyContent: 'space-between',
             alignItems: { xs: 'stretch', sm: 'center' },
             gap: { xs: 2, sm: 0 },
-            alignItems: { xs: 'stretch', sm: 'center' },
-            gap: { xs: 2, sm: 0 },
           }}>
-          <Typography
-            variant='caption'
-            color='text.secondary'
-            sx={{
-              textAlign: { xs: 'center', sm: 'left' },
-              order: { xs: 2, sm: 1 },
-            }}>
           <Typography
             variant='caption'
             color='text.secondary'
@@ -437,6 +573,16 @@ const SpeechToTextContainer = () => {
         </Box>
       </Paper>
 
+      {/* Diarized Transcript Display */}
+      {transcriptionSegments && currentAudioFile && (
+        <DiarizedTranscript
+          audioUrl={currentAudioFile}
+          segments={transcriptionSegments}
+          currentTime={audioCurrentTime}
+          activeIndex={activeSegmentIndex}
+        />
+      )}
+
       {/* Collapsible Recent Transcriptions Section */}
       <Accordion>
         <AccordionSummary
@@ -460,49 +606,7 @@ const SpeechToTextContainer = () => {
                         secondary={
                           item.timestamp
                             ? new Date(
-                                item.timestamp
-                              ).toLocaleString()
-                            : 'Just now'
-                        }
-                      />
-                    </ListItem>
-                    {index < transcriptionHistory.length - 1 && (
-                      <Divider />
-                    )}
-                  </React.Fragment>
-                ))}
-            </List>
-          ) : (
-            <Typography
-              variant='body2'
-              color='text.secondary'
-              sx={{ mt: 2 }}>
-              No transcription history yet. Start recording to create
-              your first transcription!
-      {/* Collapsible Recent Transcriptions Section */}
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls='recent-transcriptions-content'
-          id='recent-transcriptions-header'>
-          <Typography variant='h6'>Recent Transcriptions</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {transcriptionHistoryLoading ? (
-            <CircularProgress />
-          ) : transcriptionHistory.length > 0 ? (
-            <List>
-              {transcriptionHistory
-                .slice(0, 10)
-                .map((item, index) => (
-                  <React.Fragment key={index}>
-                    <ListItem alignItems='flex-start'>
-                      <ListItemText
-                        primary={item.text}
-                        secondary={
-                          item.timestamp
-                            ? new Date(
-                                item.timestamp
+                                item.timestamp,
                               ).toLocaleString()
                             : 'Just now'
                         }
@@ -522,9 +626,6 @@ const SpeechToTextContainer = () => {
               No transcription history yet. Start recording to create
               your first transcription!
             </Typography>
-          )}
-        </AccordionDetails>
-      </Accordion>
           )}
         </AccordionDetails>
       </Accordion>

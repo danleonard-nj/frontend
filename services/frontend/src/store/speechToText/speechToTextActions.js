@@ -10,6 +10,8 @@ import {
   setError,
   clearError,
   setLastTranscription,
+  setCurrentAudioFile,
+  setTranscriptionSegments,
 } from './speechToTextSlice';
 
 export default class SpeechToTextActions {
@@ -21,15 +23,17 @@ export default class SpeechToTextActions {
   /**
    * Transcribe audio blob and append to message
    * @param {Blob} audioBlob - Audio data to transcribe
+   * @param {boolean} diarize - Whether to enable speaker diarization
    */
-  transcribeAudio(audioBlob) {
+  transcribeAudio(audioBlob, diarize = false) {
     return async (dispatch, getState) => {
       dispatch(setIsTranscribing(true));
       dispatch(clearError());
 
       try {
         const response = await this.speechToTextApi.transcribeAudio(
-          audioBlob
+          audioBlob,
+          diarize,
         );
 
         if (response.text && response.text.trim()) {
@@ -37,12 +41,32 @@ export default class SpeechToTextActions {
           dispatch(appendToMessage(response.text));
           dispatch(setLastTranscription(response.text));
 
+          // Store segments if diarization was enabled
+          if (response.segments) {
+            dispatch(setTranscriptionSegments(response.segments));
+            // Store the audio blob as a file for playback
+            const audioFile = new File(
+              [audioBlob],
+              'recording.webm',
+              {
+                type: audioBlob.type,
+              },
+            );
+            dispatch(
+              setCurrentAudioFile(URL.createObjectURL(audioFile)),
+            );
+          } else {
+            dispatch(setTranscriptionSegments(null));
+            dispatch(setCurrentAudioFile(null));
+          }
+
           // Add to history if backend doesn't store it
           dispatch(
             addToHistory({
               text: response.text,
               timestamp: new Date().toISOString(),
-            })
+              segments: response.segments,
+            }),
           );
         }
 
@@ -53,8 +77,8 @@ export default class SpeechToTextActions {
         dispatch(setError(error.message));
         dispatch(
           popErrorMessage(
-            'Failed to transcribe audio. Please try again.'
-          )
+            'Failed to transcribe audio. Please try again.',
+          ),
         );
         dispatch(setIsTranscribing(false));
         throw error;
@@ -65,15 +89,17 @@ export default class SpeechToTextActions {
   /**
    * Transcribe uploaded audio file
    * @param {File} audioFile - Audio file to transcribe
+   * @param {boolean} diarize - Whether to enable speaker diarization
    */
-  transcribeFile(audioFile) {
+  transcribeFile(audioFile, diarize = false) {
     return async (dispatch, getState) => {
       dispatch(setIsTranscribing(true));
       dispatch(clearError());
 
       try {
         const response = await this.speechToTextApi.transcribeFile(
-          audioFile
+          audioFile,
+          diarize,
         );
 
         if (response.text && response.text.trim()) {
@@ -81,17 +107,30 @@ export default class SpeechToTextActions {
           dispatch(appendToMessage(response.text));
           dispatch(setLastTranscription(response.text));
 
+          // Store segments if diarization was enabled
+          if (response.segments) {
+            dispatch(setTranscriptionSegments(response.segments));
+            // Store the audio file URL for playback
+            dispatch(
+              setCurrentAudioFile(URL.createObjectURL(audioFile)),
+            );
+          } else {
+            dispatch(setTranscriptionSegments(null));
+            dispatch(setCurrentAudioFile(null));
+          }
+
           // Add to history if backend doesn't store it
           dispatch(
             addToHistory({
               text: response.text,
               timestamp: new Date().toISOString(),
               filename: audioFile.name,
-            })
+              segments: response.segments,
+            }),
           );
 
           dispatch(
-            popMessage('Audio file transcribed successfully!')
+            popMessage('Audio file transcribed successfully!'),
           );
         }
 
@@ -102,8 +141,8 @@ export default class SpeechToTextActions {
         dispatch(setError(error.message));
         dispatch(
           popErrorMessage(
-            'Failed to transcribe audio file. Please try again.'
-          )
+            'Failed to transcribe audio file. Please try again.',
+          ),
         );
         dispatch(setIsTranscribing(false));
         throw error;
@@ -121,7 +160,7 @@ export default class SpeechToTextActions {
 
       try {
         console.log(
-          'Making API call to get transcription history...'
+          'Making API call to get transcription history...',
         );
         const response =
           await this.speechToTextApi.getTranscriptionHistory();
@@ -143,16 +182,16 @@ export default class SpeechToTextActions {
           }));
           console.log(
             'Setting transcription history:',
-            transcriptions
+            transcriptions,
           );
           dispatch(setTranscriptionHistory(transcriptions));
         } else {
           console.log(
             'API call failed with status:',
-            response.status
+            response.status,
           );
           dispatch(
-            popErrorMessage('Failed to fetch transcription history')
+            popErrorMessage('Failed to fetch transcription history'),
           );
         }
 

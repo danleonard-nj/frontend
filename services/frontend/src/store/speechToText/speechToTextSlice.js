@@ -8,6 +8,11 @@ const speechToTextInitialState = {
   transcriptionHistoryLoading: false,
   error: null,
   lastTranscription: null,
+  diarizeEnabled: false,
+  currentAudioFile: null,
+  transcriptionSegments: null,
+  audioCurrentTime: 0,
+  activeSegmentIndex: -1,
 };
 
 const speechToTextSlice = createSlice({
@@ -52,6 +57,21 @@ const speechToTextSlice = createSlice({
     setLastTranscription(state, { payload }) {
       state.lastTranscription = payload;
     },
+    setDiarizeEnabled(state, { payload }) {
+      state.diarizeEnabled = payload;
+    },
+    setCurrentAudioFile(state, { payload }) {
+      state.currentAudioFile = payload;
+    },
+    setTranscriptionSegments(state, { payload }) {
+      state.transcriptionSegments = payload;
+    },
+    setAudioCurrentTime(state, { payload }) {
+      state.audioCurrentTime = payload;
+    },
+    setActiveSegmentIndex(state, { payload }) {
+      state.activeSegmentIndex = payload;
+    },
   },
 });
 
@@ -67,6 +87,11 @@ export const {
   setError,
   clearError,
   setLastTranscription,
+  setDiarizeEnabled,
+  setCurrentAudioFile,
+  setTranscriptionSegments,
+  setAudioCurrentTime,
+  setActiveSegmentIndex,
 } = speechToTextSlice.actions;
 
 export default speechToTextSlice.reducer;

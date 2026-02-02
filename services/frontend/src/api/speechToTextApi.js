@@ -10,14 +10,18 @@ export default class SpeechToTextApi extends ApiBase {
    * Transcribe audio to text using speech recognition
    *
    * @param {Blob} audioBlob - Audio data to transcribe (webm, mp3, etc.)
-   * @returns {Promise<{text: string}>} Transcribed text
+   * @param {boolean} diarize - Whether to enable speaker diarization
+   * @returns {Promise<{text: string, segments?: Array}>} Transcribed text with optional segments
    *
    * Note: Uses FormData instead of JSON because we're uploading a file.
    * The backend endpoint should expect multipart/form-data with an 'audio' field.
    */
-  async transcribeAudio(audioBlob) {
+  async transcribeAudio(audioBlob, diarize = false) {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'audio.webm');
+    if (diarize) {
+      formData.append('diarize', 'true');
+    }
 
     console.log('Sending audio to backend:', {
       blobSize: audioBlob.size,
@@ -27,36 +31,60 @@ export default class SpeechToTextApi extends ApiBase {
     // Get auth token for the request
     const token = await this.getToken();
 
-    const response = await fetch(
-      `${this.baseUrl}/api/tools/transcribe`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // Don't set Content-Type - browser sets it with boundary for multipart/form-data
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/tools/transcribe`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // Don't set Content-Type - browser sets it with boundary for multipart/form-data
+          },
+          body: formData,
         },
-        body: formData,
+      );
+
+      if (!response.ok) {
+        // Try to extract error message from response body
+        let errorMessage = `Transcription failed: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // If parsing fails, use the default message
+        }
+        throw new Error(errorMessage);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Transcription failed: ${response.statusText}`);
+      const result = await response.json();
+      console.log('Backend response:', result);
+      return result;
+    } catch (error) {
+      // Re-throw with more context if it's a network error
+      if (error.message === 'Failed to fetch') {
+        throw new Error(
+          'Network error: Unable to reach the transcription service. Please check your connection and try again.',
+        );
+      }
+      throw error;
     }
-
-    const result = await response.json();
-    console.log('Backend response:', result);
-    return result;
   }
 
   /**
    * Transcribe uploaded audio file
    *
    * @param {File} audioFile - Audio file to transcribe
-   * @returns {Promise<{text: string}>} Transcribed text
+   * @param {boolean} diarize - Whether to enable speaker diarization
+   * @returns {Promise<{text: string, segments?: Array}>} Transcribed text with optional segments
    */
-  async transcribeFile(audioFile) {
+  async transcribeFile(audioFile, diarize = false) {
     const formData = new FormData();
     formData.append('audio', audioFile, audioFile.name);
+    if (diarize) {
+      formData.append('diarize', 'true');
+    }
 
     console.log('Uploading audio file:', {
       fileName: audioFile.name,
@@ -67,25 +95,45 @@ export default class SpeechToTextApi extends ApiBase {
     // Get auth token for the request
     const token = await this.getToken();
 
-    const response = await fetch(
-      `${this.baseUrl}/api/tools/transcribe`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // Don't set Content-Type - browser sets it with boundary for multipart/form-data
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/tools/transcribe`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // Don't set Content-Type - browser sets it with boundary for multipart/form-data
+          },
+          body: formData,
         },
-        body: formData,
+      );
+
+      if (!response.ok) {
+        // Try to extract error message from response body
+        let errorMessage = `Transcription failed: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // If parsing fails, use the default message
+        }
+        throw new Error(errorMessage);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Transcription failed: ${response.statusText}`);
+      const result = await response.json();
+      console.log('Backend response:', result);
+      return result;
+    } catch (error) {
+      // Re-throw with more context if it's a network error
+      if (error.message === 'Failed to fetch') {
+        throw new Error(
+          'Network error: Unable to reach the transcription service. Please check your connection and try again.',
+        );
+      }
+      throw error;
     }
-
-    const result = await response.json();
-    console.log('Backend response:', result);
-    return result;
   }
 
   /**
@@ -97,7 +145,7 @@ export default class SpeechToTextApi extends ApiBase {
     console.log('BaseUrl:', this.baseUrl);
     const result = await this.send(
       `${this.baseUrl}/api/tools/transcribe/history`,
-      'GET'
+      'GET',
     );
     console.log('SpeechToTextApi: history result:', result);
     return result;
