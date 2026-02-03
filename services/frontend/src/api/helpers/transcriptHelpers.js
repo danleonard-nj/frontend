@@ -99,7 +99,7 @@ export const getBoldedText = (text, progress) => {
 
   // For very short segments (<0.4s duration), bold everything when active
   // This prevents flickering on single-word utterances
-  if (clampedProgress > 0.99) {
+  if (clampedProgress >= 0.95) {
     return { boldPart: text, normalPart: '' };
   }
 
@@ -117,7 +117,9 @@ export const getBoldedText = (text, progress) => {
   // Calculate how many words should be bolded
   // Count only non-whitespace words for progress calculation
   const nonWhitespaceWords = words.filter((w) => !/^\s+$/.test(w));
-  const boldWordCount = Math.floor(
+  // Use Math.ceil instead of Math.floor to ensure we include the last word
+  // when progress is high (e.g., 0.9 * 10 words = 9, ceil ensures all 10 are bolded)
+  const boldWordCount = Math.ceil(
     nonWhitespaceWords.length * clampedProgress,
   );
 
