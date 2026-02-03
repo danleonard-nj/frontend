@@ -23,11 +23,6 @@ export default class SpeechToTextApi extends ApiBase {
       formData.append('diarize', 'true');
     }
 
-    console.log('Sending audio to backend:', {
-      blobSize: audioBlob.size,
-      blobType: audioBlob.type,
-    });
-
     // Get auth token for the request
     const token = await this.getToken();
 
@@ -86,12 +81,6 @@ export default class SpeechToTextApi extends ApiBase {
       formData.append('diarize', 'true');
     }
 
-    console.log('Uploading audio file:', {
-      fileName: audioFile.name,
-      fileSize: audioFile.size,
-      fileType: audioFile.type,
-    });
-
     // Get auth token for the request
     const token = await this.getToken();
 
@@ -141,8 +130,6 @@ export default class SpeechToTextApi extends ApiBase {
    * @returns {Promise<Array>} List of past transcriptions
    */
   async getTranscriptionHistory() {
-    console.log('SpeechToTextApi: getTranscriptionHistory called');
-    console.log('BaseUrl:', this.baseUrl);
     const result = await this.send(
       `${this.baseUrl}/api/tools/transcribe/history`,
       'GET',

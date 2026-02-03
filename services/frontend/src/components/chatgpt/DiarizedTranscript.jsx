@@ -283,21 +283,13 @@ const DiarizedTranscript = ({
           checkAudioSync(audioRef.current, displayTime),
         segments, // Direct access to segments
       };
-      console.log(
-        '💡 Transcript diagnostics available: window.transcriptDebug',
-      );
-      console.log(
-        '   • window.transcriptDebug.validateTimings() - Check backend timing issues',
-      );
-      console.log(
-        '   • window.transcriptDebug.testBolding() - Test bolding progression',
-      );
-      console.log(
-        '   • window.transcriptDebug.logState() - Log current bolding state',
-      );
-      console.log(
-        '   • window.transcriptDebug.checkSync() - Check audio sync',
-      );
+
+      // Only log in development mode
+      if (process.env.NODE_ENV === 'development') {
+        console.log(
+          '💡 Transcript diagnostics available: window.transcriptDebug',
+        );
+      }
     }
   }, [segments, activeIndex, displayTime]);
 

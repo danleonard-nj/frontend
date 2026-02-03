@@ -73,7 +73,6 @@ export default class SpeechToTextActions {
         dispatch(setIsTranscribing(false));
         return response;
       } catch (error) {
-        console.error('Transcription error:', error);
         dispatch(setError(error.message));
         dispatch(
           popErrorMessage(
@@ -137,7 +136,6 @@ export default class SpeechToTextActions {
         dispatch(setIsTranscribing(false));
         return response;
       } catch (error) {
-        console.error('File transcription error:', error);
         dispatch(setError(error.message));
         dispatch(
           popErrorMessage(
@@ -155,19 +153,11 @@ export default class SpeechToTextActions {
    */
   getTranscriptionHistory() {
     return async (dispatch, getState) => {
-      console.log('getTranscriptionHistory action called...');
       dispatch(setTranscriptionHistoryLoading(true));
 
       try {
-        console.log(
-          'Making API call to get transcription history...',
-        );
         const response =
           await this.speechToTextApi.getTranscriptionHistory();
-
-        console.log('API response:', response);
-        console.log('Response data:', response.data);
-        console.log('Response status:', response.status);
         if (response.status === 200) {
           // Extract the transcriptions array and map field names
           const transcriptions = (

@@ -97,9 +97,8 @@ const SpeechToTextContainer = () => {
 
     try {
       await navigator.clipboard.writeText(message);
-      console.log('Message copied to clipboard');
     } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
+      // Clipboard copy failed silently
     }
   };
 
@@ -108,7 +107,6 @@ const SpeechToTextContainer = () => {
    */
   const processRecordedAudio = useCallback(async () => {
     if (audioChunksRef.current.length === 0) {
-      console.warn('No audio chunks to process');
       return;
     }
 
@@ -118,22 +116,13 @@ const SpeechToTextContainer = () => {
         type: 'audio/webm;codecs=opus',
       });
 
-      console.log('Processing audio blob:', {
-        size: audioBlob.size,
-        type: audioBlob.type,
-        chunkCount: audioChunksRef.current.length,
-      });
-
       // Clear the chunks
       audioChunksRef.current = [];
 
       // Send to backend for transcription with diarization enabled if toggle is on
-      const result = await dispatch(
-        transcribeAudio(audioBlob, diarizeEnabled),
-      );
-      console.log('Transcription result:', result);
+      await dispatch(transcribeAudio(audioBlob, diarizeEnabled));
     } catch (error) {
-      console.error('Transcription error:', error);
+      // Transcription error handled by Redux action
     }
   }, [dispatch, diarizeEnabled]);
 
@@ -188,10 +177,7 @@ const SpeechToTextContainer = () => {
         };
         updateLevel();
       } catch (audioError) {
-        console.warn(
-          'Audio level monitoring not available:',
-          audioError,
-        );
+        // Audio level monitoring not available
       }
 
       // Determine best supported mime type
@@ -223,7 +209,6 @@ const SpeechToTextContainer = () => {
       };
 
       mediaRecorder.onerror = (event) => {
-        console.error('MediaRecorder error:', event.error);
         stopRecording();
       };
 
@@ -231,7 +216,6 @@ const SpeechToTextContainer = () => {
       mediaRecorder.start();
       dispatch(setIsRecording(true));
     } catch (error) {
-      console.error('Failed to start recording:', error);
       alert(
         'Microphone access is required for voice input. Please grant permission and try again.',
       );
@@ -326,7 +310,7 @@ const SpeechToTextContainer = () => {
       try {
         await dispatch(transcribeFile(file, diarizeEnabled));
       } catch (error) {
-        console.error('File upload error:', error);
+        // Error handled by Redux action
       }
 
       // Clear the input so the same file can be uploaded again
@@ -337,7 +321,6 @@ const SpeechToTextContainer = () => {
 
   // Load transcription history on mount
   useEffect(() => {
-    console.log('Loading transcription history on mount...');
     dispatch(getTranscriptionHistory());
   }, [dispatch]);
 
