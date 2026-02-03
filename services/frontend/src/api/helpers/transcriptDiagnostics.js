@@ -239,15 +239,3 @@ export const analyzeBackendTiming = (segments) => {
 
   return validation;
 };
- *       checkSync: () => checkAudioSync(audioRef.current, currentTime),
- *     };
- *     console.log('[INFO] Transcript diagnostics available at: window.transcriptDebug');
- *   }
- * }, [segments]);
- *
- * Then in browser console:
- * - window.transcriptDebug.validateTimings()
- * - window.transcriptDebug.testBolding()
- * - window.transcriptDebug.logState()
- * - window.transcriptDebug.checkSync()
- */
