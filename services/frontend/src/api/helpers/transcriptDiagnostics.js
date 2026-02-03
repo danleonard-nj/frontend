@@ -1,3 +1,5 @@
+import { getBoldedText } from './transcriptHelpers';
+
 export const validateSegmentTimings = (segments) => {
   const warnings = [];
   const errors = [];
@@ -133,9 +135,6 @@ export const testBoldingProgression = (
   text,
   progressPoints = [0, 0.25, 0.5, 0.75, 1],
 ) => {
-  // Import the function dynamically to avoid circular dependency
-  const { getBoldedText } = require('./transcriptHelpers');
-
   if (process.env.NODE_ENV === 'development') {
     console.group('[Bolding Progression Test]');
     console.log('Text:', text);
