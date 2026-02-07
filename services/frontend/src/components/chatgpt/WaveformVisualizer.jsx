@@ -11,7 +11,7 @@ import { Box } from '@mui/material';
  * more of the canvas height.  Increase if the waveform looks flat,
  * decrease if it clips too aggressively.
  */
-const GAIN = 8.0;
+const GAIN = 4.0;
 
 /**
  * How many seconds of audio history to show in the scrolling window.

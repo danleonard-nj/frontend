@@ -1,4 +1,9 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+} from 'react';
 import {
   Box,
   Paper,
@@ -45,6 +50,7 @@ import useRecorderStateMachine, {
   RecState,
 } from './useRecorderStateMachine';
 import WaveformVisualizer from './WaveformVisualizer';
+import AudioPlayer from './AudioPlayer';
 
 /**
  * Speech-to-Text Input Component with Redux Integration
@@ -68,6 +74,8 @@ const SpeechToTextContainer = () => {
   } = useSelector((x) => x.speechToText);
 
   const fileInputRef = useRef(null);
+  const [lastAudioBlob, setLastAudioBlob] = useState(null);
+  const [debugAudioUrl, setDebugAudioUrl] = useState(null);
 
   // Keep Redux isRecording in sync with the state machine (for other components that read it)
   const diarizeRef = useRef(diarizeEnabled);
@@ -79,6 +87,10 @@ const SpeechToTextContainer = () => {
    */
   const handleAudioReady = useCallback(
     async (audioBlob) => {
+      setLastAudioBlob(audioBlob); // Store for debug playback
+      // Create blob URL for audio player
+      if (debugAudioUrl) URL.revokeObjectURL(debugAudioUrl);
+      setDebugAudioUrl(URL.createObjectURL(audioBlob));
       try {
         await dispatch(
           transcribeAudio(audioBlob, diarizeRef.current),
@@ -87,7 +99,7 @@ const SpeechToTextContainer = () => {
         // Error handled by Redux action
       }
     },
-    [dispatch],
+    [dispatch, debugAudioUrl],
   );
 
   const { phase, analyserNode, arm, confirm, cancel } =
@@ -117,6 +129,15 @@ const SpeechToTextContainer = () => {
     dispatch(setCurrentAudioFile(null));
     dispatch(setActiveSegmentIndex(-1));
   };
+
+  // Cleanup blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (debugAudioUrl) {
+        URL.revokeObjectURL(debugAudioUrl);
+      }
+    };
+  }, [debugAudioUrl]);
 
   const handleCopyToClipboard = async () => {
     if (!message.trim()) return;
@@ -283,11 +304,13 @@ const SpeechToTextContainer = () => {
           <Box
             sx={{
               position: 'absolute',
+              left: 8,
               right: 8,
               bottom: 8,
               display: 'flex',
               alignItems: 'center',
               gap: 0.5,
+              justifyContent: 'flex-end',
             }}>
             {/* IDLE: single mic button */}
             {showMicButton && (
@@ -347,7 +370,7 @@ const SpeechToTextContainer = () => {
                   borderRadius: 6,
                   px: 1.5,
                   py: 0.5,
-                  minWidth: 200,
+                  flex: 1,
                 }}>
                 {/* Cancel button */}
                 <IconButton
@@ -365,7 +388,7 @@ const SpeechToTextContainer = () => {
                 </IconButton>
 
                 {/* Waveform visualization */}
-                <Box sx={{ flex: 1, mx: 0.5 }}>
+                <Box sx={{ flex: 1 }}>
                   <WaveformVisualizer
                     analyserNode={analyserNode}
                     isActive={phase === RecState.RECORDING}
@@ -427,7 +450,16 @@ const SpeechToTextContainer = () => {
               gap: 1,
               flexDirection: { xs: 'column', sm: 'row' },
               order: { xs: 1, sm: 2 },
+              alignItems: 'center',
             }}>
+            {debugAudioUrl && (
+              <AudioPlayer
+                audioUrl={debugAudioUrl}
+                disabled={isRecordingActive || isTranscribing}
+                compact
+                size='small'
+              />
+            )}
             <Button
               variant='outlined'
               startIcon={<UploadFileIcon />}
