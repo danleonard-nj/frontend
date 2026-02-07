@@ -1,9 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-} from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -23,7 +18,8 @@ import {
   Accordion,
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
-import MicOffIcon from '@mui/icons-material/MicOff';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ClearIcon from '@mui/icons-material/Clear';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -45,24 +41,25 @@ import {
   getTranscriptionHistory,
 } from '../../store/speechToText/speechToTextActions';
 import DiarizedTranscript from './DiarizedTranscript';
+import useRecorderStateMachine, {
+  RecState,
+} from './useRecorderStateMachine';
+import WaveformVisualizer from './WaveformVisualizer';
 
 /**
  * Speech-to-Text Input Component with Redux Integration
  *
- * This component uses the browser's MediaRecorder API to capture audio,
- * sends chunks to the backend for transcription via Redux actions,
- * and manages state through the Redux store.
+ * Uses an explicit state-machine recorder (idle → arming → recording → stopping → processing → idle)
+ * with ChatGPT-style recording UX: mic button when idle, waveform + cancel/confirm when recording.
  */
 const SpeechToTextContainer = () => {
   const dispatch = useDispatch();
   const {
     message,
-    isRecording,
     isTranscribing,
     transcriptionHistory,
     transcriptionHistoryLoading,
     error,
-    lastTranscription,
     diarizeEnabled,
     currentAudioFile,
     transcriptionSegments,
@@ -70,14 +67,44 @@ const SpeechToTextContainer = () => {
     activeSegmentIndex,
   } = useSelector((x) => x.speechToText);
 
-  const mediaRecorderRef = useRef(null);
-  const streamRef = useRef(null);
-  const audioChunksRef = useRef([]);
   const fileInputRef = useRef(null);
-  const audioContextRef = useRef(null);
-  const analyserRef = useRef(null);
-  const animationFrameRef = useRef(null);
-  const [audioLevel, setAudioLevel] = useState(0);
+
+  // Keep Redux isRecording in sync with the state machine (for other components that read it)
+  const diarizeRef = useRef(diarizeEnabled);
+  diarizeRef.current = diarizeEnabled;
+
+  /**
+   * Called by the state machine when recording is confirmed and audio is ready.
+   * Dispatches the existing transcribeAudio action — no backend changes.
+   */
+  const handleAudioReady = useCallback(
+    async (audioBlob) => {
+      try {
+        await dispatch(
+          transcribeAudio(audioBlob, diarizeRef.current),
+        );
+      } catch {
+        // Error handled by Redux action
+      }
+    },
+    [dispatch],
+  );
+
+  const { phase, analyserNode, arm, confirm, cancel } =
+    useRecorderStateMachine({
+      onAudioReady: handleAudioReady,
+    });
+
+  // Derived booleans
+  const isRecordingActive =
+    phase === RecState.RECORDING || phase === RecState.ARMING;
+  const isBusy =
+    phase === RecState.STOPPING || phase === RecState.PROCESSING;
+
+  // Sync Redux isRecording flag so other components stay in sync
+  useEffect(() => {
+    dispatch(setIsRecording(isRecordingActive));
+  }, [isRecordingActive, dispatch]);
 
   const handleMessageChange = (event) => {
     dispatch(setMessage(event.target.value));
@@ -86,7 +113,6 @@ const SpeechToTextContainer = () => {
 
   const handleClearMessage = () => {
     dispatch(clearMessage());
-    // Also clear diarized transcript data
     dispatch(setTranscriptionSegments(null));
     dispatch(setCurrentAudioFile(null));
     dispatch(setActiveSegmentIndex(-1));
@@ -94,175 +120,25 @@ const SpeechToTextContainer = () => {
 
   const handleCopyToClipboard = async () => {
     if (!message.trim()) return;
-
     try {
       await navigator.clipboard.writeText(message);
-    } catch (error) {
+    } catch {
       // Clipboard copy failed silently
     }
   };
 
   /**
-   * Process the recorded audio by sending it to the backend for transcription
+   * Start recording (arm the state machine)
    */
-  const processRecordedAudio = useCallback(async () => {
-    if (audioChunksRef.current.length === 0) {
-      return;
-    }
-
+  const handleMicClick = useCallback(async () => {
     try {
-      // Combine all audio chunks into a single blob
-      const audioBlob = new Blob(audioChunksRef.current, {
-        type: 'audio/webm;codecs=opus',
-      });
-
-      // Clear the chunks
-      audioChunksRef.current = [];
-
-      // Send to backend for transcription with diarization enabled if toggle is on
-      await dispatch(transcribeAudio(audioBlob, diarizeEnabled));
-    } catch (error) {
-      // Transcription error handled by Redux action
-    }
-  }, [dispatch, diarizeEnabled]);
-
-  /**
-   * Start recording audio
-   */
-  const startRecording = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 44100,
-        },
-      });
-
-      streamRef.current = stream;
-      audioChunksRef.current = [];
-
-      // Set up audio level monitoring
-      try {
-        const audioContext = new (
-          window.AudioContext || window.webkitAudioContext
-        )();
-        const analyser = audioContext.createAnalyser();
-        const microphone =
-          audioContext.createMediaStreamSource(stream);
-
-        analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.8;
-        microphone.connect(analyser);
-
-        audioContextRef.current = audioContext;
-        analyserRef.current = analyser;
-
-        // Start monitoring audio levels
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-        const updateLevel = () => {
-          if (analyserRef.current && streamRef.current) {
-            analyser.getByteFrequencyData(dataArray);
-
-            // Calculate average volume (0-255)
-            const average =
-              dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-            // Normalize to 0-1 range with some amplification
-            const normalized = Math.min((average / 128) * 1.5, 1);
-
-            setAudioLevel(normalized);
-            animationFrameRef.current =
-              requestAnimationFrame(updateLevel);
-          }
-        };
-        updateLevel();
-      } catch (audioError) {
-        // Audio level monitoring not available
-      }
-
-      // Determine best supported mime type
-      let mimeType = 'audio/webm;codecs=opus';
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = 'audio/webm';
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-          mimeType = '';
-        }
-      }
-
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType,
-        audioBitsPerSecond: 128000,
-      });
-
-      mediaRecorderRef.current = mediaRecorder;
-
-      // Collect audio data - this will only fire when recording stops
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      // Process audio when recording stops
-      mediaRecorder.onstop = async () => {
-        await processRecordedAudio();
-      };
-
-      mediaRecorder.onerror = (event) => {
-        stopRecording();
-      };
-
-      // Start recording - no timeslice parameter means single chunk
-      mediaRecorder.start();
-      dispatch(setIsRecording(true));
-    } catch (error) {
+      await arm();
+    } catch {
       alert(
         'Microphone access is required for voice input. Please grant permission and try again.',
       );
     }
-  }, [dispatch, processRecordedAudio]);
-
-  /**
-   * Stop recording audio
-   */
-  const stopRecording = useCallback(() => {
-    if (
-      mediaRecorderRef.current &&
-      mediaRecorderRef.current.state !== 'inactive'
-    ) {
-      mediaRecorderRef.current.stop();
-    }
-
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-
-    // Clean up audio monitoring
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-    analyserRef.current = null;
-    setAudioLevel(0);
-
-    dispatch(setIsRecording(false));
-  }, [dispatch]);
-
-  /**
-   * Toggle recording state
-   */
-  const handleMicClick = useCallback(() => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
-  }, [isRecording, startRecording, stopRecording]);
+  }, [arm]);
 
   /**
    * Handle file upload
@@ -279,7 +155,6 @@ const SpeechToTextContainer = () => {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      // Validate file type
       const validTypes = [
         'audio/mpeg',
         'audio/mp3',
@@ -300,8 +175,7 @@ const SpeechToTextContainer = () => {
         return;
       }
 
-      // Validate file size (e.g., 25MB limit)
-      const maxSize = 25 * 1024 * 1024; // 25MB
+      const maxSize = 25 * 1024 * 1024;
       if (file.size > maxSize) {
         alert('File size must be less than 25MB');
         return;
@@ -309,11 +183,10 @@ const SpeechToTextContainer = () => {
 
       try {
         await dispatch(transcribeFile(file, diarizeEnabled));
-      } catch (error) {
+      } catch {
         // Error handled by Redux action
       }
 
-      // Clear the input so the same file can be uploaded again
       event.target.value = '';
     },
     [dispatch, diarizeEnabled],
@@ -324,22 +197,13 @@ const SpeechToTextContainer = () => {
     dispatch(getTranscriptionHistory());
   }, [dispatch]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current
-          .getTracks()
-          .forEach((track) => track.stop());
-      }
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
+  // ── Determine which recorder chrome to show ──────────────────────
+  const showMicButton =
+    phase === RecState.IDLE && !isTranscribing && !isBusy;
+  const showWaveform = phase === RecState.RECORDING;
+  const showArming = phase === RecState.ARMING;
+  const showProcessing =
+    isTranscribing || phase === RecState.STOPPING || isBusy;
 
   return (
     <Box sx={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
@@ -366,7 +230,7 @@ const SpeechToTextContainer = () => {
                 onChange={(e) =>
                   dispatch(setDiarizeEnabled(e.target.checked))
                 }
-                disabled={isRecording || isTranscribing}
+                disabled={isRecordingActive || isTranscribing}
               />
             }
             label='Enable speaker diarization'
@@ -407,7 +271,7 @@ const SpeechToTextContainer = () => {
             onChange={handleMessageChange}
             placeholder='Type or speak your message...'
             variant='outlined'
-            disabled={isRecording}
+            disabled={isRecordingActive}
             sx={{
               '& .MuiOutlinedInput-root': {
                 paddingRight: '60px',
@@ -415,7 +279,7 @@ const SpeechToTextContainer = () => {
             }}
           />
 
-          {/* Microphone button positioned at bottom-right */}
+          {/* ── Recording controls (bottom-right of text area) ── */}
           <Box
             sx={{
               position: 'absolute',
@@ -423,79 +287,115 @@ const SpeechToTextContainer = () => {
               bottom: 8,
               display: 'flex',
               alignItems: 'center',
-              gap: 1,
+              gap: 0.5,
             }}>
-            {isTranscribing ? (
+            {/* IDLE: single mic button */}
+            {showMicButton && (
+              <IconButton
+                onClick={handleMicClick}
+                color='primary'
+                size='small'
+                sx={{
+                  backgroundColor: 'action.hover',
+                  '&:hover': {
+                    backgroundColor: 'action.selected',
+                  },
+                }}
+                title='Start recording'>
+                <MicIcon />
+              </IconButton>
+            )}
+
+            {/* ARMING: pulsing mic while we wait for permission + warm-up */}
+            {showArming && (
+              <Box
+                sx={{
+                  position: 'relative',
+                  display: 'inline-flex',
+                }}>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: -4,
+                    borderRadius: '50%',
+                    border: '2px solid',
+                    borderColor: 'error.main',
+                    animation: 'stt-pulse 1.2s ease-in-out infinite',
+                    pointerEvents: 'none',
+                  }}
+                />
+                <IconButton
+                  size='small'
+                  disabled
+                  sx={{
+                    backgroundColor: 'error.dark',
+                    color: 'white !important',
+                  }}>
+                  <MicIcon />
+                </IconButton>
+              </Box>
+            )}
+
+            {/* RECORDING: waveform + cancel/confirm */}
+            {showWaveform && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  backgroundColor: 'rgba(0,0,0,0.6)',
+                  borderRadius: 6,
+                  px: 1.5,
+                  py: 0.5,
+                  minWidth: 200,
+                }}>
+                {/* Cancel button */}
+                <IconButton
+                  onClick={cancel}
+                  size='small'
+                  sx={{
+                    color: 'grey.400',
+                    '&:hover': {
+                      color: 'error.light',
+                      backgroundColor: 'rgba(255,255,255,0.08)',
+                    },
+                  }}
+                  title='Cancel recording'>
+                  <CloseIcon fontSize='small' />
+                </IconButton>
+
+                {/* Waveform visualization */}
+                <Box sx={{ flex: 1, mx: 0.5 }}>
+                  <WaveformVisualizer
+                    analyserNode={analyserNode}
+                    isActive={phase === RecState.RECORDING}
+                  />
+                </Box>
+
+                {/* Confirm button */}
+                <IconButton
+                  onClick={confirm}
+                  size='small'
+                  sx={{
+                    color: 'grey.400',
+                    '&:hover': {
+                      color: 'success.light',
+                      backgroundColor: 'rgba(255,255,255,0.08)',
+                    },
+                  }}
+                  title='Finish recording'>
+                  <CheckIcon fontSize='small' />
+                </IconButton>
+              </Box>
+            )}
+
+            {/* PROCESSING / TRANSCRIBING spinner */}
+            {showProcessing && (
               <CircularProgress
                 size={36}
                 thickness={4}
                 sx={{ color: 'primary.main' }}
               />
-            ) : (
-              <Box
-                sx={{ position: 'relative', display: 'inline-flex' }}>
-                {/* Animated audio level rings */}
-                {isRecording && (
-                  <>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        width: 40,
-                        height: 40,
-                        borderRadius: '50%',
-                        border: 2,
-                        borderColor: 'error.main',
-                        transform: 'translate(-50%, -50%)',
-                        opacity: audioLevel * 0.6,
-                        transition: 'all 0.1s ease-out',
-                        pointerEvents: 'none',
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        width: 40 + audioLevel * 16,
-                        height: 40 + audioLevel * 16,
-                        borderRadius: '50%',
-                        border: 1.5,
-                        borderColor: 'error.light',
-                        transform: 'translate(-50%, -50%)',
-                        opacity: audioLevel * 0.4,
-                        transition: 'all 0.15s ease-out',
-                        pointerEvents: 'none',
-                      }}
-                    />
-                  </>
-                )}
-                <IconButton
-                  onClick={handleMicClick}
-                  color={isRecording ? 'error' : 'primary'}
-                  size='small'
-                  sx={{
-                    backgroundColor: isRecording
-                      ? 'error.light'
-                      : 'action.hover',
-                    '&:hover': {
-                      backgroundColor: isRecording
-                        ? 'error.main'
-                        : 'action.selected',
-                    },
-                    transition: 'all 0.2s ease-in-out',
-                    transform:
-                      isRecording && audioLevel > 0.3
-                        ? `scale(${1 + audioLevel * 0.1})`
-                        : 'scale(1)',
-                  }}
-                  title={
-                    isRecording ? 'Stop recording' : 'Start recording'
-                  }>
-                  {isRecording ? <MicOffIcon /> : <MicIcon />}
-                </IconButton>
-              </Box>
             )}
           </Box>
         </Box>
@@ -517,7 +417,7 @@ const SpeechToTextContainer = () => {
               order: { xs: 2, sm: 1 },
             }}>
             {message.length} characters
-            {isRecording && ' • Recording...'}
+            {isRecordingActive && ' • Recording...'}
             {isTranscribing && ' • Transcribing...'}
           </Typography>
 
@@ -532,7 +432,7 @@ const SpeechToTextContainer = () => {
               variant='outlined'
               startIcon={<UploadFileIcon />}
               onClick={handleFileUpload}
-              disabled={isRecording || isTranscribing}>
+              disabled={isRecordingActive || isTranscribing}>
               Upload Audio
             </Button>
             <Button
@@ -540,7 +440,7 @@ const SpeechToTextContainer = () => {
               startIcon={<ClearIcon />}
               onClick={handleClearMessage}
               disabled={
-                !message.trim() || isRecording || isTranscribing
+                !message.trim() || isRecordingActive || isTranscribing
               }>
               Clear
             </Button>
@@ -549,7 +449,7 @@ const SpeechToTextContainer = () => {
               endIcon={<ContentCopyIcon />}
               onClick={handleCopyToClipboard}
               disabled={
-                !message.trim() || isRecording || isTranscribing
+                !message.trim() || isRecordingActive || isTranscribing
               }>
               Copy to Clipboard
             </Button>

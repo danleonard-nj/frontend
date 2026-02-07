@@ -3,3 +3,4 @@ services/frontend/removePackages.js
 services/frontend/src/store/speechToText/speechToTextActions.js
 services/frontend/deploy.bat
 services/frontend/deploy.bat
+services/frontend/deploy.bat
