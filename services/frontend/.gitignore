@@ -37,3 +37,4 @@ git-*
 
 /src/msal*
 /src/config*
+deploy.bat

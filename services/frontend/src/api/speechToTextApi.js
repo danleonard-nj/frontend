@@ -16,11 +16,18 @@ export default class SpeechToTextApi extends ApiBase {
    * Note: Uses FormData instead of JSON because we're uploading a file.
    * The backend endpoint should expect multipart/form-data with an 'audio' field.
    */
-  async transcribeAudio(audioBlob, diarize = false) {
+  async transcribeAudio(
+    audioBlob,
+    diarize = false,
+    returnWaveform = false,
+  ) {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'audio.webm');
     if (diarize) {
       formData.append('diarize', 'true');
+    }
+    if (returnWaveform) {
+      formData.append('return_waveform', 'true');
     }
 
     // Get auth token for the request
@@ -74,11 +81,18 @@ export default class SpeechToTextApi extends ApiBase {
    * @param {boolean} diarize - Whether to enable speaker diarization
    * @returns {Promise<{text: string, segments?: Array}>} Transcribed text with optional segments
    */
-  async transcribeFile(audioFile, diarize = false) {
+  async transcribeFile(
+    audioFile,
+    diarize = false,
+    returnWaveform = false,
+  ) {
     const formData = new FormData();
     formData.append('audio', audioFile, audioFile.name);
     if (diarize) {
       formData.append('diarize', 'true');
+    }
+    if (returnWaveform) {
+      formData.append('return_waveform', 'true');
     }
 
     // Get auth token for the request

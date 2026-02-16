@@ -36,6 +36,8 @@ import {
   setIsRecording,
   clearError,
   setDiarizeEnabled,
+  setWaveformEnabled,
+  setWaveformOverlay,
   setCurrentAudioFile,
   setTranscriptionSegments,
   setActiveSegmentIndex,
@@ -51,6 +53,7 @@ import useRecorderStateMachine, {
 } from './useRecorderStateMachine';
 import WaveformVisualizer from './WaveformVisualizer';
 import AudioPlayer from './AudioPlayer';
+import WaveformOverlayViewer from './WaveformOverlayViewer';
 
 /**
  * Speech-to-Text Input Component with Redux Integration
@@ -67,6 +70,8 @@ const SpeechToTextContainer = () => {
     transcriptionHistoryLoading,
     error,
     diarizeEnabled,
+    waveformEnabled,
+    waveformOverlay,
     currentAudioFile,
     transcriptionSegments,
     audioCurrentTime,
@@ -81,6 +86,9 @@ const SpeechToTextContainer = () => {
   const diarizeRef = useRef(diarizeEnabled);
   diarizeRef.current = diarizeEnabled;
 
+  const waveformRef = useRef(waveformEnabled);
+  waveformRef.current = waveformEnabled;
+
   /**
    * Called by the state machine when recording is confirmed and audio is ready.
    * Dispatches the existing transcribeAudio action — no backend changes.
@@ -93,7 +101,11 @@ const SpeechToTextContainer = () => {
       setDebugAudioUrl(URL.createObjectURL(audioBlob));
       try {
         await dispatch(
-          transcribeAudio(audioBlob, diarizeRef.current),
+          transcribeAudio(
+            audioBlob,
+            diarizeRef.current,
+            waveformRef.current,
+          ),
         );
       } catch {
         // Error handled by Redux action
@@ -128,6 +140,7 @@ const SpeechToTextContainer = () => {
     dispatch(setTranscriptionSegments(null));
     dispatch(setCurrentAudioFile(null));
     dispatch(setActiveSegmentIndex(-1));
+    dispatch(setWaveformOverlay(null));
   };
 
   // Cleanup blob URL on unmount
@@ -203,7 +216,9 @@ const SpeechToTextContainer = () => {
       }
 
       try {
-        await dispatch(transcribeFile(file, diarizeEnabled));
+        await dispatch(
+          transcribeFile(file, diarizeEnabled, waveformEnabled),
+        );
       } catch {
         // Error handled by Redux action
       }
@@ -263,6 +278,30 @@ const SpeechToTextContainer = () => {
             sx={{ ml: 4 }}>
             When enabled, the transcript will be broken down by
             speaker with playback synchronization.
+          </Typography>
+        </Box>
+
+        {/* Waveform Overlay Toggle */}
+        <Box sx={{ mb: 2 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={waveformEnabled}
+                onChange={(e) =>
+                  dispatch(setWaveformEnabled(e.target.checked))
+                }
+                disabled={isRecordingActive || isTranscribing}
+              />
+            }
+            label='Return processed waveform'
+          />
+          <Typography
+            variant='caption'
+            color='text.secondary'
+            display='block'
+            sx={{ ml: 4 }}>
+            When enabled, the API returns a waveform overlay image you
+            can inspect with zoom and pan.
           </Typography>
         </Box>
 
@@ -497,6 +536,11 @@ const SpeechToTextContainer = () => {
           currentTime={audioCurrentTime}
           activeIndex={activeSegmentIndex}
         />
+      )}
+
+      {/* Waveform Overlay Display */}
+      {waveformOverlay && (
+        <WaveformOverlayViewer base64Png={waveformOverlay} />
       )}
 
       {/* Collapsible Recent Transcriptions Section */}

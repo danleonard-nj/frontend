@@ -9,6 +9,8 @@ const speechToTextInitialState = {
   error: null,
   lastTranscription: null,
   diarizeEnabled: false,
+  waveformEnabled: false,
+  waveformOverlay: null,
   currentAudioFile: null,
   transcriptionSegments: null,
   audioCurrentTime: 0,
@@ -72,6 +74,12 @@ const speechToTextSlice = createSlice({
     setActiveSegmentIndex(state, { payload }) {
       state.activeSegmentIndex = payload;
     },
+    setWaveformEnabled(state, { payload }) {
+      state.waveformEnabled = payload;
+    },
+    setWaveformOverlay(state, { payload }) {
+      state.waveformOverlay = payload;
+    },
   },
 });
 
@@ -92,6 +100,8 @@ export const {
   setTranscriptionSegments,
   setAudioCurrentTime,
   setActiveSegmentIndex,
+  setWaveformEnabled,
+  setWaveformOverlay,
 } = speechToTextSlice.actions;
 
 export default speechToTextSlice.reducer;

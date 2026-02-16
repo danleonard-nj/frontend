@@ -12,6 +12,7 @@ import {
   setLastTranscription,
   setCurrentAudioFile,
   setTranscriptionSegments,
+  setWaveformOverlay,
 } from './speechToTextSlice';
 
 export default class SpeechToTextActions {
@@ -24,16 +25,23 @@ export default class SpeechToTextActions {
    * Transcribe audio blob and append to message
    * @param {Blob} audioBlob - Audio data to transcribe
    * @param {boolean} diarize - Whether to enable speaker diarization
+   * @param {boolean} returnWaveform - Whether to request waveform overlay image
    */
-  transcribeAudio(audioBlob, diarize = false) {
+  transcribeAudio(
+    audioBlob,
+    diarize = false,
+    returnWaveform = false,
+  ) {
     return async (dispatch, getState) => {
       dispatch(setIsTranscribing(true));
       dispatch(clearError());
+      dispatch(setWaveformOverlay(null));
 
       try {
         const response = await this.speechToTextApi.transcribeAudio(
           audioBlob,
           diarize,
+          returnWaveform,
         );
 
         if (response.text && response.text.trim()) {
@@ -58,6 +66,11 @@ export default class SpeechToTextActions {
           } else {
             dispatch(setTranscriptionSegments(null));
             dispatch(setCurrentAudioFile(null));
+          }
+
+          // Store waveform overlay if returned
+          if (response.waveform_overlay) {
+            dispatch(setWaveformOverlay(response.waveform_overlay));
           }
 
           // Add to history if backend doesn't store it
@@ -89,16 +102,19 @@ export default class SpeechToTextActions {
    * Transcribe uploaded audio file
    * @param {File} audioFile - Audio file to transcribe
    * @param {boolean} diarize - Whether to enable speaker diarization
+   * @param {boolean} returnWaveform - Whether to request waveform overlay image
    */
-  transcribeFile(audioFile, diarize = false) {
+  transcribeFile(audioFile, diarize = false, returnWaveform = false) {
     return async (dispatch, getState) => {
       dispatch(setIsTranscribing(true));
       dispatch(clearError());
+      dispatch(setWaveformOverlay(null));
 
       try {
         const response = await this.speechToTextApi.transcribeFile(
           audioFile,
           diarize,
+          returnWaveform,
         );
 
         if (response.text && response.text.trim()) {
@@ -116,6 +132,11 @@ export default class SpeechToTextActions {
           } else {
             dispatch(setTranscriptionSegments(null));
             dispatch(setCurrentAudioFile(null));
+          }
+
+          // Store waveform overlay if returned
+          if (response.waveform_overlay) {
+            dispatch(setWaveformOverlay(response.waveform_overlay));
           }
 
           // Add to history if backend doesn't store it
