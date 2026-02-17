@@ -5,8 +5,11 @@ import React, {
   useState,
 } from 'react';
 import {
+  Alert,
   Box,
+  Chip,
   Paper,
+  Tooltip,
   Typography,
   Button,
   IconButton,
@@ -18,8 +21,6 @@ import {
   Divider,
   AccordionSummary,
   AccordionDetails,
-  FormControlLabel,
-  Switch,
   Accordion,
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
@@ -29,6 +30,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ClearIcon from '@mui/icons-material/Clear';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
+import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setMessage,
@@ -242,67 +245,54 @@ const SpeechToTextContainer = () => {
     isTranscribing || phase === RecState.STOPPING || isBusy;
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
-      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-        <Typography variant='h5' gutterBottom>
-          Speech-to-Text Chat Input
-        </Typography>
+    <Box sx={{ width: '100%', maxWidth: 900, margin: '0 auto' }}>
+      <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 2 }}>
+        {/* ── Header row: title + option chips ── */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 1,
+            mb: 2,
+          }}>
+          <Typography variant='h6' sx={{ fontWeight: 600 }}>
+            Speech to Text
+          </Typography>
 
-        <Typography
-          variant='body2'
-          color='text.secondary'
-          sx={{ mb: 2 }}>
-          Type your message, click the microphone button to record
-          audio, or upload an audio file. The transcribed text will be
-          appended to your message.
-        </Typography>
-
-        {/* Diarization Toggle */}
-        <Box sx={{ mb: 2 }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={diarizeEnabled}
-                onChange={(e) =>
-                  dispatch(setDiarizeEnabled(e.target.checked))
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Tooltip title='Identify individual speakers in the transcript'>
+              <Chip
+                icon={<RecordVoiceOverIcon />}
+                label='Diarize'
+                size='small'
+                variant={diarizeEnabled ? 'filled' : 'outlined'}
+                color={diarizeEnabled ? 'primary' : 'default'}
+                onClick={() =>
+                  !(isRecordingActive || isTranscribing) &&
+                  dispatch(setDiarizeEnabled(!diarizeEnabled))
                 }
                 disabled={isRecordingActive || isTranscribing}
+                sx={{ cursor: 'pointer' }}
               />
-            }
-            label='Enable speaker diarization'
-          />
-          <Typography
-            variant='caption'
-            color='text.secondary'
-            display='block'
-            sx={{ ml: 4 }}>
-            When enabled, the transcript will be broken down by
-            speaker with playback synchronization.
-          </Typography>
-        </Box>
-
-        {/* Waveform Overlay Toggle */}
-        <Box sx={{ mb: 2 }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={waveformEnabled}
-                onChange={(e) =>
-                  dispatch(setWaveformEnabled(e.target.checked))
+            </Tooltip>
+            <Tooltip title='Return a processed waveform image'>
+              <Chip
+                icon={<GraphicEqIcon />}
+                label='Waveform'
+                size='small'
+                variant={waveformEnabled ? 'filled' : 'outlined'}
+                color={waveformEnabled ? 'primary' : 'default'}
+                onClick={() =>
+                  !(isRecordingActive || isTranscribing) &&
+                  dispatch(setWaveformEnabled(!waveformEnabled))
                 }
                 disabled={isRecordingActive || isTranscribing}
+                sx={{ cursor: 'pointer' }}
               />
-            }
-            label='Return processed waveform'
-          />
-          <Typography
-            variant='caption'
-            color='text.secondary'
-            display='block'
-            sx={{ ml: 4 }}>
-            When enabled, the API returns a waveform overlay image you
-            can inspect with zoom and pan.
-          </Typography>
+            </Tooltip>
+          </Box>
         </Box>
 
         {/* Hidden file input */}
@@ -314,221 +304,217 @@ const SpeechToTextContainer = () => {
           onChange={handleFileChange}
         />
 
+        {/* Error alert */}
         {error && (
-          <Typography color='error' variant='body2' sx={{ mb: 2 }}>
+          <Alert
+            severity='error'
+            onClose={() => dispatch(clearError())}
+            sx={{ mb: 2 }}>
             {error}
-          </Typography>
+          </Alert>
         )}
 
-        {/* Message Input Area */}
-        <Box sx={{ position: 'relative', mb: 2 }}>
+        {/* ── Text area with inline recording controls ── */}
+        <Box sx={{ position: 'relative', mb: 1.5 }}>
           <TextField
             fullWidth
             multiline
-            minRows={4}
-            maxRows={12}
+            minRows={3}
+            maxRows={10}
             value={message}
             onChange={handleMessageChange}
-            placeholder='Type or speak your message...'
+            placeholder='Transcribed text appears here...'
             variant='outlined'
             disabled={isRecordingActive}
             sx={{
               '& .MuiOutlinedInput-root': {
-                paddingRight: '60px',
+                paddingBottom: showWaveform ? '56px' : undefined,
               },
             }}
           />
 
-          {/* ── Recording controls (bottom-right of text area) ── */}
-          <Box
-            sx={{
-              position: 'absolute',
-              left: 8,
-              right: 8,
-              bottom: 8,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 0.5,
-              justifyContent: 'flex-end',
-            }}>
-            {/* IDLE: single mic button */}
-            {showMicButton && (
+          {/* Recording overlay bar — anchored inside text area bottom */}
+          {showWaveform && (
+            <Box
+              sx={{
+                position: 'absolute',
+                left: 8,
+                right: 8,
+                bottom: 8,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                backgroundColor: 'rgba(0,0,0,0.65)',
+                borderRadius: 2,
+                px: 1.5,
+                py: 0.5,
+              }}>
               <IconButton
-                onClick={handleMicClick}
-                color='primary'
+                onClick={cancel}
                 size='small'
                 sx={{
-                  backgroundColor: 'action.hover',
+                  color: 'grey.400',
                   '&:hover': {
-                    backgroundColor: 'action.selected',
+                    color: 'error.light',
+                    backgroundColor: 'rgba(255,255,255,0.08)',
                   },
                 }}
-                title='Start recording'>
-                <MicIcon />
+                title='Cancel recording'>
+                <CloseIcon fontSize='small' />
               </IconButton>
-            )}
 
-            {/* ARMING: pulsing mic while we wait for permission + warm-up */}
-            {showArming && (
-              <Box
-                sx={{
-                  position: 'relative',
-                  display: 'inline-flex',
-                }}>
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    inset: -4,
-                    borderRadius: '50%',
-                    border: '2px solid',
-                    borderColor: 'error.main',
-                    animation: 'stt-pulse 1.2s ease-in-out infinite',
-                    pointerEvents: 'none',
-                  }}
+              <Box sx={{ flex: 1 }}>
+                <WaveformVisualizer
+                  analyserNode={analyserNode}
+                  isActive={phase === RecState.RECORDING}
                 />
-                <IconButton
-                  size='small'
-                  disabled
-                  sx={{
-                    backgroundColor: 'error.dark',
-                    color: 'white !important',
-                  }}>
-                  <MicIcon />
-                </IconButton>
               </Box>
-            )}
 
-            {/* RECORDING: waveform + cancel/confirm */}
-            {showWaveform && (
-              <Box
+              <IconButton
+                onClick={confirm}
+                size='small'
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  backgroundColor: 'rgba(0,0,0,0.6)',
-                  borderRadius: 6,
-                  px: 1.5,
-                  py: 0.5,
-                  flex: 1,
-                }}>
-                {/* Cancel button */}
-                <IconButton
-                  onClick={cancel}
-                  size='small'
-                  sx={{
-                    color: 'grey.400',
-                    '&:hover': {
-                      color: 'error.light',
-                      backgroundColor: 'rgba(255,255,255,0.08)',
-                    },
-                  }}
-                  title='Cancel recording'>
-                  <CloseIcon fontSize='small' />
-                </IconButton>
-
-                {/* Waveform visualization */}
-                <Box sx={{ flex: 1 }}>
-                  <WaveformVisualizer
-                    analyserNode={analyserNode}
-                    isActive={phase === RecState.RECORDING}
-                  />
-                </Box>
-
-                {/* Confirm button */}
-                <IconButton
-                  onClick={confirm}
-                  size='small'
-                  sx={{
-                    color: 'grey.400',
-                    '&:hover': {
-                      color: 'success.light',
-                      backgroundColor: 'rgba(255,255,255,0.08)',
-                    },
-                  }}
-                  title='Finish recording'>
-                  <CheckIcon fontSize='small' />
-                </IconButton>
-              </Box>
-            )}
-
-            {/* PROCESSING / TRANSCRIBING spinner */}
-            {showProcessing && (
-              <CircularProgress
-                size={36}
-                thickness={4}
-                sx={{ color: 'primary.main' }}
-              />
-            )}
-          </Box>
+                  color: 'grey.400',
+                  '&:hover': {
+                    color: 'success.light',
+                    backgroundColor: 'rgba(255,255,255,0.08)',
+                  },
+                }}
+                title='Finish recording'>
+                <CheckIcon fontSize='small' />
+              </IconButton>
+            </Box>
+          )}
         </Box>
 
-        {/* Action Buttons */}
+        {/* ── Toolbar: primary actions left, secondary actions right ── */}
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: 'center',
             justifyContent: 'space-between',
-            alignItems: { xs: 'stretch', sm: 'center' },
-            gap: { xs: 2, sm: 0 },
+            flexWrap: 'wrap',
+            gap: 1,
           }}>
-          <Typography
-            variant='caption'
-            color='text.secondary'
-            sx={{
-              textAlign: { xs: 'center', sm: 'left' },
-              order: { xs: 2, sm: 1 },
-            }}>
-            {message.length} characters
-            {isRecordingActive && ' • Recording...'}
-            {isTranscribing && ' • Transcribing...'}
-          </Typography>
-
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 1,
-              flexDirection: { xs: 'column', sm: 'row' },
-              order: { xs: 1, sm: 2 },
-              alignItems: 'center',
-            }}>
-            {debugAudioUrl && (
-              <AudioPlayer
-                audioUrl={debugAudioUrl}
-                disabled={isRecordingActive || isTranscribing}
-                compact
+          {/* Left: input actions */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Record button */}
+            {showMicButton && (
+              <Button
+                variant='contained'
                 size='small'
-              />
+                startIcon={<MicIcon />}
+                onClick={handleMicClick}
+                sx={{ textTransform: 'none' }}>
+                Record
+              </Button>
             )}
+
+            {/* Arming state — pulsing indicator */}
+            {showArming && (
+              <Button
+                variant='contained'
+                color='error'
+                size='small'
+                disabled
+                startIcon={
+                  <CircularProgress
+                    size={16}
+                    thickness={5}
+                    sx={{ color: 'inherit' }}
+                  />
+                }
+                sx={{ textTransform: 'none' }}>
+                Starting...
+              </Button>
+            )}
+
+            {/* Processing / transcribing state */}
+            {showProcessing && (
+              <Button
+                variant='contained'
+                size='small'
+                disabled
+                startIcon={
+                  <CircularProgress
+                    size={16}
+                    thickness={5}
+                    sx={{ color: 'inherit' }}
+                  />
+                }
+                sx={{ textTransform: 'none' }}>
+                Transcribing...
+              </Button>
+            )}
+
             <Button
               variant='outlined'
+              size='small'
               startIcon={<UploadFileIcon />}
               onClick={handleFileUpload}
-              disabled={isRecordingActive || isTranscribing}>
-              Upload Audio
+              disabled={isRecordingActive || isTranscribing}
+              sx={{ textTransform: 'none' }}>
+              Upload
             </Button>
-            <Button
-              variant='outlined'
-              startIcon={<ClearIcon />}
-              onClick={handleClearMessage}
-              disabled={
-                !message.trim() || isRecordingActive || isTranscribing
-              }>
-              Clear
-            </Button>
-            <Button
-              variant='contained'
-              endIcon={<ContentCopyIcon />}
-              onClick={handleCopyToClipboard}
-              disabled={
-                !message.trim() || isRecordingActive || isTranscribing
-              }>
-              Copy to Clipboard
-            </Button>
+
+            {/* Status text — visible on sm+ */}
+            <Typography
+              variant='caption'
+              color='text.secondary'
+              sx={{ display: { xs: 'none', sm: 'block' }, ml: 0.5 }}>
+              {message.length > 0 && `${message.length} chars`}
+              {isRecordingActive && 'Recording...'}
+            </Typography>
+          </Box>
+
+          {/* Right: output actions */}
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Tooltip title='Clear'>
+              <span>
+                <IconButton
+                  size='small'
+                  onClick={handleClearMessage}
+                  disabled={
+                    !message.trim() ||
+                    isRecordingActive ||
+                    isTranscribing
+                  }>
+                  <ClearIcon fontSize='small' />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip title='Copy to clipboard'>
+              <span>
+                <IconButton
+                  size='small'
+                  onClick={handleCopyToClipboard}
+                  disabled={
+                    !message.trim() ||
+                    isRecordingActive ||
+                    isTranscribing
+                  }>
+                  <ContentCopyIcon fontSize='small' />
+                </IconButton>
+              </span>
+            </Tooltip>
           </Box>
         </Box>
+
+        {/* ── Inline audio player — shown when a recording exists ── */}
+        {debugAudioUrl && (
+          <Box sx={{ mt: 2 }}>
+            <AudioPlayer
+              audioUrl={debugAudioUrl}
+              disabled={isRecordingActive || isTranscribing}
+              compact
+              size='small'
+            />
+          </Box>
+        )}
       </Paper>
 
-      {/* Diarized Transcript Display */}
+      {/* ── Diarized Transcript ── */}
       {transcriptionSegments && currentAudioFile && (
         <DiarizedTranscript
           audioUrl={currentAudioFile}
@@ -538,29 +524,38 @@ const SpeechToTextContainer = () => {
         />
       )}
 
-      {/* Waveform Overlay Display */}
+      {/* ── Waveform Overlay ── */}
       {waveformOverlay && (
         <WaveformOverlayViewer base64Png={waveformOverlay} />
       )}
 
-      {/* Collapsible Recent Transcriptions Section */}
-      <Accordion>
+      {/* ── Recent Transcriptions (collapsible) ── */}
+      <Accordion sx={{ mt: 2 }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls='recent-transcriptions-content'
           id='recent-transcriptions-header'>
-          <Typography variant='h6'>Recent Transcriptions</Typography>
+          <Typography variant='subtitle1'>
+            Recent Transcriptions
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           {transcriptionHistoryLoading ? (
-            <CircularProgress />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                py: 3,
+              }}>
+              <CircularProgress size={28} />
+            </Box>
           ) : transcriptionHistory.length > 0 ? (
-            <List>
+            <List disablePadding>
               {transcriptionHistory
                 .slice(0, 10)
                 .map((item, index) => (
                   <React.Fragment key={index}>
-                    <ListItem alignItems='flex-start'>
+                    <ListItem alignItems='flex-start' sx={{ px: 0 }}>
                       <ListItemText
                         primary={item.text}
                         secondary={
@@ -570,11 +565,20 @@ const SpeechToTextContainer = () => {
                               ).toLocaleString()
                             : 'Just now'
                         }
+                        primaryTypographyProps={{
+                          variant: 'body2',
+                          sx: {
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          },
+                        }}
                       />
                     </ListItem>
-                    {index < transcriptionHistory.length - 1 && (
-                      <Divider />
-                    )}
+                    {index <
+                      Math.min(transcriptionHistory.length, 10) -
+                        1 && <Divider />}
                   </React.Fragment>
                 ))}
             </List>
@@ -582,9 +586,9 @@ const SpeechToTextContainer = () => {
             <Typography
               variant='body2'
               color='text.secondary'
-              sx={{ mt: 2 }}>
-              No transcription history yet. Start recording to create
-              your first transcription!
+              sx={{ textAlign: 'center', py: 2 }}>
+              No transcriptions yet. Record or upload audio to get
+              started.
             </Typography>
           )}
         </AccordionDetails>
