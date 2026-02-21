@@ -1,5 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { dashboardState } from '../../api/data/dashboard.js';
+import {
+  dashboardState,
+  DASHBOARD_PAGE_KEY,
+} from '../../api/data/dashboard.js';
 
 const dashboardSlice = createSlice({
   name: 'dashboard',
@@ -7,6 +10,11 @@ const dashboardSlice = createSlice({
   reducers: {
     setPage(state, { payload }) {
       state.page = payload;
+      try {
+        localStorage.setItem(DASHBOARD_PAGE_KEY, payload);
+      } catch {
+        // localStorage unavailable
+      }
     },
     setSideMenu(state, { payload }) {
       state.sideMenuOpen = payload;
