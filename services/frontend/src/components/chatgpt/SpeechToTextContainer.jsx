@@ -228,7 +228,7 @@ const SpeechToTextContainer = () => {
 
       event.target.value = '';
     },
-    [dispatch, diarizeEnabled],
+    [dispatch, diarizeEnabled, waveformEnabled],
   );
 
   // Load transcription history on mount
