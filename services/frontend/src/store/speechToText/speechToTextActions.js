@@ -21,6 +21,22 @@ export default class SpeechToTextActions {
     autoBind(this);
   }
 
+  async copyTextToClipboard(text) {
+    if (
+      !text ||
+      typeof navigator === 'undefined' ||
+      !navigator.clipboard?.writeText
+    ) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Clipboard write failures are non-blocking for transcription flow
+    }
+  }
+
   /**
    * Transcribe audio blob and append to message
    * @param {Blob} audioBlob - Audio data to transcribe
@@ -48,6 +64,7 @@ export default class SpeechToTextActions {
           // Append transcribed text to message
           dispatch(appendToMessage(response.text));
           dispatch(setLastTranscription(response.text));
+          await this.copyTextToClipboard(response.text);
 
           // Store segments if diarization was enabled
           if (response.segments) {
@@ -121,6 +138,7 @@ export default class SpeechToTextActions {
           // Append transcribed text to message
           dispatch(appendToMessage(response.text));
           dispatch(setLastTranscription(response.text));
+          await this.copyTextToClipboard(response.text);
 
           // Store segments if diarization was enabled
           if (response.segments) {

@@ -9,7 +9,7 @@ const speechToTextInitialState = {
   error: null,
   lastTranscription: null,
   diarizeEnabled: false,
-  waveformEnabled: false,
+  waveformEnabled: true,
   waveformOverlay: null,
   currentAudioFile: null,
   transcriptionSegments: null,
