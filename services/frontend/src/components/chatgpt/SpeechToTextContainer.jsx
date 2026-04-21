@@ -32,6 +32,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 import GraphicEqIcon from '@mui/icons-material/GraphicEq';
+import ReplayIcon from '@mui/icons-material/Replay';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setMessage,
@@ -163,6 +165,37 @@ const SpeechToTextContainer = () => {
       // Clipboard copy failed silently
     }
   };
+
+  const handleRetryLastRecording = useCallback(async () => {
+    if (!lastAudioBlob || isRecordingActive || isTranscribing) return;
+
+    dispatch(clearError());
+    try {
+      await dispatch(
+        transcribeAudio(
+          lastAudioBlob,
+          diarizeRef.current,
+          waveformRef.current,
+        ),
+      );
+    } catch {
+      // Error handled by Redux action
+    }
+  }, [dispatch, isRecordingActive, isTranscribing, lastAudioBlob]);
+
+  const handleDownloadLastRecording = useCallback(() => {
+    if (!lastAudioBlob) return;
+
+    const blobUrl = URL.createObjectURL(lastAudioBlob);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = `recording-${timestamp}.webm`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(blobUrl);
+  }, [lastAudioBlob]);
 
   /**
    * Start recording (arm the state machine)
@@ -510,6 +543,50 @@ const SpeechToTextContainer = () => {
               compact
               size='small'
             />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 0.5,
+                mt: 0.5,
+              }}>
+              <Button
+                size='small'
+                variant='text'
+                startIcon={<DownloadIcon fontSize='small' />}
+                onClick={handleDownloadLastRecording}
+                disabled={
+                  !lastAudioBlob ||
+                  isRecordingActive ||
+                  isTranscribing
+                }
+                sx={{
+                  textTransform: 'none',
+                  minWidth: 'auto',
+                  px: 1,
+                  color: 'text.secondary',
+                }}>
+                Download
+              </Button>
+              <Button
+                size='small'
+                variant='text'
+                startIcon={<ReplayIcon fontSize='small' />}
+                onClick={handleRetryLastRecording}
+                disabled={
+                  !lastAudioBlob ||
+                  isRecordingActive ||
+                  isTranscribing
+                }
+                sx={{
+                  textTransform: 'none',
+                  minWidth: 'auto',
+                  px: 1,
+                  color: 'text.secondary',
+                }}>
+                Retry
+              </Button>
+            </Box>
           </Box>
         )}
       </Paper>
