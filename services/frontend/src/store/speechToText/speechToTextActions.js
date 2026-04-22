@@ -21,6 +21,16 @@ export default class SpeechToTextActions {
     autoBind(this);
   }
 
+  extractTranscriptionId(response) {
+    return (
+      response?.transcription_id ||
+      response?._id ||
+      response?.id ||
+      response?.transcriptionId ||
+      null
+    );
+  }
+
   async copyTextToClipboard(text) {
     if (
       !text ||
@@ -61,6 +71,9 @@ export default class SpeechToTextActions {
         );
 
         if (response.text && response.text.trim()) {
+          const transcriptionId =
+            this.extractTranscriptionId(response);
+
           // Append transcribed text to message
           dispatch(appendToMessage(response.text));
           dispatch(setLastTranscription(response.text));
@@ -93,6 +106,7 @@ export default class SpeechToTextActions {
           // Add to history if backend doesn't store it
           dispatch(
             addToHistory({
+              transcriptionId,
               text: response.text,
               timestamp: new Date().toISOString(),
               segments: response.segments,
@@ -135,6 +149,9 @@ export default class SpeechToTextActions {
         );
 
         if (response.text && response.text.trim()) {
+          const transcriptionId =
+            this.extractTranscriptionId(response);
+
           // Append transcribed text to message
           dispatch(appendToMessage(response.text));
           dispatch(setLastTranscription(response.text));
@@ -160,6 +177,7 @@ export default class SpeechToTextActions {
           // Add to history if backend doesn't store it
           dispatch(
             addToHistory({
+              transcriptionId,
               text: response.text,
               timestamp: new Date().toISOString(),
               filename: audioFile.name,
@@ -202,6 +220,8 @@ export default class SpeechToTextActions {
           const transcriptions = (
             response.data.transcriptions || []
           ).map((item) => ({
+            transcriptionId:
+              item._id || item.transcription_id || item.id || null,
             text: item.transcribed_text,
             timestamp: item.created_date,
             _id: item._id,
@@ -231,10 +251,38 @@ export default class SpeechToTextActions {
       }
     };
   }
+
+  submitTranscriptionFeedback(
+    transcriptionId,
+    reason = 'user_rejected_transcription',
+    notes = null,
+  ) {
+    return async (dispatch, getState) => {
+      try {
+        const response =
+          await this.speechToTextApi.submitTranscriptionFeedback(
+            transcriptionId,
+            reason,
+            notes,
+          );
+
+        dispatch(popMessage('Transcription marked as bad.'));
+        return response;
+      } catch (error) {
+        dispatch(
+          popErrorMessage(
+            error.message || 'Failed to mark transcription as bad.',
+          ),
+        );
+        throw error;
+      }
+    };
+  }
 }
 
 export const {
   transcribeAudio,
   transcribeFile,
   getTranscriptionHistory,
+  submitTranscriptionFeedback,
 } = new SpeechToTextActions();

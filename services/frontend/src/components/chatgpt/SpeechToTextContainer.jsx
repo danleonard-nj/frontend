@@ -34,6 +34,7 @@ import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import ReplayIcon from '@mui/icons-material/Replay';
 import DownloadIcon from '@mui/icons-material/Download';
+import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setMessage,
@@ -51,6 +52,7 @@ import {
   transcribeAudio,
   transcribeFile,
   getTranscriptionHistory,
+  submitTranscriptionFeedback,
 } from '../../store/speechToText/speechToTextActions';
 import DiarizedTranscript from './DiarizedTranscript';
 import useRecorderStateMachine, {
@@ -86,6 +88,7 @@ const SpeechToTextContainer = () => {
   const fileInputRef = useRef(null);
   const [lastAudioBlob, setLastAudioBlob] = useState(null);
   const [debugAudioUrl, setDebugAudioUrl] = useState(null);
+  const [isRejecting, setIsRejecting] = useState(false);
 
   // Keep Redux isRecording in sync with the state machine (for other components that read it)
   const diarizeRef = useRef(diarizeEnabled);
@@ -196,6 +199,41 @@ const SpeechToTextContainer = () => {
     link.remove();
     URL.revokeObjectURL(blobUrl);
   }, [lastAudioBlob]);
+
+  const latestTranscriptionId =
+    transcriptionHistory?.[0]?.transcriptionId ||
+    transcriptionHistory?.[0]?._id ||
+    null;
+
+  const handleRejectLatestTranscription = useCallback(async () => {
+    if (
+      !latestTranscriptionId ||
+      isRecordingActive ||
+      isTranscribing ||
+      isRejecting
+    ) {
+      return;
+    }
+
+    setIsRejecting(true);
+    try {
+      await dispatch(
+        submitTranscriptionFeedback(
+          latestTranscriptionId,
+          'user_rejected_transcription',
+          null,
+        ),
+      );
+    } finally {
+      setIsRejecting(false);
+    }
+  }, [
+    dispatch,
+    isRecordingActive,
+    isRejecting,
+    isTranscribing,
+    latestTranscriptionId,
+  ]);
 
   /**
    * Start recording (arm the state machine)
@@ -550,6 +588,27 @@ const SpeechToTextContainer = () => {
                 gap: 0.5,
                 mt: 0.5,
               }}>
+              <Button
+                size='small'
+                variant='text'
+                startIcon={
+                  <ThumbDownAltOutlinedIcon fontSize='small' />
+                }
+                onClick={handleRejectLatestTranscription}
+                disabled={
+                  !latestTranscriptionId ||
+                  isRecordingActive ||
+                  isTranscribing ||
+                  isRejecting
+                }
+                sx={{
+                  textTransform: 'none',
+                  minWidth: 'auto',
+                  px: 1,
+                  color: 'text.secondary',
+                }}>
+                {isRejecting ? 'Rejecting...' : 'Reject'}
+              </Button>
               <Button
                 size='small'
                 variant='text'
