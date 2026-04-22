@@ -167,7 +167,7 @@ export default class SpeechToTextApi extends ApiBase {
     const token = await this.getToken();
 
     const response = await fetch(
-      `${this.baseUrl}/api/tools/transcription/feedback`,
+      `${this.baseUrl}/api/tools/transcription/feedback/${transcriptionId}`,
       {
         method: 'POST',
         headers: {

@@ -47,6 +47,7 @@ import {
   setCurrentAudioFile,
   setTranscriptionSegments,
   setActiveSegmentIndex,
+  setLastTranscriptionId,
 } from '../../store/speechToText/speechToTextSlice';
 import {
   transcribeAudio,
@@ -83,6 +84,7 @@ const SpeechToTextContainer = () => {
     transcriptionSegments,
     audioCurrentTime,
     activeSegmentIndex,
+    lastTranscriptionId,
   } = useSelector((x) => x.speechToText);
 
   const fileInputRef = useRef(null);
@@ -149,6 +151,7 @@ const SpeechToTextContainer = () => {
     dispatch(setCurrentAudioFile(null));
     dispatch(setActiveSegmentIndex(-1));
     dispatch(setWaveformOverlay(null));
+    dispatch(setLastTranscriptionId(null));
   };
 
   // Cleanup blob URL on unmount
@@ -201,6 +204,7 @@ const SpeechToTextContainer = () => {
   }, [lastAudioBlob]);
 
   const latestTranscriptionId =
+    lastTranscriptionId ||
     transcriptionHistory?.[0]?.transcriptionId ||
     transcriptionHistory?.[0]?._id ||
     null;
@@ -290,6 +294,10 @@ const SpeechToTextContainer = () => {
       }
 
       try {
+        setLastAudioBlob(file);
+        if (debugAudioUrl) URL.revokeObjectURL(debugAudioUrl);
+        setDebugAudioUrl(URL.createObjectURL(file));
+
         await dispatch(
           transcribeFile(file, diarizeEnabled, waveformEnabled),
         );
@@ -572,11 +580,11 @@ const SpeechToTextContainer = () => {
           </Box>
         </Box>
 
-        {/* ── Inline audio player — shown when a recording exists ── */}
-        {debugAudioUrl && (
+        {/* ── Inline audio controls — shown when recorded or uploaded audio exists ── */}
+        {(debugAudioUrl || currentAudioFile) && (
           <Box sx={{ mt: 2 }}>
             <AudioPlayer
-              audioUrl={debugAudioUrl}
+              audioUrl={debugAudioUrl || currentAudioFile}
               disabled={isRecordingActive || isTranscribing}
               compact
               size='small'
