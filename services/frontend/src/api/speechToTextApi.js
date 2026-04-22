@@ -151,4 +151,50 @@ export default class SpeechToTextApi extends ApiBase {
     console.log('SpeechToTextApi: history result:', result);
     return result;
   }
+
+  /**
+   * Submit negative feedback for a transcription run
+   * @param {string} transcriptionId
+   * @param {string} reason
+   * @param {string|null} notes
+   * @returns {Promise<{status: string, audio_retained: boolean}>}
+   */
+  async submitTranscriptionFeedback(
+    transcriptionId,
+    reason = 'user_rejected_transcription',
+    notes = null,
+  ) {
+    const token = await this.getToken();
+
+    const response = await fetch(
+      `${this.baseUrl}/api/transcription/feedback`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transcription_id: transcriptionId,
+          reason,
+          notes,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      let errorMessage = 'Failed to submit transcription feedback.';
+      try {
+        const errorData = await response.json();
+        if (errorData?.error) {
+          errorMessage = errorData.error;
+        }
+      } catch {
+        // Use default error message when response body is not JSON
+      }
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  }
 }
