@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 import React, {
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from 'react';
+=======
+import React, { useMemo, useState } from 'react';
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
 import {
   Badge,
   Box,
@@ -11,6 +15,10 @@ import {
   Card,
   CardContent,
   Chip,
+<<<<<<< HEAD
+=======
+  Divider,
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
   Grid,
   IconButton,
   InputAdornment,
@@ -27,24 +35,77 @@ import {
   ContentCopy,
   Edit,
   GraphicEq,
+<<<<<<< HEAD
   MoreHoriz,
+=======
+  Mic,
+  MoreHoriz,
+  PlayArrow,
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
   Search,
   Settings,
   Tune,
   AutoAwesome,
   MenuBook,
 } from '@mui/icons-material';
+<<<<<<< HEAD
 import JournalRecorder from '../journal/JournalRecorder';
 import JournalAnalysisCard from '../journal/JournalAnalysisCard';
 import JournalApi from '../../api/journalApi';
 
 const fallbackEntries = [
+=======
+
+const entries = [
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
   {
     date: 'Tue, Apr 28',
     title: 'Morning thoughts',
     time: '7:43 AM',
     mood: 'good',
   },
+<<<<<<< HEAD
+=======
+  {
+    date: 'Sun, Apr 26',
+    title: 'Project frustrations',
+    time: '9:12 PM',
+    mood: 'neutral',
+  },
+  {
+    date: 'Sat, Apr 25',
+    title: 'Good practice session',
+    time: '6:08 PM',
+    mood: 'good',
+  },
+  {
+    date: 'Fri, Apr 24',
+    title: 'Long day',
+    time: '10:31 PM',
+    mood: 'low',
+  },
+  {
+    date: 'Wed, Apr 22',
+    title: 'NightLab milestone',
+    time: '5:42 PM',
+    mood: 'good',
+  },
+];
+
+const olderEntries = [
+  {
+    date: 'Tue, Mar 31',
+    title: 'End of month',
+    time: '8:16 PM',
+    mood: 'neutral',
+  },
+];
+
+const clips = [
+  { duration: '1:12', time: '7:31 AM' },
+  { duration: '0:47', time: '7:35 AM' },
+  { duration: '1:05', time: '7:40 AM' },
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
 ];
 
 const themes = [
@@ -80,13 +141,51 @@ function MoodDot({ mood = 'neutral' }) {
   );
 }
 
+<<<<<<< HEAD
 function JournalSidebar({
   entries,
+=======
+function MiniWaveform({ bars = 34 }) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '3px',
+        height: 40,
+        width: '100%',
+        opacity: 0.9,
+      }}>
+      {Array.from({ length: bars }).map((_, index) => {
+        const height = 8 + ((index * 17) % 26);
+
+        return (
+          <Box
+            key={index}
+            sx={{
+              width: 3,
+              height,
+              borderRadius: 8,
+              bgcolor: 'primary.main',
+              opacity: index % 5 === 0 ? 0.45 : 0.9,
+            }}
+          />
+        );
+      })}
+    </Box>
+  );
+}
+
+function JournalSidebar({
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
   searchValue,
   onSearchChange,
   selectedEntry,
   onSelectEntry,
+<<<<<<< HEAD
   onNewEntry,
+=======
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
 }) {
   const visibleEntries = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
@@ -101,7 +200,11 @@ function JournalSidebar({
 
       return content.includes(normalizedSearch);
     });
+<<<<<<< HEAD
   }, [entries, searchValue]);
+=======
+  }, [searchValue]);
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
 
   return (
     <Card
@@ -164,12 +267,17 @@ function JournalSidebar({
               color='text.secondary'
               fontWeight={700}
               sx={{ px: 1 }}>
+<<<<<<< HEAD
               Entries
+=======
+              April 2026
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
             </Typography>
 
             <List disablePadding sx={{ mb: 3 }}>
               {visibleEntries.map((entry) => {
                 const isSelected =
+<<<<<<< HEAD
                   selectedEntry &&
                   (entry.id
                     ? entry.id === selectedEntry.id
@@ -178,6 +286,13 @@ function JournalSidebar({
                 return (
                   <ListItemButton
                     key={entry.id || `${entry.date}-${entry.title}`}
+=======
+                  entry.title === selectedEntry.title;
+
+                return (
+                  <ListItemButton
+                    key={`${entry.date}-${entry.title}`}
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
                     selected={isSelected}
                     onClick={() => onSelectEntry(entry)}
                     sx={{
@@ -225,6 +340,7 @@ function JournalSidebar({
                   </ListItemButton>
                 );
               })}
+<<<<<<< HEAD
 
               {visibleEntries.length === 0 && (
                 <Typography
@@ -234,6 +350,56 @@ function JournalSidebar({
                   No entries yet
                 </Typography>
               )}
+=======
+            </List>
+
+            <Typography
+              variant='overline'
+              color='text.secondary'
+              fontWeight={700}
+              sx={{ px: 1 }}>
+              March 2026
+            </Typography>
+
+            <List disablePadding>
+              {olderEntries.map((entry) => (
+                <ListItemButton
+                  key={entry.title}
+                  sx={{ borderRadius: 2 }}>
+                  <ListItemText
+                    primary={
+                      <Stack
+                        direction='row'
+                        justifyContent='space-between'>
+                        <Typography
+                          variant='caption'
+                          color='text.secondary'>
+                          {entry.date}
+                        </Typography>
+                        <Typography
+                          variant='caption'
+                          color='text.secondary'>
+                          {entry.time}
+                        </Typography>
+                      </Stack>
+                    }
+                    secondary={
+                      <Stack
+                        direction='row'
+                        alignItems='center'
+                        mt={0.75}>
+                        <MoodDot mood={entry.mood} />
+                        <Typography
+                          variant='body2'
+                          color='text.primary'>
+                          {entry.title}
+                        </Typography>
+                      </Stack>
+                    }
+                  />
+                </ListItemButton>
+              ))}
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
             </List>
           </Box>
 
@@ -248,7 +414,10 @@ function JournalSidebar({
               variant='outlined'
               startIcon={<Add />}
               fullWidth
+<<<<<<< HEAD
               onClick={onNewEntry}
+=======
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
               sx={{ mb: 2 }}>
               New entry
             </Button>
@@ -271,6 +440,7 @@ function JournalSidebar({
   );
 }
 
+<<<<<<< HEAD
 function TranscriptCard({
   transcript,
   committed,
@@ -311,6 +481,114 @@ function TranscriptCard({
     ? new Date(recordedAt).toLocaleString()
     : null;
 
+=======
+function RecorderCard() {
+  return (
+    <Card variant='outlined'>
+      <CardContent>
+        <Stack spacing={2}>
+          <Stack direction='row' spacing={3} alignItems='center'>
+            <Box sx={{ textAlign: 'center', width: 96 }}>
+              <IconButton
+                size='large'
+                sx={{
+                  width: 64,
+                  height: 64,
+                  border: 1,
+                  borderColor: 'divider',
+                  bgcolor: 'error.main',
+                  color: 'error.contrastText',
+                  '&:hover': { bgcolor: 'error.dark' },
+                }}>
+                <Mic />
+              </IconButton>
+              <Typography variant='body2' mt={1}>
+                Record
+              </Typography>
+              <Typography variant='caption' color='text.secondary'>
+                00:00
+              </Typography>
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              <MiniWaveform bars={80} />
+              <Stack
+                direction='row'
+                spacing={1}
+                alignItems='center'
+                mt={1}>
+                <MoodDot mood='good' />
+                <Typography variant='caption' color='text.secondary'>
+                  Ready to record
+                </Typography>
+              </Stack>
+            </Box>
+
+            <IconButton>
+              <Tune />
+            </IconButton>
+          </Stack>
+
+          <Divider />
+
+          <Stack
+            direction='row'
+            justifyContent='space-between'
+            alignItems='center'>
+            <Typography variant='body2'>Saved clips</Typography>
+            <Typography variant='body2' color='text.secondary'>
+              3 clips
+            </Typography>
+          </Stack>
+
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={1.5}>
+            {clips.map((clip, index) => (
+              <Card
+                key={index}
+                variant='outlined'
+                sx={{
+                  flex: 1,
+                  bgcolor: 'background.default',
+                }}>
+                <CardContent
+                  sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                  <Stack
+                    direction='row'
+                    spacing={1.5}
+                    alignItems='center'>
+                    <IconButton size='small'>
+                      <PlayArrow fontSize='small' />
+                    </IconButton>
+
+                    <Box sx={{ flex: 1 }}>
+                      <MiniWaveform bars={18} />
+                    </Box>
+
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography variant='caption' display='block'>
+                        {clip.duration}
+                      </Typography>
+                      <Typography
+                        variant='caption'
+                        color='text.secondary'>
+                        {clip.time}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))}
+          </Stack>
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TranscriptCard({ committed, onCommit, title }) {
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
   return (
     <Card variant='outlined' sx={{ flex: 1 }}>
       <CardContent>
@@ -325,10 +603,14 @@ function TranscriptCard({
             label='Auto-transcribed'
           />
           <Stack direction='row' spacing={1}>
+<<<<<<< HEAD
             <IconButton
               size='small'
               onClick={handleCopy}
               disabled={!transcript}>
+=======
+            <IconButton size='small'>
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
               <ContentCopy fontSize='small' />
             </IconButton>
             <IconButton size='small'>
@@ -340,6 +622,7 @@ function TranscriptCard({
           </Stack>
         </Stack>
 
+<<<<<<< HEAD
         {paragraphs.length > 0 ? (
           <Stack spacing={2.5}>
             {paragraphs.map((paragraph, index) => (
@@ -352,6 +635,38 @@ function TranscriptCard({
             appended here as it is transcribed.
           </Typography>
         )}
+=======
+        <Stack spacing={2.5}>
+          <Typography>
+            Woke up feeling pretty decent today. Slept around 7 hours
+            which is solid for me lately. Did a 20 minute mobility
+            routine and some light stretching, my back already feels
+            better.
+          </Typography>
+
+          <Typography>
+            Work is moving again. Got the BLE config service working
+            the way I want and the GATT structure is finally clicking.
+            Still need to wire up the polarity switch circuit with
+            Pete later this week.
+          </Typography>
+
+          <Typography>
+            Listened to a bunch of Bon Iver on the way in. Helps me
+            get in a calm headspace. Thinking about making a playlist
+            for deep focus days.
+          </Typography>
+
+          <Typography>
+            Mood feels steady, not amazing, not drained. Just trying
+            to stack good days and keep the momentum.
+          </Typography>
+
+          <Typography>
+            Grateful for good coffee and people who build cool things.
+          </Typography>
+        </Stack>
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
 
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
@@ -360,13 +675,18 @@ function TranscriptCard({
           alignItems={{ xs: 'flex-start', sm: 'center' }}
           mt={4}>
           <Typography variant='caption' color='text.secondary'>
+<<<<<<< HEAD
             {recordedLabel ? `${recordedLabel} • ` : ''}
             {wordCount} {wordCount === 1 ? 'word' : 'words'}
+=======
+            7:43 AM • ~4 min • 612 words
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
           </Typography>
 
           <Button
             variant='contained'
             startIcon={<Check />}
+<<<<<<< HEAD
             onClick={onCommit}
             disabled={committed || committing || !transcript}>
             {committed
@@ -374,6 +694,10 @@ function TranscriptCard({
               : committing
                 ? 'Committing…'
                 : 'Commit entry'}
+=======
+            onClick={onCommit}>
+            {committed ? `${title} committed` : 'Commit entry'}
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
           </Button>
         </Stack>
       </CardContent>
@@ -549,6 +873,7 @@ function InsightsPanel() {
   );
 }
 
+<<<<<<< HEAD
 function deriveTitle(transcript) {
   const trimmed = (transcript || '').trim();
   if (!trimmed) return 'Untitled entry';
@@ -788,22 +1113,45 @@ const DashboardJournalLayout = () => {
       day: 'numeric',
     });
   }, [recordedAt]);
+=======
+const DashboardJournalLayout = () => {
+  const [searchValue, setSearchValue] = useState('');
+  const [selectedEntry, setSelectedEntry] = useState(entries[0]);
+  const [committed, setCommitted] = useState(false);
+
+  const handleSelectEntry = (entry) => {
+    setSelectedEntry(entry);
+    setCommitted(false);
+  };
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
 
   return (
     <Box sx={{ width: '100%' }}>
       <Grid container spacing={3} alignItems='stretch'>
+<<<<<<< HEAD
         <Grid item xs={12} lg={3} sx={{ order: { xs: 2, lg: 1 } }}>
           <JournalSidebar
             entries={entries}
+=======
+        <Grid item xs={12} lg={3}>
+          <JournalSidebar
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
             searchValue={searchValue}
             onSearchChange={setSearchValue}
             selectedEntry={selectedEntry}
             onSelectEntry={handleSelectEntry}
+<<<<<<< HEAD
             onNewEntry={handleNewEntry}
           />
         </Grid>
 
         <Grid item xs={12} lg={6} sx={{ order: { xs: 1, lg: 2 } }}>
+=======
+          />
+        </Grid>
+
+        <Grid item xs={12} lg={6}>
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
           <Stack spacing={3}>
             <Box>
               <Stack
@@ -812,7 +1160,11 @@ const DashboardJournalLayout = () => {
                 alignItems={{ xs: 'flex-start', sm: 'center' }}
                 spacing={2}
                 mb={2}>
+<<<<<<< HEAD
                 <Box sx={{ flex: 1, minWidth: 0 }}>
+=======
+                <Box>
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
                   <Stack
                     direction='row'
                     spacing={1}
@@ -820,6 +1172,7 @@ const DashboardJournalLayout = () => {
                     mb={1}>
                     <MenuBook color='primary' fontSize='small' />
                     <Typography color='primary' fontWeight={700}>
+<<<<<<< HEAD
                       {headerDate}
                     </Typography>
                   </Stack>
@@ -839,6 +1192,14 @@ const DashboardJournalLayout = () => {
                       },
                     }}
                   />
+=======
+                      Tuesday, April 28
+                    </Typography>
+                  </Stack>
+                  <Typography variant='h3' fontWeight={700}>
+                    {selectedEntry.title}
+                  </Typography>
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
                 </Box>
 
                 <Stack
@@ -855,13 +1216,18 @@ const DashboardJournalLayout = () => {
                     <Button
                       variant='outlined'
                       startIcon={<Check />}
+<<<<<<< HEAD
                       disabled={committing}
                       onClick={handleCommit}>
+=======
+                      onClick={() => setCommitted(true)}>
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
                       {committed ? 'Saved' : 'Ready'}
                     </Button>
                   </Badge>
                 </Stack>
               </Stack>
+<<<<<<< HEAD
 
               {commitError && (
                 <Typography
@@ -891,6 +1257,20 @@ const DashboardJournalLayout = () => {
         </Grid>
 
         <Grid item xs={12} lg={3} sx={{ order: { xs: 3, lg: 3 } }}>
+=======
+            </Box>
+
+            <RecorderCard />
+            <TranscriptCard
+              committed={committed}
+              onCommit={() => setCommitted(true)}
+              title={selectedEntry.title}
+            />
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12} lg={3}>
+>>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
           <InsightsPanel />
         </Grid>
       </Grid>
