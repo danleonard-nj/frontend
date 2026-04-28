@@ -10,6 +10,7 @@ import {
   setError,
   clearError,
   setLastTranscription,
+  setLastTranscriptionId,
   setCurrentAudioFile,
   setTranscriptionSegments,
   setWaveformOverlay,
@@ -57,17 +58,20 @@ export default class SpeechToTextActions {
     audioBlob,
     diarize = false,
     returnWaveform = false,
+    provider = null,
   ) {
     return async (dispatch, getState) => {
       dispatch(setIsTranscribing(true));
       dispatch(clearError());
       dispatch(setWaveformOverlay(null));
+      dispatch(setLastTranscriptionId(null));
 
       try {
         const response = await this.speechToTextApi.transcribeAudio(
           audioBlob,
           diarize,
           returnWaveform,
+          provider,
         );
 
         if (response.text && response.text.trim()) {
@@ -77,25 +81,22 @@ export default class SpeechToTextActions {
           // Append transcribed text to message
           dispatch(appendToMessage(response.text));
           dispatch(setLastTranscription(response.text));
+          dispatch(setLastTranscriptionId(transcriptionId));
           await this.copyTextToClipboard(response.text);
+
+          // Store the audio blob URL so the same playback controls work across flows
+          const audioFile = new File([audioBlob], 'recording.webm', {
+            type: audioBlob.type,
+          });
+          dispatch(
+            setCurrentAudioFile(URL.createObjectURL(audioFile)),
+          );
 
           // Store segments if diarization was enabled
           if (response.segments) {
             dispatch(setTranscriptionSegments(response.segments));
-            // Store the audio blob as a file for playback
-            const audioFile = new File(
-              [audioBlob],
-              'recording.webm',
-              {
-                type: audioBlob.type,
-              },
-            );
-            dispatch(
-              setCurrentAudioFile(URL.createObjectURL(audioFile)),
-            );
           } else {
             dispatch(setTranscriptionSegments(null));
-            dispatch(setCurrentAudioFile(null));
           }
 
           // Store waveform overlay if returned
@@ -135,17 +136,24 @@ export default class SpeechToTextActions {
    * @param {boolean} diarize - Whether to enable speaker diarization
    * @param {boolean} returnWaveform - Whether to request waveform overlay image
    */
-  transcribeFile(audioFile, diarize = false, returnWaveform = false) {
+  transcribeFile(
+    audioFile,
+    diarize = false,
+    returnWaveform = false,
+    provider = null,
+  ) {
     return async (dispatch, getState) => {
       dispatch(setIsTranscribing(true));
       dispatch(clearError());
       dispatch(setWaveformOverlay(null));
+      dispatch(setLastTranscriptionId(null));
 
       try {
         const response = await this.speechToTextApi.transcribeFile(
           audioFile,
           diarize,
           returnWaveform,
+          provider,
         );
 
         if (response.text && response.text.trim()) {
@@ -155,18 +163,19 @@ export default class SpeechToTextActions {
           // Append transcribed text to message
           dispatch(appendToMessage(response.text));
           dispatch(setLastTranscription(response.text));
+          dispatch(setLastTranscriptionId(transcriptionId));
           await this.copyTextToClipboard(response.text);
+
+          // Store the uploaded audio URL so playback controls appear for uploads too
+          dispatch(
+            setCurrentAudioFile(URL.createObjectURL(audioFile)),
+          );
 
           // Store segments if diarization was enabled
           if (response.segments) {
             dispatch(setTranscriptionSegments(response.segments));
-            // Store the audio file URL for playback
-            dispatch(
-              setCurrentAudioFile(URL.createObjectURL(audioFile)),
-            );
           } else {
             dispatch(setTranscriptionSegments(null));
-            dispatch(setCurrentAudioFile(null));
           }
 
           // Store waveform overlay if returned

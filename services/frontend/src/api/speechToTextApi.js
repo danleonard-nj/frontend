@@ -20,6 +20,7 @@ export default class SpeechToTextApi extends ApiBase {
     audioBlob,
     diarize = false,
     returnWaveform = false,
+    provider = null,
   ) {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'audio.webm');
@@ -28,6 +29,9 @@ export default class SpeechToTextApi extends ApiBase {
     }
     if (returnWaveform) {
       formData.append('return_waveform', 'true');
+    }
+    if (provider && provider !== 'default') {
+      formData.append('provider', provider);
     }
 
     // Get auth token for the request
@@ -85,6 +89,7 @@ export default class SpeechToTextApi extends ApiBase {
     audioFile,
     diarize = false,
     returnWaveform = false,
+    provider = null,
   ) {
     const formData = new FormData();
     formData.append('audio', audioFile, audioFile.name);
@@ -93,6 +98,9 @@ export default class SpeechToTextApi extends ApiBase {
     }
     if (returnWaveform) {
       formData.append('return_waveform', 'true');
+    }
+    if (provider && provider !== 'default') {
+      formData.append('provider', provider);
     }
 
     // Get auth token for the request
@@ -164,30 +172,20 @@ export default class SpeechToTextApi extends ApiBase {
     reason = 'user_rejected_transcription',
     notes = null,
   ) {
-    const token = await this.getToken();
-
-    const response = await fetch(
-      `${this.baseUrl}/api/tools/transcription/feedback`,
+    const { status, data, isSuccess } = await this.send(
+      `${this.baseUrl}/api/tools/transcription/feedback/${transcriptionId}`,
+      'POST',
       {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          transcription_id: transcriptionId,
-          reason,
-          notes,
-        }),
+        reason,
+        notes,
       },
     );
 
-    if (!response.ok) {
+    if (!isSuccess) {
       let errorMessage = 'Failed to submit transcription feedback.';
       try {
-        const errorData = await response.json();
-        if (errorData?.error) {
-          errorMessage = errorData.error;
+        if (data?.error) {
+          errorMessage = data.error;
         }
       } catch {
         // Use default error message when response body is not JSON
@@ -195,6 +193,6 @@ export default class SpeechToTextApi extends ApiBase {
       throw new Error(errorMessage);
     }
 
-    return response.json();
+    return data;
   }
 }

@@ -22,6 +22,9 @@ import {
   AccordionSummary,
   AccordionDetails,
   Accordion,
+  Select,
+  MenuItem,
+  FormControl,
 } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import CheckIcon from '@mui/icons-material/Check';
@@ -47,6 +50,8 @@ import {
   setCurrentAudioFile,
   setTranscriptionSegments,
   setActiveSegmentIndex,
+  setLastTranscriptionId,
+  setProvider,
 } from '../../store/speechToText/speechToTextSlice';
 import {
   transcribeAudio,
@@ -83,6 +88,8 @@ const SpeechToTextContainer = () => {
     transcriptionSegments,
     audioCurrentTime,
     activeSegmentIndex,
+    lastTranscriptionId,
+    provider,
   } = useSelector((x) => x.speechToText);
 
   const fileInputRef = useRef(null);
@@ -96,6 +103,9 @@ const SpeechToTextContainer = () => {
 
   const waveformRef = useRef(waveformEnabled);
   waveformRef.current = waveformEnabled;
+
+  const providerRef = useRef(provider);
+  providerRef.current = provider;
 
   /**
    * Called by the state machine when recording is confirmed and audio is ready.
@@ -113,6 +123,7 @@ const SpeechToTextContainer = () => {
             audioBlob,
             diarizeRef.current,
             waveformRef.current,
+            providerRef.current,
           ),
         );
       } catch {
@@ -149,6 +160,7 @@ const SpeechToTextContainer = () => {
     dispatch(setCurrentAudioFile(null));
     dispatch(setActiveSegmentIndex(-1));
     dispatch(setWaveformOverlay(null));
+    dispatch(setLastTranscriptionId(null));
   };
 
   // Cleanup blob URL on unmount
@@ -179,6 +191,7 @@ const SpeechToTextContainer = () => {
           lastAudioBlob,
           diarizeRef.current,
           waveformRef.current,
+          providerRef.current,
         ),
       );
     } catch {
@@ -201,6 +214,7 @@ const SpeechToTextContainer = () => {
   }, [lastAudioBlob]);
 
   const latestTranscriptionId =
+    lastTranscriptionId ||
     transcriptionHistory?.[0]?.transcriptionId ||
     transcriptionHistory?.[0]?._id ||
     null;
@@ -290,8 +304,17 @@ const SpeechToTextContainer = () => {
       }
 
       try {
+        setLastAudioBlob(file);
+        if (debugAudioUrl) URL.revokeObjectURL(debugAudioUrl);
+        setDebugAudioUrl(URL.createObjectURL(file));
+
         await dispatch(
-          transcribeFile(file, diarizeEnabled, waveformEnabled),
+          transcribeFile(
+            file,
+            diarizeEnabled,
+            waveformEnabled,
+            provider,
+          ),
         );
       } catch {
         // Error handled by Redux action
@@ -299,7 +322,7 @@ const SpeechToTextContainer = () => {
 
       event.target.value = '';
     },
-    [dispatch, diarizeEnabled, waveformEnabled],
+    [dispatch, diarizeEnabled, waveformEnabled, provider],
   );
 
   // Load transcription history on mount
@@ -332,7 +355,30 @@ const SpeechToTextContainer = () => {
             Speech to Text
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Tooltip title='Speech-to-text engine'>
+              <FormControl
+                size='small'
+                disabled={isRecordingActive || isTranscribing}
+                sx={{ minWidth: 110 }}>
+                <Select
+                  value={provider}
+                  onChange={(e) =>
+                    dispatch(setProvider(e.target.value))
+                  }
+                  sx={{
+                    height: 32,
+                    fontSize: '0.8125rem',
+                    '& .MuiSelect-select': { py: 0.5 },
+                  }}>
+                  <MenuItem value='default'>Default</MenuItem>
+                  <MenuItem value='openai'>OpenAI</MenuItem>
+                  <MenuItem value='azure'>Azure</MenuItem>
+                  <MenuItem value='google'>Google</MenuItem>
+                  <MenuItem value='whisper'>Whisper</MenuItem>
+                </Select>
+              </FormControl>
+            </Tooltip>
             <Tooltip title='Identify individual speakers in the transcript'>
               <Chip
                 icon={<RecordVoiceOverIcon />}
@@ -572,11 +618,11 @@ const SpeechToTextContainer = () => {
           </Box>
         </Box>
 
-        {/* ── Inline audio player — shown when a recording exists ── */}
-        {debugAudioUrl && (
+        {/* ── Inline audio controls — shown when recorded or uploaded audio exists ── */}
+        {(debugAudioUrl || currentAudioFile) && (
           <Box sx={{ mt: 2 }}>
             <AudioPlayer
-              audioUrl={debugAudioUrl}
+              audioUrl={debugAudioUrl || currentAudioFile}
               disabled={isRecordingActive || isTranscribing}
               compact
               size='small'
