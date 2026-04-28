@@ -1,6 +1,42 @@
 import { serviceScopes } from '../msalConfig';
 import ApiBase from './apiBase';
 
+const MIME_EXTENSION_MAP = {
+  'audio/webm': 'webm',
+  'audio/ogg': 'ogg',
+  'audio/mpeg': 'mp3',
+  'audio/mp3': 'mp3',
+  'audio/wav': 'wav',
+  'audio/x-wav': 'wav',
+  'audio/wave': 'wav',
+  'audio/mp4': 'm4a',
+  'audio/x-m4a': 'm4a',
+  'audio/aac': 'aac',
+  'audio/flac': 'flac',
+};
+
+/**
+ * Derive a sensible filename + extension from a Blob/File's MIME type so the
+ * backend can route the audio to the right decoder.
+ */
+function filenameForBlob(blob, fallbackBase = 'audio') {
+  const rawType = (blob?.type || '')
+    .toLowerCase()
+    .split(';')[0]
+    .trim();
+  let ext = MIME_EXTENSION_MAP[rawType];
+  if (!ext && rawType.startsWith('audio/')) {
+    ext = rawType.slice('audio/'.length).replace(/^x-/, '');
+  }
+  if (!ext) {
+    ext = 'webm';
+  }
+  return {
+    filename: `${fallbackBase}.${ext}`,
+    mimeType: rawType || `audio/${ext}`,
+  };
+}
+
 export default class SpeechToTextApi extends ApiBase {
   constructor() {
     super(serviceScopes.kubeTools);
@@ -23,7 +59,8 @@ export default class SpeechToTextApi extends ApiBase {
     provider = null,
   ) {
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'audio.webm');
+    const { filename } = filenameForBlob(audioBlob, 'recording');
+    formData.append('audio', audioBlob, filename);
     if (diarize) {
       formData.append('diarize', 'true');
     }
