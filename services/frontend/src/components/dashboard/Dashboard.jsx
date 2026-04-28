@@ -9,6 +9,7 @@ import { DashboardChatGPTLayout } from '../layouts/DashboardChatGPTLayout';
 import { DashoardEmailRuleLayout } from '../layouts/DashboardEmailRuleLayout';
 import { DashboardFeatureLayout } from '../layouts/DashboardFeatureLayout';
 import { DashboardKubernetesLogLayout } from '../layouts/DashboardKubernetesLogLayout';
+import { DashboardJournalLayout } from '../layouts/DashboardJournalLayout';
 import { DashboardLocationHistoryLayout } from '../layouts/DashboardLocationHistoryLayout';
 import { DashboardNestLayout } from '../layouts/DashboardNestLayout';
 import DashboardReverbLayout from '../layouts/DashboardReverbLayout';
@@ -34,6 +35,7 @@ export default function Dashboard() {
       id='dashboard-container'>
       {dashboardPage === 'schedules' && <DashboardScheduleLayout />}
       {dashboardPage === 'tasks' && <DashboardTaskLayout />}
+      {dashboardPage === 'journal' && <DashboardJournalLayout />}
       {dashboardPage === 'shipengine' && (
         <DashboardShipEngineLayout />
       )}
