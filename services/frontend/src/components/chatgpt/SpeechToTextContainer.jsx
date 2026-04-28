@@ -35,6 +35,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 import GraphicEqIcon from '@mui/icons-material/GraphicEq';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import ReplayIcon from '@mui/icons-material/Replay';
 import DownloadIcon from '@mui/icons-material/Download';
 import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined';
@@ -52,6 +53,7 @@ import {
   setActiveSegmentIndex,
   setLastTranscriptionId,
   setProvider,
+  setPolishEnabled,
 } from '../../store/speechToText/speechToTextSlice';
 import {
   transcribeAudio,
@@ -90,6 +92,7 @@ const SpeechToTextContainer = () => {
     activeSegmentIndex,
     lastTranscriptionId,
     provider,
+    polishEnabled,
   } = useSelector((x) => x.speechToText);
 
   const fileInputRef = useRef(null);
@@ -106,6 +109,9 @@ const SpeechToTextContainer = () => {
 
   const providerRef = useRef(provider);
   providerRef.current = provider;
+
+  const polishRef = useRef(polishEnabled);
+  polishRef.current = polishEnabled;
 
   /**
    * Called by the state machine when recording is confirmed and audio is ready.
@@ -124,6 +130,7 @@ const SpeechToTextContainer = () => {
             diarizeRef.current,
             waveformRef.current,
             providerRef.current,
+            polishRef.current,
           ),
         );
       } catch {
@@ -186,14 +193,25 @@ const SpeechToTextContainer = () => {
 
     dispatch(clearError());
     try {
-      await dispatch(
-        transcribeAudio(
-          lastAudioBlob,
-          diarizeRef.current,
-          waveformRef.current,
-          providerRef.current,
-        ),
-      );
+      // Uploaded files preserve their original filename/extension via
+      // transcribeFile; recorder blobs go through transcribeAudio.
+      const action =
+        lastAudioBlob instanceof File
+          ? transcribeFile(
+              lastAudioBlob,
+              diarizeRef.current,
+              waveformRef.current,
+              providerRef.current,
+              polishRef.current,
+            )
+          : transcribeAudio(
+              lastAudioBlob,
+              diarizeRef.current,
+              waveformRef.current,
+              providerRef.current,
+              polishRef.current,
+            );
+      await dispatch(action);
     } catch {
       // Error handled by Redux action
     }
@@ -314,6 +332,7 @@ const SpeechToTextContainer = () => {
             diarizeEnabled,
             waveformEnabled,
             provider,
+            polishEnabled,
           ),
         );
       } catch {
@@ -322,7 +341,13 @@ const SpeechToTextContainer = () => {
 
       event.target.value = '';
     },
-    [dispatch, diarizeEnabled, waveformEnabled, provider],
+    [
+      dispatch,
+      diarizeEnabled,
+      waveformEnabled,
+      provider,
+      polishEnabled,
+    ],
   );
 
   // Load transcription history on mount
@@ -408,6 +433,43 @@ const SpeechToTextContainer = () => {
                 disabled={isRecordingActive || isTranscribing}
                 sx={{ cursor: 'pointer' }}
               />
+            </Tooltip>
+            <Tooltip
+              title={
+                diarizeEnabled
+                  ? 'Polish is skipped automatically when diarization is enabled'
+                  : 'Run an LLM cleanup pass over the transcript'
+              }>
+              <span>
+                <Chip
+                  icon={<AutoFixHighIcon />}
+                  label='Polish'
+                  size='small'
+                  variant={
+                    polishEnabled && !diarizeEnabled
+                      ? 'filled'
+                      : 'outlined'
+                  }
+                  color={
+                    polishEnabled && !diarizeEnabled
+                      ? 'primary'
+                      : 'default'
+                  }
+                  onClick={() =>
+                    !(
+                      isRecordingActive ||
+                      isTranscribing ||
+                      diarizeEnabled
+                    ) && dispatch(setPolishEnabled(!polishEnabled))
+                  }
+                  disabled={
+                    isRecordingActive ||
+                    isTranscribing ||
+                    diarizeEnabled
+                  }
+                  sx={{ cursor: 'pointer' }}
+                />
+              </span>
             </Tooltip>
           </Box>
         </Box>

@@ -13,6 +13,7 @@ const speechToTextInitialState = {
   waveformEnabled: true,
   waveformOverlay: null,
   provider: 'default',
+  polishEnabled: false,
   currentAudioFile: null,
   transcriptionSegments: null,
   audioCurrentTime: 0,
@@ -88,6 +89,9 @@ const speechToTextSlice = createSlice({
     setProvider(state, { payload }) {
       state.provider = payload;
     },
+    setPolishEnabled(state, { payload }) {
+      state.polishEnabled = payload;
+    },
   },
 });
 
@@ -112,6 +116,7 @@ export const {
   setWaveformEnabled,
   setWaveformOverlay,
   setProvider,
+  setPolishEnabled,
 } = speechToTextSlice.actions;
 
 export default speechToTextSlice.reducer;

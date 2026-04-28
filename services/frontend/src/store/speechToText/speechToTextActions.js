@@ -59,6 +59,7 @@ export default class SpeechToTextActions {
     diarize = false,
     returnWaveform = false,
     provider = null,
+    polish = false,
   ) {
     return async (dispatch, getState) => {
       dispatch(setIsTranscribing(true));
@@ -72,6 +73,7 @@ export default class SpeechToTextActions {
           diarize,
           returnWaveform,
           provider,
+          polish,
         );
 
         if (response.text && response.text.trim()) {
@@ -141,6 +143,7 @@ export default class SpeechToTextActions {
     diarize = false,
     returnWaveform = false,
     provider = null,
+    polish = false,
   ) {
     return async (dispatch, getState) => {
       dispatch(setIsTranscribing(true));
@@ -154,6 +157,7 @@ export default class SpeechToTextActions {
           diarize,
           returnWaveform,
           provider,
+          polish,
         );
 
         if (response.text && response.text.trim()) {

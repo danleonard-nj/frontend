@@ -57,6 +57,7 @@ export default class SpeechToTextApi extends ApiBase {
     diarize = false,
     returnWaveform = false,
     provider = null,
+    polish = false,
   ) {
     const formData = new FormData();
     const { filename } = filenameForBlob(audioBlob, 'recording');
@@ -69,6 +70,9 @@ export default class SpeechToTextApi extends ApiBase {
     }
     if (provider && provider !== 'default') {
       formData.append('provider', provider);
+    }
+    if (polish) {
+      formData.append('polish', 'true');
     }
 
     // Get auth token for the request
@@ -127,6 +131,7 @@ export default class SpeechToTextApi extends ApiBase {
     diarize = false,
     returnWaveform = false,
     provider = null,
+    polish = false,
   ) {
     const formData = new FormData();
     formData.append('audio', audioFile, audioFile.name);
@@ -138,6 +143,9 @@ export default class SpeechToTextApi extends ApiBase {
     }
     if (provider && provider !== 'default') {
       formData.append('provider', provider);
+    }
+    if (polish) {
+      formData.append('polish', 'true');
     }
 
     // Get auth token for the request
