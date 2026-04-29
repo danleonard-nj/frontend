@@ -1,9 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
   Card,
@@ -20,7 +16,7 @@ import {
   Refresh,
   Warning,
 } from '@mui/icons-material';
-import JournalApi from '../../api/journalApi';
+import { journalActions } from '../../store/journal/journalActions';
 
 const TERMINAL_STATUSES = new Set(['processed', 'failed']);
 
@@ -121,46 +117,51 @@ const KNOWN_ANALYSIS_KEYS = new Set([
   'risk_flags',
 ]);
 
+const EMPTY_DETAIL = {
+  entry: null,
+  loading: false,
+  processing: false,
+  error: null,
+};
+
 const JournalAnalysisCard = ({
   entryId,
   refreshKey = 0,
   variant = 'detail',
 }) => {
-  const api = useMemo(() => new JournalApi(), []);
-  const [loading, setLoading] = useState(false);
-  const [processing, setProcessing] = useState(false);
-  const [entry, setEntry] = useState(null);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const detail = useSelector(
+    (s) => s.journal.entryDetails[entryId] || EMPTY_DETAIL,
+  );
+  const { entry, loading, processing, error } = detail;
 
-  const fetchEntry = useCallback(async () => {
-    if (!entryId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api.getEntry(entryId);
-      if (response.status === 200) {
-        setEntry(response.data);
-      } else if (response.status === 404) {
-        setEntry(null);
-        setError('Entry not found');
-      } else {
-        setError(`Failed to load entry (${response.status})`);
-      }
-    } catch (err) {
-      setError(err.message || 'Failed to load entry');
-    } finally {
-      setLoading(false);
-    }
-  }, [api, entryId]);
+  const fetchEntry = useCallback(
+    (opts) => dispatch(journalActions.loadEntryDetail(entryId, opts)),
+    [dispatch, entryId],
+  );
 
   useEffect(() => {
+    if (!entryId) return;
     fetchEntry();
-    // refreshKey is included so callers can force a re-fetch (e.g. delayed
-    // refresh after committing an entry to pick up backend analysis).
+    // refreshKey allows callers to force a re-fetch.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchEntry, refreshKey]);
+  }, [entryId, fetchEntry, refreshKey]);
 
   const status = entry?.status;
+
+  // Background poll: while the entry is queued/processing (or has no
+  // analysis yet on a non-terminal status), silently re-fetch every 2s
+  // until we hit a terminal state (processed / failed) or the entry
+  // changes.
+  useEffect(() => {
+    if (!entryId) return undefined;
+    if (status && TERMINAL_STATUSES.has(status)) return undefined;
+    const interval = setInterval(() => {
+      fetchEntry({ silent: true });
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [entryId, status, fetchEntry]);
+
   const analysis = entry?.analysis || null;
   const processingMeta = entry?.processing || null;
   const isReady = status === 'processed' && analysis;
@@ -170,20 +171,11 @@ const JournalAnalysisCard = ({
   const canRetry = status === 'failed';
 
   const handleProcess = useCallback(
-    async (force = false) => {
+    (force = false) => {
       if (!entryId) return;
-      setProcessing(true);
-      setError(null);
-      try {
-        await api.processEntry(entryId, force);
-        await fetchEntry();
-      } catch (err) {
-        setError(err.message || 'Failed to request processing');
-      } finally {
-        setProcessing(false);
-      }
+      dispatch(journalActions.processEntryAnalysis(entryId, force));
     },
-    [api, entryId, fetchEntry],
+    [dispatch, entryId],
   );
 
   const extras =
@@ -253,7 +245,7 @@ const JournalAnalysisCard = ({
             )}
             <IconButton
               size='small'
-              onClick={fetchEntry}
+              onClick={() => fetchEntry()}
               disabled={loading || processing}
               title='Refresh'>
               <Refresh fontSize='small' />

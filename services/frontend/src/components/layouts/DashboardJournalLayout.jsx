@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   useCallback,
   useEffect,
   useMemo,
@@ -26,6 +26,7 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  Select,
   Stack,
   Tab,
   Tabs,
@@ -797,7 +798,21 @@ function formatDayLabel(isoDate) {
 
 // ─── InsightsPanel ────────────────────────────────────────────────────────────
 
-function InsightsPanel({ insights, loading, error, onRefresh }) {
+const INSIGHTS_DAYS_OPTIONS = [
+  { value: 3, label: 'Last 3 days' },
+  { value: 7, label: 'Last week' },
+  { value: 14, label: 'Last 2 weeks' },
+  { value: 30, label: 'Last month' },
+];
+
+function InsightsPanel({
+  insights,
+  loading,
+  error,
+  onRefresh,
+  daysBack,
+  onDaysBackChange,
+}) {
   const summary = insights?.summary;
   const moodTrend = insights?.mood_trend;
   const streak = insights?.streak;
@@ -824,13 +839,26 @@ function InsightsPanel({ insights, loading, error, onRefresh }) {
                 AI Summary
               </Typography>
             </Stack>
-            <IconButton
-              size='small'
-              onClick={onRefresh}
-              disabled={loading}
-              title='Refresh insights'>
-              <Refresh fontSize='small' />
-            </IconButton>
+            <Stack direction='row' alignItems='center' spacing={1}>
+              <Select
+                size='small'
+                value={daysBack}
+                onChange={(e) => onDaysBackChange(e.target.value)}
+                sx={{ minWidth: 140 }}>
+                {INSIGHTS_DAYS_OPTIONS.map((opt) => (
+                  <MenuItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              <IconButton
+                size='small'
+                onClick={onRefresh}
+                disabled={loading}
+                title='Refresh insights'>
+                <Refresh fontSize='small' />
+              </IconButton>
+            </Stack>
           </Stack>
 
           {loading && !insights && (
@@ -1021,6 +1049,8 @@ const DashboardJournalLayout = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   // Tracks the most recently polished entry so we can show an Undo button.
   const [polishedEntryId, setPolishedEntryId] = useState(null);
+  // Time window for the Insights tab. Defaults to the smallest option.
+  const [insightsDaysBack, setInsightsDaysBack] = useState(3);
 
   // ── Derived values ─────────────────────────────────────────────────────
   const transcript = useMemo(() => {
@@ -1064,8 +1094,11 @@ const DashboardJournalLayout = () => {
   // ── Effects ────────────────────────────────────────────────────────────
   useEffect(() => {
     dispatch(journalActions.loadEntries());
-    dispatch(journalActions.loadInsights());
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(journalActions.loadInsights(insightsDaysBack));
+  }, [dispatch, insightsDaysBack]);
 
   // ── Helpers ────────────────────────────────────────────────────────────
   const resetDraft = useCallback(() => {
@@ -1173,11 +1206,8 @@ const DashboardJournalLayout = () => {
       setTitleOverride(null);
       setTranscriptOverride(null);
       setActiveTab('journal');
-      // Backend analysis is async — give it a moment then re-fetch the
-      // entry so the JournalAnalysisCard picks up mood/themes/etc.
-      setTimeout(() => {
-        setAnalysisRefreshKey((k) => k + 1);
-      }, 4000);
+      // The JournalAnalysisCard polls in the background until the
+      // backend analysis lands, so no manual delayed refresh needed.
     }
   }, [
     committed,
@@ -1394,7 +1424,11 @@ const DashboardJournalLayout = () => {
           insights={insights}
           loading={insightsLoading}
           error={insightsError}
-          onRefresh={() => dispatch(journalActions.loadInsights())}
+          daysBack={insightsDaysBack}
+          onDaysBackChange={setInsightsDaysBack}
+          onRefresh={() =>
+            dispatch(journalActions.loadInsights(insightsDaysBack))
+          }
         />
       )}
 

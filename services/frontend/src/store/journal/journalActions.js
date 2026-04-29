@@ -12,6 +12,11 @@ import {
   setInsightsError,
   setCommitting,
   setCommitError,
+  setEntryDetailLoading,
+  setEntryDetail,
+  setEntryDetailError,
+  setEntryDetailProcessing,
+  clearEntryDetail,
 } from './journalSlice';
 
 function moodFromAnalysis(analysis) {
@@ -192,6 +197,7 @@ export default class JournalActions {
           response.status === 404
         ) {
           dispatch(removeEntry(entryId));
+          dispatch(clearEntryDetail(entryId));
           dispatch(popMessage('Entry deleted'));
           dispatch(this.loadInsights());
           return true;
@@ -201,6 +207,81 @@ export default class JournalActions {
       } catch (err) {
         dispatch(popErrorMessage('Failed to delete entry'));
         return false;
+      }
+    };
+  }
+
+  loadEntryDetail(entryId, { silent = false } = {}) {
+    return async (dispatch) => {
+      if (!entryId) return null;
+      if (!silent) {
+        dispatch(
+          setEntryDetailLoading({ id: entryId, loading: true }),
+        );
+      }
+      try {
+        const response = await this.journalApi.getEntry(entryId);
+        if (response.status === 200) {
+          dispatch(
+            setEntryDetail({ id: entryId, entry: response.data }),
+          );
+          return response.data;
+        }
+        if (response.status === 404) {
+          dispatch(
+            setEntryDetailError({
+              id: entryId,
+              error: 'Entry not found',
+            }),
+          );
+          return null;
+        }
+        dispatch(
+          setEntryDetailError({
+            id: entryId,
+            error: `Failed to load entry (${response.status})`,
+          }),
+        );
+        return null;
+      } catch (err) {
+        dispatch(
+          setEntryDetailError({
+            id: entryId,
+            error: err.message || 'Failed to load entry',
+          }),
+        );
+        return null;
+      }
+    };
+  }
+
+  processEntryAnalysis(entryId, force = false) {
+    return async (dispatch) => {
+      if (!entryId) return null;
+      dispatch(
+        setEntryDetailProcessing({ id: entryId, processing: true }),
+      );
+      try {
+        await this.journalApi.processEntry(entryId, force);
+        const fresh = await dispatch(
+          this.loadEntryDetail(entryId, { silent: true }),
+        );
+        return fresh;
+      } catch (err) {
+        dispatch(
+          setEntryDetailError({
+            id: entryId,
+            error: err.message || 'Failed to request processing',
+          }),
+        );
+        return null;
+      } finally {
+        dispatch(
+          setEntryDetailProcessing({
+            id: entryId,
+            processing: false,
+          }),
+        );
       }
     };
   }

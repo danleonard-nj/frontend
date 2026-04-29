@@ -8,7 +8,22 @@ const initialState = {
   insightsError: null,
   commitError: null,
   committing: false,
+  // Per-entry detail (full record from GET /entries/:id), keyed by id.
+  // Shape: { [id]: { entry, loading, processing, error } }
+  entryDetails: {},
 };
+
+function ensureDetail(state, id) {
+  if (!state.entryDetails[id]) {
+    state.entryDetails[id] = {
+      entry: null,
+      loading: false,
+      processing: false,
+      error: null,
+    };
+  }
+  return state.entryDetails[id];
+}
 
 const journalSlice = createSlice({
   name: 'journal',
@@ -53,6 +68,30 @@ const journalSlice = createSlice({
     setCommitError(state, { payload }) {
       state.commitError = payload;
     },
+    setEntryDetailLoading(state, { payload }) {
+      const { id, loading } = payload;
+      ensureDetail(state, id).loading = loading;
+    },
+    setEntryDetail(state, { payload }) {
+      const { id, entry } = payload;
+      const detail = ensureDetail(state, id);
+      detail.entry = entry;
+      detail.loading = false;
+      detail.error = null;
+    },
+    setEntryDetailError(state, { payload }) {
+      const { id, error } = payload;
+      const detail = ensureDetail(state, id);
+      detail.error = error;
+      detail.loading = false;
+    },
+    setEntryDetailProcessing(state, { payload }) {
+      const { id, processing } = payload;
+      ensureDetail(state, id).processing = processing;
+    },
+    clearEntryDetail(state, { payload }) {
+      delete state.entryDetails[payload];
+    },
   },
 });
 
@@ -67,6 +106,11 @@ export const {
   setInsightsError,
   setCommitting,
   setCommitError,
+  setEntryDetailLoading,
+  setEntryDetail,
+  setEntryDetailError,
+  setEntryDetailProcessing,
+  clearEntryDetail,
 } = journalSlice.actions;
 
 export default journalSlice.reducer;
