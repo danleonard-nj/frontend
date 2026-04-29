@@ -218,6 +218,24 @@ const WaveformVisualizer = ({ analyserNode, isActive }) => {
     };
   }, [isActive, analyserNode, draw]);
 
+  // When recording stops, reset history and draw a flat idle line.
+  useEffect(() => {
+    if (isActive) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    historyLenRef.current = 0;
+    if (historyRef.current) historyRef.current.fill(0);
+    const ctx = canvas.getContext('2d');
+    const { w: width, h: height } = logicalSizeRef.current;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.moveTo(0, height / 2);
+    ctx.lineTo(width, height / 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }, [isActive]);
+
   // Resize canvas to match container (keeps it crisp on HiDPI)
   useEffect(() => {
     const canvas = canvasRef.current;

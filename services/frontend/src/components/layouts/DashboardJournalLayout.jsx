@@ -5,117 +5,62 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-=======
-import React, { useMemo, useState } from 'react';
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  Badge,
   Box,
   Button,
   Card,
   CardContent,
   Chip,
-<<<<<<< HEAD
-=======
-  Divider,
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
+  CircularProgress,
+  Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Grid,
   IconButton,
   InputAdornment,
   List,
   ListItemButton,
   ListItemText,
+  Menu,
+  MenuItem,
   Stack,
+  Tab,
+  Tabs,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import {
   Add,
+  AutoFixHigh,
   Check,
+  Close,
   ContentCopy,
+  DeleteOutline,
   Edit,
+  ExpandLess,
+  ExpandMore,
+  FiberManualRecord,
   GraphicEq,
-<<<<<<< HEAD
-  MoreHoriz,
-=======
-  Mic,
-  MoreHoriz,
-  PlayArrow,
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
+  Refresh,
   Search,
   Settings,
   Tune,
+  Undo,
   AutoAwesome,
   MenuBook,
 } from '@mui/icons-material';
 <<<<<<< HEAD
 import JournalRecorder from '../journal/JournalRecorder';
 import JournalAnalysisCard from '../journal/JournalAnalysisCard';
-import JournalApi from '../../api/journalApi';
+import { journalActions } from '../../store/journal/journalActions';
+import { setCommitError } from '../../store/journal/journalSlice';
 
-const fallbackEntries = [
-=======
-
-const entries = [
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-  {
-    date: 'Tue, Apr 28',
-    title: 'Morning thoughts',
-    time: '7:43 AM',
-    mood: 'good',
-  },
-<<<<<<< HEAD
-=======
-  {
-    date: 'Sun, Apr 26',
-    title: 'Project frustrations',
-    time: '9:12 PM',
-    mood: 'neutral',
-  },
-  {
-    date: 'Sat, Apr 25',
-    title: 'Good practice session',
-    time: '6:08 PM',
-    mood: 'good',
-  },
-  {
-    date: 'Fri, Apr 24',
-    title: 'Long day',
-    time: '10:31 PM',
-    mood: 'low',
-  },
-  {
-    date: 'Wed, Apr 22',
-    title: 'NightLab milestone',
-    time: '5:42 PM',
-    mood: 'good',
-  },
-];
-
-const olderEntries = [
-  {
-    date: 'Tue, Mar 31',
-    title: 'End of month',
-    time: '8:16 PM',
-    mood: 'neutral',
-  },
-];
-
-const clips = [
-  { duration: '1:12', time: '7:31 AM' },
-  { duration: '0:47', time: '7:35 AM' },
-  { duration: '1:05', time: '7:40 AM' },
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-];
-
-const themes = [
-  'health',
-  'music',
-  'work',
-  'family',
-  'focus',
-  'routine',
-];
+// ─── MoodDot ──────────────────────────────────────────────────────────────────
 
 function MoodDot({ mood = 'neutral' }) {
   const color =
@@ -141,8 +86,64 @@ function MoodDot({ mood = 'neutral' }) {
   );
 }
 
-<<<<<<< HEAD
-function JournalSidebar({
+// ─── bucketEntries ────────────────────────────────────────────────────────────
+
+/**
+ * Groups entries into labelled buckets for the tree-view sidebar.
+ * During search, returns a single flat "Results" group.
+ */
+function bucketEntries(entries, searchValue) {
+  const normalizedSearch = searchValue.trim().toLowerCase();
+
+  if (normalizedSearch) {
+    const results = entries.filter((e) => {
+      const haystack = `${e.date} ${e.title} ${e.time}`.toLowerCase();
+      return haystack.includes(normalizedSearch);
+    });
+    return results.length
+      ? [{ label: 'Results', entries: results }]
+      : [];
+  }
+
+  const now = new Date();
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
+
+  const buckets = [
+    { label: 'Today', maxDays: 1 },
+    { label: 'Yesterday', maxDays: 2 },
+    { label: 'This week', maxDays: 7 },
+    { label: 'Last week', maxDays: 14 },
+    { label: 'This month', maxDays: 30 },
+    { label: 'Older', maxDays: Infinity },
+  ];
+
+  const groups = buckets.map((b) => ({
+    label: b.label,
+    entries: [],
+  }));
+
+  for (const entry of entries) {
+    if (!entry.createdAt) {
+      groups[groups.length - 1].entries.push(entry);
+      continue;
+    }
+    const diffDays =
+      (startOfToday - new Date(entry.createdAt)) /
+      (1000 * 60 * 60 * 24);
+    const idx = buckets.findIndex((b) => diffDays < b.maxDays);
+    groups[idx >= 0 ? idx : groups.length - 1].entries.push(entry);
+  }
+
+  return groups.filter((g) => g.entries.length > 0);
+}
+
+// ─── GroupedEntryList ─────────────────────────────────────────────────────────
+
+function GroupedEntryList({
   entries,
 =======
 function MiniWaveform({ bars = 34 }) {
@@ -179,33 +180,141 @@ function MiniWaveform({ bars = 34 }) {
 function JournalSidebar({
 >>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
   searchValue,
+  selectedEntry,
+  onSelectEntry,
+}) {
+  const groups = useMemo(
+    () => bucketEntries(entries, searchValue),
+    [entries, searchValue],
+  );
+  const [collapsed, setCollapsed] = useState({});
+  const toggle = (label) =>
+    setCollapsed((prev) => ({ ...prev, [label]: !prev[label] }));
+
+  if (groups.length === 0) {
+    return (
+      <Typography
+        variant='body2'
+        color='text.secondary'
+        sx={{ px: 1, py: 2 }}>
+        No entries yet
+      </Typography>
+    );
+  }
+
+  return (
+    <>
+      {groups.map((group) => {
+        const isOpen = !collapsed[group.label];
+        return (
+          <Box key={group.label} sx={{ mb: 1 }}>
+            <Stack
+              direction='row'
+              alignItems='center'
+              onClick={() => toggle(group.label)}
+              sx={{
+                px: 1,
+                py: 0.5,
+                cursor: 'pointer',
+                userSelect: 'none',
+                borderRadius: 1,
+                '&:hover': { bgcolor: 'action.hover' },
+              }}>
+              {isOpen ? (
+                <ExpandLess
+                  fontSize='small'
+                  sx={{ mr: 0.5, color: 'text.secondary' }}
+                />
+              ) : (
+                <ExpandMore
+                  fontSize='small'
+                  sx={{ mr: 0.5, color: 'text.secondary' }}
+                />
+              )}
+              <Typography
+                variant='overline'
+                color='text.secondary'
+                fontWeight={700}
+                sx={{ lineHeight: 1.5 }}>
+                {group.label}
+              </Typography>
+              <Typography
+                variant='caption'
+                color='text.disabled'
+                sx={{ ml: 1 }}>
+                {group.entries.length}
+              </Typography>
+            </Stack>
+
+            <Collapse in={isOpen} unmountOnExit>
+              <List disablePadding>
+                {group.entries.map((entry) => {
+                  const isSelected =
+                    selectedEntry &&
+                    (entry.id
+                      ? entry.id === selectedEntry.id
+                      : entry.title === selectedEntry.title);
+                  return (
+                    <ListItemButton
+                      key={entry.id || `${entry.date}-${entry.title}`}
+                      selected={isSelected}
+                      onClick={() => onSelectEntry(entry)}
+                      sx={{
+                        borderRadius: 2,
+                        mb: 0.5,
+                        alignItems: 'flex-start',
+                        borderLeft: 3,
+                        borderColor: isSelected
+                          ? 'primary.main'
+                          : 'transparent',
+                      }}>
+                      <ListItemText
+                        primary={
+                          <Typography
+                            variant='caption'
+                            color='text.secondary'
+                            noWrap>
+                            {entry.time}
+                          </Typography>
+                        }
+                        secondary={
+                          <Stack
+                            direction='row'
+                            alignItems='center'
+                            mt={0.5}>
+                            <MoodDot mood={entry.mood} />
+                            <Typography
+                              variant='body2'
+                              color='text.primary'
+                              fontWeight={600}
+                              noWrap>
+                              {entry.title}
+                            </Typography>
+                          </Stack>
+                        }
+                      />
+                    </ListItemButton>
+                  );
+                })}
+              </List>
+            </Collapse>
+          </Box>
+        );
+      })}
+    </>
+  );
+}
+
+// ─── JournalSidebar ───────────────────────────────────────────────────────────
+
+function JournalSidebar({
+  entries,
+  searchValue,
   onSearchChange,
   selectedEntry,
   onSelectEntry,
-<<<<<<< HEAD
   onNewEntry,
-=======
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
 }) {
-  const visibleEntries = useMemo(() => {
-    const normalizedSearch = searchValue.trim().toLowerCase();
-
-    if (!normalizedSearch) {
-      return entries;
-    }
-
-    return entries.filter((entry) => {
-      const content =
-        `${entry.date} ${entry.title} ${entry.time}`.toLowerCase();
-
-      return content.includes(normalizedSearch);
-    });
-<<<<<<< HEAD
-  }, [entries, searchValue]);
-=======
-  }, [searchValue]);
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-
   return (
     <Card
       variant='outlined'
@@ -230,10 +339,6 @@ function JournalSidebar({
                   voice-first entries
                 </Typography>
               </Box>
-
-              <IconButton>
-                <Edit fontSize='small' />
-              </IconButton>
             </Stack>
 
             <TextField
@@ -248,159 +353,26 @@ function JournalSidebar({
                     <Search fontSize='small' />
                   </InputAdornment>
                 ),
-                endAdornment: (
+                endAdornment: searchValue ? (
                   <InputAdornment position='end'>
-                    <Typography
-                      variant='caption'
-                      color='text.secondary'>
-                      Ctrl+K
-                    </Typography>
+                    <IconButton
+                      size='small'
+                      onClick={() => onSearchChange('')}>
+                      <Close fontSize='small' />
+                    </IconButton>
                   </InputAdornment>
-                ),
+                ) : null,
               }}
             />
           </Box>
 
           <Box sx={{ px: 1.5, pb: 1.5, flex: 1, overflowY: 'auto' }}>
-            <Typography
-              variant='overline'
-              color='text.secondary'
-              fontWeight={700}
-              sx={{ px: 1 }}>
-<<<<<<< HEAD
-              Entries
-=======
-              April 2026
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-            </Typography>
-
-            <List disablePadding sx={{ mb: 3 }}>
-              {visibleEntries.map((entry) => {
-                const isSelected =
-<<<<<<< HEAD
-                  selectedEntry &&
-                  (entry.id
-                    ? entry.id === selectedEntry.id
-                    : entry.title === selectedEntry.title);
-
-                return (
-                  <ListItemButton
-                    key={entry.id || `${entry.date}-${entry.title}`}
-=======
-                  entry.title === selectedEntry.title;
-
-                return (
-                  <ListItemButton
-                    key={`${entry.date}-${entry.title}`}
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-                    selected={isSelected}
-                    onClick={() => onSelectEntry(entry)}
-                    sx={{
-                      borderRadius: 2,
-                      mb: 0.5,
-                      alignItems: 'flex-start',
-                      borderLeft: 3,
-                      borderColor: isSelected
-                        ? 'primary.main'
-                        : 'transparent',
-                    }}>
-                    <ListItemText
-                      primary={
-                        <Stack
-                          direction='row'
-                          justifyContent='space-between'
-                          spacing={2}>
-                          <Typography
-                            variant='caption'
-                            color='text.secondary'>
-                            {entry.date}
-                          </Typography>
-                          <Typography
-                            variant='caption'
-                            color='text.secondary'>
-                            {entry.time}
-                          </Typography>
-                        </Stack>
-                      }
-                      secondary={
-                        <Stack
-                          direction='row'
-                          alignItems='center'
-                          mt={0.75}>
-                          <MoodDot mood={entry.mood} />
-                          <Typography
-                            variant='body2'
-                            color='text.primary'
-                            fontWeight={600}>
-                            {entry.title}
-                          </Typography>
-                        </Stack>
-                      }
-                    />
-                  </ListItemButton>
-                );
-              })}
-<<<<<<< HEAD
-
-              {visibleEntries.length === 0 && (
-                <Typography
-                  variant='body2'
-                  color='text.secondary'
-                  sx={{ px: 1, py: 2 }}>
-                  No entries yet
-                </Typography>
-              )}
-=======
-            </List>
-
-            <Typography
-              variant='overline'
-              color='text.secondary'
-              fontWeight={700}
-              sx={{ px: 1 }}>
-              March 2026
-            </Typography>
-
-            <List disablePadding>
-              {olderEntries.map((entry) => (
-                <ListItemButton
-                  key={entry.title}
-                  sx={{ borderRadius: 2 }}>
-                  <ListItemText
-                    primary={
-                      <Stack
-                        direction='row'
-                        justifyContent='space-between'>
-                        <Typography
-                          variant='caption'
-                          color='text.secondary'>
-                          {entry.date}
-                        </Typography>
-                        <Typography
-                          variant='caption'
-                          color='text.secondary'>
-                          {entry.time}
-                        </Typography>
-                      </Stack>
-                    }
-                    secondary={
-                      <Stack
-                        direction='row'
-                        alignItems='center'
-                        mt={0.75}>
-                        <MoodDot mood={entry.mood} />
-                        <Typography
-                          variant='body2'
-                          color='text.primary'>
-                          {entry.title}
-                        </Typography>
-                      </Stack>
-                    }
-                  />
-                </ListItemButton>
-              ))}
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-            </List>
+            <GroupedEntryList
+              entries={entries}
+              searchValue={searchValue}
+              selectedEntry={selectedEntry}
+              onSelectEntry={onSelectEntry}
+            />
           </Box>
 
           <Box
@@ -440,7 +412,8 @@ function JournalSidebar({
   );
 }
 
-<<<<<<< HEAD
+// ─── TranscriptCard ───────────────────────────────────────────────────────────
+
 function TranscriptCard({
   transcript,
   committed,
@@ -448,7 +421,20 @@ function TranscriptCard({
   onCommit,
   title,
   recordedAt,
+  isEditable,
+  onEdit,
+  onUndo,
+  canUndo,
+  onPolish,
+  onUndoPolish,
+  canUndoPolish,
 }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+  const [polishAnchor, setPolishAnchor] = useState(null);
+  const [polishing, setPolishing] = useState(false);
+  const polishOpen = Boolean(polishAnchor);
+
   const wordCount = useMemo(
     () =>
       transcript
@@ -607,23 +593,112 @@ function TranscriptCard({ committed, onCommit, title }) {
             <IconButton
               size='small'
               onClick={handleCopy}
-              disabled={!transcript}>
-=======
-            <IconButton size='small'>
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
+              disabled={!transcript || isEditing}>
               <ContentCopy fontSize='small' />
             </IconButton>
-            <IconButton size='small'>
-              <Edit fontSize='small' />
-            </IconButton>
+            {canUndo && (
+              <Tooltip title='Undo last clip'>
+                <IconButton size='small' onClick={onUndo}>
+                  <Undo fontSize='small' />
+                </IconButton>
+              </Tooltip>
+            )}
+            {isEditable && (
+              <Tooltip
+                title={isEditing ? 'Cancel edit' : 'Edit transcript'}>
+                <IconButton
+                  size='small'
+                  onClick={
+                    isEditing
+                      ? () => setIsEditing(false)
+                      : () => {
+                          setEditValue(transcript);
+                          setIsEditing(true);
+                        }
+                  }>
+                  {isEditing ? (
+                    <Close fontSize='small' />
+                  ) : (
+                    <Edit fontSize='small' />
+                  )}
+                </IconButton>
+              </Tooltip>
+            )}
+            {typeof onPolish === 'function' && (
+              <Tooltip title='Polish with AI'>
+                <span>
+                  <IconButton
+                    size='small'
+                    disabled={!transcript || polishing || isEditing}
+                    onClick={(e) => setPolishAnchor(e.currentTarget)}>
+                    {polishing ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      <AutoFixHigh fontSize='small' />
+                    )}
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )}
+            {canUndoPolish && typeof onUndoPolish === 'function' && (
+              <Tooltip title='Undo polish'>
+                <IconButton
+                  size='small'
+                  onClick={async () => {
+                    setPolishing(true);
+                    try {
+                      await onUndoPolish();
+                    } finally {
+                      setPolishing(false);
+                    }
+                  }}
+                  disabled={polishing}>
+                  <Undo fontSize='small' />
+                </IconButton>
+              </Tooltip>
+            )}
             <IconButton size='small'>
               <Tune fontSize='small' />
             </IconButton>
           </Stack>
         </Stack>
 
-<<<<<<< HEAD
-        {paragraphs.length > 0 ? (
+        <Menu
+          anchorEl={polishAnchor}
+          open={polishOpen}
+          onClose={() => setPolishAnchor(null)}>
+          {[
+            { mode: 'grammar', label: 'Fix grammar' },
+            { mode: 'organize', label: 'Organize' },
+            { mode: 'concise', label: 'Make concise' },
+            { mode: 'expand', label: 'Expand' },
+            { mode: 'tone', label: 'Soften tone' },
+          ].map((opt) => (
+            <MenuItem
+              key={opt.mode}
+              onClick={async () => {
+                setPolishAnchor(null);
+                setPolishing(true);
+                try {
+                  await onPolish([opt.mode]);
+                } finally {
+                  setPolishing(false);
+                }
+              }}>
+              {opt.label}
+            </MenuItem>
+          ))}
+        </Menu>
+
+        {isEditing ? (
+          <TextField
+            multiline
+            fullWidth
+            minRows={4}
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+          />
+        ) : paragraphs.length > 0 ? (
           <Stack spacing={2.5}>
             {paragraphs.map((paragraph, index) => (
               <Typography key={index}>{paragraph}</Typography>
@@ -683,32 +758,138 @@ function TranscriptCard({ committed, onCommit, title }) {
 >>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
           </Typography>
 
-          <Button
-            variant='contained'
-            startIcon={<Check />}
-<<<<<<< HEAD
-            onClick={onCommit}
-            disabled={committed || committing || !transcript}>
-            {committed
-              ? `${title} committed`
-              : committing
-                ? 'Committing…'
-                : 'Commit entry'}
-=======
-            onClick={onCommit}>
-            {committed ? `${title} committed` : 'Commit entry'}
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-          </Button>
+          {isEditing ? (
+            <Button
+              variant='contained'
+              onClick={() => {
+                if (typeof onEdit === 'function') onEdit(editValue);
+                setIsEditing(false);
+              }}>
+              Save
+            </Button>
+          ) : (
+            <Button
+              variant='contained'
+              startIcon={<Check />}
+              onClick={onCommit}
+              disabled={committed || committing || !transcript}>
+              {committing ? 'Committing…' : 'Commit entry'}
+            </Button>
+          )}
         </Stack>
       </CardContent>
     </Card>
   );
 }
 
-function MoodTrend() {
-  const values = [
-    44, 37, 52, 23, 48, 31, 55, 49, 28, 45, 30, 41, 51, 56,
-  ];
+// ─── EntryHeader ──────────────────────────────────────────────────────────────
+
+/**
+ * Editable title row with unsaved-changes dot indicator.
+ * Shows an amber dot when the user has typed a change not yet saved to the API.
+ */
+function EntryHeader({
+  title,
+  savedTitle,
+  onTitleChange,
+  onTitleSave,
+  headerDate,
+  actions,
+  // Dirty indicator only makes sense for entries that have a saved
+  // server-side title to compare against.  Drafts can't be "saved" —
+  // their title goes along with the commit payload.
+  canBeDirty = true,
+}) {
+  const isDirty = canBeDirty && title !== savedTitle;
+
+  return (
+    <Box>
+      <Stack direction='row' spacing={1} alignItems='center' mb={1}>
+        <MenuBook color='primary' fontSize='small' />
+        <Typography color='primary' fontWeight={700}>
+          {headerDate}
+        </Typography>
+        {isDirty && (
+          <Tooltip title='Unsaved title — press Enter or click away to save'>
+            <FiberManualRecord
+              sx={{ fontSize: 10, color: 'warning.main', ml: 0.5 }}
+            />
+          </Tooltip>
+        )}
+      </Stack>
+
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        justifyContent='space-between'
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        spacing={2}>
+        <TextField
+          variant='standard'
+          fullWidth
+          value={title}
+          placeholder='New entry'
+          onChange={(e) => onTitleChange(e.target.value)}
+          onBlur={() => isDirty && onTitleSave(title)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (isDirty) onTitleSave(title);
+            }
+          }}
+          InputProps={{
+            disableUnderline: !isDirty,
+            sx: {
+              fontSize: (theme) => theme.typography.h3.fontSize,
+              fontWeight: 700,
+            },
+          }}
+        />
+        <Stack
+          direction='row'
+          spacing={1}
+          alignItems='center'
+          flexShrink={0}>
+          {actions}
+        </Stack>
+      </Stack>
+    </Box>
+  );
+}
+
+// ─── Mood helpers ─────────────────────────────────────────────────────────────
+
+function moodLabelToTone(label) {
+  if (!label) return 'neutral';
+  const normalized = String(label).toLowerCase();
+  if (
+    [
+      'good',
+      'great',
+      'positive',
+      'happy',
+      'calm',
+      'grateful',
+    ].includes(normalized)
+  )
+    return 'good';
+  if (
+    ['low', 'sad', 'anxious', 'stressed', 'angry', 'down'].includes(
+      normalized,
+    )
+  )
+    return 'low';
+  return 'neutral';
+}
+
+// ─── MoodTrend ────────────────────────────────────────────────────────────────
+
+function MoodTrend({ points }) {
+  const safePoints = Array.isArray(points) ? points : [];
+  const maxScore =
+    safePoints.reduce(
+      (max, p) => Math.max(max, Number(p.score) || 0),
+      0,
+    ) || 1;
 
   return (
     <Card variant='outlined'>
@@ -720,43 +901,94 @@ function MoodTrend() {
           Mood trend
         </Typography>
 
-        <Box
-          sx={{
-            height: 90,
-            display: 'flex',
-            alignItems: 'end',
-            gap: 1,
-            mt: 2,
-          }}>
-          {values.map((value, index) => (
+        {safePoints.length === 0 ? (
+          <Typography variant='body2' color='text.secondary' mt={2}>
+            No mood data yet
+          </Typography>
+        ) : (
+          <>
             <Box
-              key={index}
               sx={{
-                flex: 1,
-                height: value,
-                borderRadius: 1,
-                bgcolor:
-                  index === 3 ? 'warning.main' : 'primary.main',
-                opacity: 0.75,
-              }}
-            />
-          ))}
-        </Box>
+                height: 90,
+                display: 'flex',
+                alignItems: 'end',
+                gap: 1,
+                mt: 2,
+              }}>
+              {safePoints.map((point, index) => {
+                const height = Math.max(
+                  4,
+                  ((Number(point.score) || 0) / maxScore) * 90,
+                );
+                const tone = moodLabelToTone(point.label);
+                return (
+                  <Box
+                    key={point.date || index}
+                    title={`${point.date || ''} • ${point.label || 'unknown'}${
+                      typeof point.score === 'number'
+                        ? ` (${point.score})`
+                        : ''
+                    }`}
+                    sx={{
+                      flex: 1,
+                      height,
+                      borderRadius: 1,
+                      bgcolor:
+                        tone === 'low'
+                          ? 'warning.main'
+                          : 'primary.main',
+                      opacity: 0.75,
+                    }}
+                  />
+                );
+              })}
+            </Box>
 
-        <Stack direction='row' justifyContent='space-between' mt={1}>
-          <Typography variant='caption' color='text.secondary'>
-            14 days
-          </Typography>
-          <Typography variant='caption' color='text.secondary'>
-            today
-          </Typography>
-        </Stack>
+            <Stack
+              direction='row'
+              justifyContent='space-between'
+              mt={1}>
+              <Typography variant='caption' color='text.secondary'>
+                {safePoints.length} day
+                {safePoints.length === 1 ? '' : 's'}
+              </Typography>
+              <Typography variant='caption' color='text.secondary'>
+                today
+              </Typography>
+            </Stack>
+          </>
+        )}
       </CardContent>
     </Card>
   );
 }
 
-function InsightsPanel() {
+// ─── formatDayLabel ───────────────────────────────────────────────────────────
+
+function formatDayLabel(isoDate) {
+  if (!isoDate) return '';
+  const today = new Date();
+  const todayKey = today.toISOString().slice(0, 10);
+  if (isoDate === todayKey) return 'Today';
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return date.toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+// ─── InsightsPanel ────────────────────────────────────────────────────────────
+
+function InsightsPanel({ insights, loading, error, onRefresh }) {
+  const summary = insights?.summary;
+  const moodTrend = insights?.mood_trend;
+  const streak = insights?.streak;
+  const themes = insights?.themes?.themes || [];
+  const recentMoods = insights?.recent_moods?.moods || [];
+  const generatedAt = insights?.generated_at;
+
   return (
     <Stack spacing={2}>
       <Card variant='outlined'>
@@ -765,34 +997,64 @@ function InsightsPanel() {
             direction='row'
             alignItems='center'
             spacing={1}
-            mb={2}>
-            <AutoAwesome color='primary' fontSize='small' />
-            <Typography
-              variant='overline'
-              color='text.secondary'
-              fontWeight={700}>
-              AI Summary
-            </Typography>
+            mb={2}
+            justifyContent='space-between'>
+            <Stack direction='row' alignItems='center' spacing={1}>
+              <AutoAwesome color='primary' fontSize='small' />
+              <Typography
+                variant='overline'
+                color='text.secondary'
+                fontWeight={700}>
+                AI Summary
+              </Typography>
+            </Stack>
+            <IconButton
+              size='small'
+              onClick={onRefresh}
+              disabled={loading}
+              title='Refresh insights'>
+              <Refresh fontSize='small' />
+            </IconButton>
           </Stack>
 
-          <Box component='ul' sx={{ pl: 2.5, mt: 0, mb: 2 }}>
-            <li>
-              Good sleep and morning routine set a positive tone.
-            </li>
-            <li>
-              Progress on BLE/GATT work, with wiring still pending.
-            </li>
-            <li>Music helped with focus and mood regulation.</li>
-            <li>Mood is steady and grateful.</li>
-          </Box>
+          {loading && !insights && (
+            <Stack alignItems='center' py={2}>
+              <CircularProgress size={20} />
+            </Stack>
+          )}
 
-          <Typography variant='caption' color='text.secondary'>
-            Generated just now
-          </Typography>
+          {error && (
+            <Typography variant='body2' color='error'>
+              {error}
+            </Typography>
+          )}
+
+          {summary?.bullets && summary.bullets.length > 0 ? (
+            <Box component='ul' sx={{ pl: 2.5, mt: 0, mb: 2 }}>
+              {summary.bullets.map((bullet, index) => (
+                <li key={index}>
+                  <Typography variant='body2'>{bullet}</Typography>
+                </li>
+              ))}
+            </Box>
+          ) : (
+            !loading &&
+            !error && (
+              <Typography variant='body2' color='text.secondary'>
+                Not enough processed entries yet.
+              </Typography>
+            )
+          )}
+
+          {generatedAt && (
+            <Typography variant='caption' color='text.secondary'>
+              Generated {new Date(generatedAt).toLocaleString()}
+            </Typography>
+          )}
         </CardContent>
       </Card>
 
-      <MoodTrend />
+      <MoodTrend points={moodTrend?.points || []} />
 
       <Card variant='outlined'>
         <CardContent>
@@ -808,11 +1070,25 @@ function InsightsPanel() {
             spacing={1}
             alignItems='baseline'
             mt={1}>
-            <Typography variant='h3'>6</Typography>
+            <Typography variant='h3'>
+              {streak?.current_days ?? 0}
+            </Typography>
             <Typography color='text.secondary'>
-              days in a row
+              {(streak?.current_days ?? 0) === 1
+                ? 'day in a row'
+                : 'days in a row'}
             </Typography>
           </Stack>
+
+          {typeof streak?.longest_days === 'number' && (
+            <Typography
+              variant='caption'
+              color='text.secondary'
+              sx={{ mt: 1, display: 'block' }}>
+              Best: {streak.longest_days} day
+              {streak.longest_days === 1 ? '' : 's'}
+            </Typography>
+          )}
         </CardContent>
       </Card>
 
@@ -825,16 +1101,26 @@ function InsightsPanel() {
             Recurring themes
           </Typography>
 
-          <Stack direction='row' flexWrap='wrap' gap={1} mt={2}>
-            {themes.map((theme) => (
-              <Chip
-                key={theme}
-                size='small'
-                label={theme}
-                variant='outlined'
-              />
-            ))}
-          </Stack>
+          {themes.length === 0 ? (
+            <Typography variant='body2' color='text.secondary' mt={2}>
+              No themes yet
+            </Typography>
+          ) : (
+            <Stack direction='row' flexWrap='wrap' gap={1} mt={2}>
+              {themes.map((theme) => (
+                <Chip
+                  key={theme.label}
+                  size='small'
+                  label={
+                    theme.count > 1
+                      ? `${theme.label} · ${theme.count}`
+                      : theme.label
+                  }
+                  variant='outlined'
+                />
+              ))}
+            </Stack>
+          )}
         </CardContent>
       </Card>
 
@@ -847,96 +1133,33 @@ function InsightsPanel() {
             Recent moods
           </Typography>
 
-          <Stack spacing={1.5} mt={2}>
-            {[
-              ['Today', 'good'],
-              ['Sun, Apr 26', 'good'],
-              ['Sat, Apr 25', 'good'],
-              ['Fri, Apr 24', 'low'],
-              ['Wed, Apr 22', 'good'],
-            ].map(([day, mood]) => (
-              <Stack
-                key={day}
-                direction='row'
-                justifyContent='space-between'
-                alignItems='center'>
-                <Typography variant='body2' color='text.secondary'>
-                  {day}
-                </Typography>
-                <MoodDot mood={mood} />
-              </Stack>
-            ))}
-          </Stack>
+          {recentMoods.length === 0 ? (
+            <Typography variant='body2' color='text.secondary' mt={2}>
+              No mood data yet
+            </Typography>
+          ) : (
+            <Stack spacing={1.5} mt={2}>
+              {recentMoods.map((mood) => (
+                <Stack
+                  key={mood.entry_id || mood.date}
+                  direction='row'
+                  justifyContent='space-between'
+                  alignItems='center'>
+                  <Typography variant='body2' color='text.secondary'>
+                    {formatDayLabel(mood.date)}
+                  </Typography>
+                  <MoodDot mood={moodLabelToTone(mood.label)} />
+                </Stack>
+              ))}
+            </Stack>
+          )}
         </CardContent>
       </Card>
     </Stack>
   );
 }
 
-<<<<<<< HEAD
-function deriveTitle(transcript) {
-  const trimmed = (transcript || '').trim();
-  if (!trimmed) return 'Untitled entry';
-  return trimmed.split(/\s+/).slice(0, 5).join(' ');
-}
-
-function moodFromAnalysis(analysis) {
-  const label = analysis?.mood?.label;
-  if (!label) return 'neutral';
-  const normalized = label.toLowerCase();
-  if (
-    [
-      'good',
-      'great',
-      'positive',
-      'happy',
-      'calm',
-      'grateful',
-    ].includes(normalized)
-  ) {
-    return 'good';
-  }
-  if (
-    ['low', 'sad', 'anxious', 'stressed', 'angry', 'down'].includes(
-      normalized,
-    )
-  ) {
-    return 'low';
-  }
-  return 'neutral';
-}
-
-function entryFromApi(raw) {
-  if (!raw) return null;
-  const createdAt = raw.created_at || raw.createdAt || null;
-  const date = createdAt
-    ? new Date(createdAt).toLocaleDateString(undefined, {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-      })
-    : '';
-  const time = createdAt
-    ? new Date(createdAt).toLocaleTimeString([], {
-        hour: 'numeric',
-        minute: '2-digit',
-      })
-    : '';
-  return {
-    id: raw.entry_id || raw.entryId || raw.id || null,
-    title: raw.title || 'Untitled entry',
-    rawTranscript: raw.raw_transcript || raw.rawTranscript || '',
-    cleanedTranscript:
-      raw.cleaned_transcript || raw.cleanedTranscript || null,
-    segments: Array.isArray(raw.segments) ? raw.segments : [],
-    source: raw.source || 'voice',
-    status: raw.status || 'created',
-    createdAt,
-    date,
-    time,
-    mood: moodFromAnalysis(raw.analysis),
-  };
-}
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const NEW_ENTRY = {
   id: null,
@@ -952,20 +1175,40 @@ const NEW_ENTRY = {
   mood: 'neutral',
 };
 
-const DashboardJournalLayout = () => {
-  const api = useMemo(() => new JournalApi(), []);
+// ─── DashboardJournalLayout ───────────────────────────────────────────────────
 
-  const [entries, setEntries] = useState(fallbackEntries);
+const DashboardJournalLayout = () => {
+  const dispatch = useDispatch();
+
+  // ── Redux state ────────────────────────────────────────────────────────
+  const entries = useSelector((s) => s.journal.entries);
+  const insights = useSelector((s) => s.journal.insights);
+  const insightsLoading = useSelector(
+    (s) => s.journal.insightsLoading,
+  );
+  const insightsError = useSelector((s) => s.journal.insightsError);
+  const committing = useSelector((s) => s.journal.committing);
+  const commitError = useSelector((s) => s.journal.commitError);
+
+  // ── Local UI state ─────────────────────────────────────────────────────
   const [searchValue, setSearchValue] = useState('');
   const [selectedEntry, setSelectedEntry] = useState(NEW_ENTRY);
   const [draftSegments, setDraftSegments] = useState([]);
   const [committed, setCommitted] = useState(false);
-  const [committing, setCommitting] = useState(false);
   const [committedEntryId, setCommittedEntryId] = useState(null);
-  const [commitError, setCommitError] = useState(null);
   const [titleOverride, setTitleOverride] = useState(null);
+  const [transcriptOverride, setTranscriptOverride] = useState(null);
+  const [activeTab, setActiveTab] = useState('write');
+  // Bumped after commit (with a delay) to force JournalAnalysisCard to
+  // re-fetch and pick up the backend analysis once it's done.
+  const [analysisRefreshKey, setAnalysisRefreshKey] = useState(0);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  // Tracks the most recently polished entry so we can show an Undo button.
+  const [polishedEntryId, setPolishedEntryId] = useState(null);
 
+  // ── Derived values ─────────────────────────────────────────────────────
   const transcript = useMemo(() => {
+    if (transcriptOverride !== null) return transcriptOverride;
     if (selectedEntry.id) {
       return (
         selectedEntry.cleanedTranscript ||
@@ -974,136 +1217,24 @@ const DashboardJournalLayout = () => {
       );
     }
     return draftSegments.map((s) => s.transcript).join('\n\n');
-  }, [draftSegments, selectedEntry]);
+  }, [transcriptOverride, draftSegments, selectedEntry]);
 
   const recordedAt = selectedEntry.id
     ? selectedEntry.createdAt
     : draftSegments[0]?.started_at || null;
 
-  const effectiveTitle =
+  // Title shown in the editable field
+  const displayTitle =
     titleOverride !== null
       ? titleOverride
       : selectedEntry.id
         ? selectedEntry.title
-        : deriveTitle(transcript);
+        : 'New entry';
 
-  const loadEntries = useCallback(async () => {
-    try {
-      const response = await api.listEntries(50);
-      if (response.status === 200) {
-        const list = Array.isArray(response.data)
-          ? response.data
-          : Array.isArray(response.data?.entries)
-            ? response.data.entries
-            : [];
-        setEntries(list.map(entryFromApi).filter(Boolean));
-      }
-    } catch {
-      // Leave fallback entries in place
-    }
-  }, [api]);
-
-  useEffect(() => {
-    loadEntries();
-  }, [loadEntries]);
-
-  const resetDraft = useCallback(() => {
-    setDraftSegments([]);
-    setCommitted(false);
-    setCommittedEntryId(null);
-    setCommitError(null);
-    setTitleOverride(null);
-  }, []);
-
-  const handleSelectEntry = (entry) => {
-    setSelectedEntry(entry);
-    setDraftSegments([]);
-    setCommitted(Boolean(entry.id));
-    setCommittedEntryId(entry.id || null);
-    setCommitError(null);
-    setTitleOverride(null);
-  };
-
-  const handleNewEntry = () => {
-    setSelectedEntry(NEW_ENTRY);
-    resetDraft();
-  };
-
-  const handleTranscriptReady = useCallback((text, meta) => {
-    setDraftSegments((prev) => [
-      ...prev,
-      {
-        clip_id: null,
-        started_at: meta?.started_at || new Date().toISOString(),
-        duration_seconds: meta?.duration_seconds ?? null,
-        transcript: text,
-      },
-    ]);
-    setCommitted(false);
-  }, []);
-
-  const handleCommit = useCallback(async () => {
-    if (
-      selectedEntry.id ||
-      committing ||
-      committed ||
-      draftSegments.length === 0
-    ) {
-      return;
-    }
-
-    const rawTranscript = draftSegments
-      .map((s) => s.transcript)
-      .join('\n\n');
-
-    if (!rawTranscript.trim()) return;
-
-    const payload = {
-      title: effectiveTitle,
-      source: 'voice',
-      raw_transcript: rawTranscript,
-      segments: draftSegments,
-    };
-
-    setCommitting(true);
-    setCommitError(null);
-    try {
-      const response = await api.createEntry(payload);
-      if (response.status === 201 || response.status === 200) {
-        const created = entryFromApi(response.data) || {
-          ...NEW_ENTRY,
-          id: response.data?.entry_id || null,
-          title: effectiveTitle,
-          rawTranscript,
-          segments: draftSegments,
-          createdAt: new Date().toISOString(),
-        };
-        setCommittedEntryId(created.id);
-        setCommitted(true);
-        setSelectedEntry(created);
-        setDraftSegments([]);
-        setEntries((prev) => {
-          const without = prev.filter(
-            (e) => e.id && e.id !== created.id,
-          );
-          return [created, ...without];
-        });
-      } else {
-        setCommitError(`Commit failed (${response.status})`);
-      }
-    } catch (err) {
-      setCommitError(err.message || 'Commit failed');
-    } finally {
-      setCommitting(false);
-    }
-  }, [
-    api,
-    committed,
-    committing,
-    draftSegments,
-    effectiveTitle,
-    selectedEntry.id,
-  ]);
+  // Baseline for the dirty check: stored title for existing entries, placeholder for drafts
+  const savedTitle = selectedEntry.id
+    ? selectedEntry.title
+    : 'New entry';
 
   const headerDate = useMemo(() => {
     const source = recordedAt || new Date().toISOString();
@@ -1113,167 +1244,367 @@ const DashboardJournalLayout = () => {
       day: 'numeric',
     });
   }, [recordedAt]);
-=======
-const DashboardJournalLayout = () => {
-  const [searchValue, setSearchValue] = useState('');
-  const [selectedEntry, setSelectedEntry] = useState(entries[0]);
-  const [committed, setCommitted] = useState(false);
 
+  // ── Effects ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    dispatch(journalActions.loadEntries());
+    dispatch(journalActions.loadInsights());
+  }, [dispatch]);
+
+  // ── Helpers ────────────────────────────────────────────────────────────
+  const resetDraft = useCallback(() => {
+    setDraftSegments([]);
+    setCommitted(false);
+    setCommittedEntryId(null);
+    dispatch(setCommitError(null));
+    setTitleOverride(null);
+    setTranscriptOverride(null);
+  }, [dispatch]);
+
+  // ── Handlers ───────────────────────────────────────────────────────────
   const handleSelectEntry = (entry) => {
     setSelectedEntry(entry);
-    setCommitted(false);
+    setDraftSegments([]);
+    setCommitted(Boolean(entry.id));
+    // committedEntryId tracks entries that were committed *in this session*
+    // (so the Write tab can show a fresh analysis card).  Selecting an
+    // existing entry from the sidebar should NOT trigger that — clear it.
+    setCommittedEntryId(null);
+    dispatch(setCommitError(null));
+    setTitleOverride(null);
+    setTranscriptOverride(null);
   };
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
 
+  const handleNewEntry = () => {
+    setSelectedEntry(NEW_ENTRY);
+    resetDraft();
+    setActiveTab('write');
+  };
+
+  const handleUndo = useCallback(() => {
+    setDraftSegments((prev) => prev.slice(0, -1));
+    setTranscriptOverride(null);
+  }, []);
+
+  const handlePatchTranscript = useCallback(
+    (entryId, text) => {
+      dispatch(journalActions.patchEntryTranscript(entryId, text));
+      // Optimistic local update so the card re-renders immediately
+      setSelectedEntry((prev) =>
+        prev.id === entryId
+          ? { ...prev, rawTranscript: text, cleanedTranscript: null }
+          : prev,
+      );
+    },
+    [dispatch],
+  );
+
+  const handleTitleSave = useCallback(
+    (newTitle) => {
+      if (selectedEntry.id) {
+        dispatch(
+          journalActions.patchEntryTitle(selectedEntry.id, newTitle),
+        );
+        // Optimistic local update
+        setSelectedEntry((prev) => ({ ...prev, title: newTitle }));
+      }
+      // For a draft entry, titleOverride is already set and will be
+      // sent to the backend when the entry is committed.
+    },
+    [dispatch, selectedEntry.id],
+  );
+
+  const handleTranscriptReady = useCallback((text, meta) => {
+    setDraftSegments((prev) => [
+      ...prev,
+      {
+        clip_id: meta?.clip_id || null,
+        started_at: meta?.started_at || new Date().toISOString(),
+        duration_seconds: meta?.duration_seconds ?? null,
+        transcript: text,
+      },
+    ]);
+    setCommitted(false);
+    setTranscriptOverride(null);
+  }, []);
+
+  const handleCommit = useCallback(async () => {
+    if (
+      selectedEntry.id ||
+      committing ||
+      committed ||
+      draftSegments.length === 0
+    )
+      return;
+    if (!transcript.trim()) return;
+
+    const payload = {
+      title: titleOverride?.trim() || null,
+      source: 'voice',
+      raw_transcript: transcript,
+      segments: draftSegments,
+    };
+
+    const created = await dispatch(
+      journalActions.commitEntry(payload),
+    );
+    if (created) {
+      // Navigate to the new entry so the user can see it.
+      setSelectedEntry(created);
+      setCommitted(true);
+      setCommittedEntryId(created.id);
+      setDraftSegments([]);
+      setTitleOverride(null);
+      setTranscriptOverride(null);
+      setActiveTab('journal');
+      // Backend analysis is async — give it a moment then re-fetch the
+      // entry so the JournalAnalysisCard picks up mood/themes/etc.
+      setTimeout(() => {
+        setAnalysisRefreshKey((k) => k + 1);
+      }, 4000);
+    }
+  }, [
+    committed,
+    committing,
+    dispatch,
+    draftSegments,
+    selectedEntry.id,
+    titleOverride,
+    transcript,
+  ]);
+
+  // ── Action nodes ───────────────────────────────────────────────────────
+  const writeTabActions = (
+    <Button
+      variant='outlined'
+      startIcon={<Add />}
+      onClick={handleNewEntry}>
+      New Entry
+    </Button>
+  );
+
+  const handleDeleteEntry = useCallback(async () => {
+    if (!selectedEntry.id) return;
+    const id = selectedEntry.id;
+    setConfirmDeleteOpen(false);
+    const ok = await dispatch(journalActions.deleteEntry(id));
+    if (ok) {
+      if (committedEntryId === id) setCommittedEntryId(null);
+      if (polishedEntryId === id) setPolishedEntryId(null);
+      setSelectedEntry(NEW_ENTRY);
+      resetDraft();
+      setActiveTab('journal');
+    }
+  }, [
+    committedEntryId,
+    dispatch,
+    polishedEntryId,
+    resetDraft,
+    selectedEntry.id,
+  ]);
+
+  const handlePolishEntry = useCallback(
+    async (modes) => {
+      if (!selectedEntry.id) return;
+      const updated = await dispatch(
+        journalActions.polishEntry(selectedEntry.id, modes),
+      );
+      if (updated) {
+        setSelectedEntry((prev) =>
+          prev.id === updated.id ? { ...prev, ...updated } : prev,
+        );
+        setPolishedEntryId(updated.id);
+        setTranscriptOverride(null);
+      }
+    },
+    [dispatch, selectedEntry.id],
+  );
+
+  const handleUndoPolishEntry = useCallback(async () => {
+    if (!selectedEntry.id) return;
+    const updated = await dispatch(
+      journalActions.undoPolishEntry(selectedEntry.id),
+    );
+    if (updated) {
+      setSelectedEntry((prev) =>
+        prev.id === updated.id ? { ...prev, ...updated } : prev,
+      );
+      setPolishedEntryId(null);
+      setTranscriptOverride(null);
+    }
+  }, [dispatch, selectedEntry.id]);
+
+  const journalEntryActions = (
+    <Tooltip title='Delete entry'>
+      <IconButton
+        size='small'
+        color='error'
+        onClick={() => setConfirmDeleteOpen(true)}>
+        <DeleteOutline fontSize='small' />
+      </IconButton>
+    </Tooltip>
+  );
+
+  // ── Render ─────────────────────────────────────────────────────────────
   return (
     <Box sx={{ width: '100%' }}>
-      <Grid container spacing={3} alignItems='stretch'>
-<<<<<<< HEAD
-        <Grid item xs={12} lg={3} sx={{ order: { xs: 2, lg: 1 } }}>
-          <JournalSidebar
-            entries={entries}
-=======
-        <Grid item xs={12} lg={3}>
-          <JournalSidebar
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-            searchValue={searchValue}
-            onSearchChange={setSearchValue}
-            selectedEntry={selectedEntry}
-            onSelectEntry={handleSelectEntry}
-<<<<<<< HEAD
-            onNewEntry={handleNewEntry}
-          />
-        </Grid>
+      <Tabs
+        value={activeTab}
+        onChange={(_, v) => setActiveTab(v)}
+        sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
+        <Tab label='Write' value='write' />
+        <Tab label='Journal' value='journal' />
+        <Tab label='Insights' value='insights' />
+      </Tabs>
 
-        <Grid item xs={12} lg={6} sx={{ order: { xs: 1, lg: 2 } }}>
-=======
-          />
-        </Grid>
-
-        <Grid item xs={12} lg={6}>
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-          <Stack spacing={3}>
-            <Box>
-              <Stack
-                direction={{ xs: 'column', sm: 'row' }}
-                justifyContent='space-between'
-                alignItems={{ xs: 'flex-start', sm: 'center' }}
-                spacing={2}
-                mb={2}>
-<<<<<<< HEAD
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-=======
-                <Box>
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-                  <Stack
-                    direction='row'
-                    spacing={1}
-                    alignItems='center'
-                    mb={1}>
-                    <MenuBook color='primary' fontSize='small' />
-                    <Typography color='primary' fontWeight={700}>
-<<<<<<< HEAD
-                      {headerDate}
-                    </Typography>
-                  </Stack>
-                  <TextField
-                    variant='standard'
-                    fullWidth
-                    value={effectiveTitle}
-                    onChange={(event) =>
-                      setTitleOverride(event.target.value)
-                    }
-                    InputProps={{
-                      disableUnderline: true,
-                      sx: {
-                        fontSize: (theme) =>
-                          theme.typography.h3.fontSize,
-                        fontWeight: 700,
-                      },
-                    }}
-                  />
-=======
-                      Tuesday, April 28
-                    </Typography>
-                  </Stack>
-                  <Typography variant='h3' fontWeight={700}>
-                    {selectedEntry.title}
-                  </Typography>
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-                </Box>
-
-                <Stack
-                  direction='row'
-                  spacing={1}
-                  alignItems='center'>
-                  <IconButton>
-                    <MoreHoriz />
-                  </IconButton>
-                  <Badge
-                    color='success'
-                    variant='dot'
-                    invisible={!committed}>
-                    <Button
-                      variant='outlined'
-                      startIcon={<Check />}
-<<<<<<< HEAD
-                      disabled={committing}
-                      onClick={handleCommit}>
-=======
-                      onClick={() => setCommitted(true)}>
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-                      {committed ? 'Saved' : 'Ready'}
-                    </Button>
-                  </Badge>
-                </Stack>
-              </Stack>
-<<<<<<< HEAD
-
-              {commitError && (
-                <Typography
-                  variant='caption'
-                  color='error'
-                  sx={{ display: 'block', mb: 1 }}>
-                  {commitError}
-                </Typography>
-              )}
-            </Box>
-
-            <JournalRecorder
-              onTranscriptReady={handleTranscriptReady}
+      {/* ── Write tab ──────────────────────────────────────────────────── */}
+      {activeTab === 'write' && (
+        <Stack spacing={3}>
+          <Box>
+            <EntryHeader
+              title={displayTitle}
+              savedTitle={savedTitle}
+              onTitleChange={setTitleOverride}
+              onTitleSave={handleTitleSave}
+              headerDate={headerDate}
+              actions={writeTabActions}
+              canBeDirty={Boolean(selectedEntry.id)}
             />
-            <TranscriptCard
-              transcript={transcript}
-              committed={committed}
-              committing={committing}
-              onCommit={handleCommit}
-              title={effectiveTitle}
-              recordedAt={recordedAt}
-            />
-            {committedEntryId && (
-              <JournalAnalysisCard entryId={committedEntryId} />
+            {commitError && (
+              <Typography
+                variant='caption'
+                color='error'
+                sx={{ display: 'block', mt: 1 }}>
+                {commitError}
+              </Typography>
             )}
-          </Stack>
-        </Grid>
+          </Box>
 
-        <Grid item xs={12} lg={3} sx={{ order: { xs: 3, lg: 3 } }}>
-=======
-            </Box>
+          <JournalRecorder
+            onTranscriptReady={handleTranscriptReady}
+          />
 
-            <RecorderCard />
-            <TranscriptCard
-              committed={committed}
-              onCommit={() => setCommitted(true)}
-              title={selectedEntry.title}
+          <TranscriptCard
+            transcript={transcript}
+            committed={committed}
+            committing={committing}
+            onCommit={handleCommit}
+            title={displayTitle}
+            recordedAt={recordedAt}
+            isEditable={!committed}
+            onEdit={setTranscriptOverride}
+            onUndo={handleUndo}
+            canUndo={draftSegments.length > 0 && !committed}
+          />
+
+          {committedEntryId && (
+            <JournalAnalysisCard
+              entryId={committedEntryId}
+              refreshKey={analysisRefreshKey}
+              variant='compact'
             />
-          </Stack>
-        </Grid>
+          )}
+        </Stack>
+      )}
 
-        <Grid item xs={12} lg={3}>
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
-          <InsightsPanel />
+      {/* ── Journal tab ────────────────────────────────────────────────── */}
+      {activeTab === 'journal' && (
+        <Grid container spacing={3} alignItems='stretch'>
+          <Grid item xs={12} md={4}>
+            <JournalSidebar
+              entries={entries}
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              selectedEntry={selectedEntry}
+              onSelectEntry={handleSelectEntry}
+              onNewEntry={handleNewEntry}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={8}>
+            {selectedEntry.id ? (
+              <Stack spacing={3}>
+                <EntryHeader
+                  title={displayTitle}
+                  savedTitle={savedTitle}
+                  onTitleChange={setTitleOverride}
+                  onTitleSave={handleTitleSave}
+                  headerDate={headerDate}
+                  actions={journalEntryActions}
+                />
+
+                <TranscriptCard
+                  transcript={transcript}
+                  committed={true}
+                  committing={false}
+                  onCommit={() => {}}
+                  title={displayTitle}
+                  recordedAt={recordedAt}
+                  isEditable
+                  onEdit={(text) =>
+                    handlePatchTranscript(selectedEntry.id, text)
+                  }
+                  onPolish={handlePolishEntry}
+                  onUndoPolish={handleUndoPolishEntry}
+                  canUndoPolish={polishedEntryId === selectedEntry.id}
+                />
+
+                <JournalAnalysisCard
+                  entryId={selectedEntry.id}
+                  refreshKey={analysisRefreshKey}
+                  variant='detail'
+                />
+              </Stack>
+            ) : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 400,
+                }}>
+                <Typography color='text.secondary'>
+                  Select an entry to view
+                </Typography>
+              </Box>
+            )}
+          </Grid>
         </Grid>
-      </Grid>
+      )}
+
+      {/* ── Insights tab ───────────────────────────────────────────────── */}
+      {activeTab === 'insights' && (
+        <InsightsPanel
+          insights={insights}
+          loading={insightsLoading}
+          error={insightsError}
+          onRefresh={() => dispatch(journalActions.loadInsights())}
+        />
+      )}
+
+      <Dialog
+        open={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle>Delete entry?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This will permanently delete{' '}
+            <strong>{selectedEntry.title || 'this entry'}</strong>.
+            This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            color='error'
+            variant='contained'
+            onClick={handleDeleteEntry}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
