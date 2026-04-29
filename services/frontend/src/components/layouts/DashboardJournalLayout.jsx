@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, {
   useCallback,
   useEffect,
@@ -54,7 +53,6 @@ import {
   AutoAwesome,
   MenuBook,
 } from '@mui/icons-material';
-<<<<<<< HEAD
 import JournalRecorder from '../journal/JournalRecorder';
 import JournalAnalysisCard from '../journal/JournalAnalysisCard';
 import { journalActions } from '../../store/journal/journalActions';
@@ -145,40 +143,6 @@ function bucketEntries(entries, searchValue) {
 
 function GroupedEntryList({
   entries,
-=======
-function MiniWaveform({ bars = 34 }) {
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '3px',
-        height: 40,
-        width: '100%',
-        opacity: 0.9,
-      }}>
-      {Array.from({ length: bars }).map((_, index) => {
-        const height = 8 + ((index * 17) % 26);
-
-        return (
-          <Box
-            key={index}
-            sx={{
-              width: 3,
-              height,
-              borderRadius: 8,
-              bgcolor: 'primary.main',
-              opacity: index % 5 === 0 ? 0.45 : 0.9,
-            }}
-          />
-        );
-      })}
-    </Box>
-  );
-}
-
-function JournalSidebar({
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
   searchValue,
   selectedEntry,
   onSelectEntry,
@@ -386,10 +350,7 @@ function JournalSidebar({
               variant='outlined'
               startIcon={<Add />}
               fullWidth
-<<<<<<< HEAD
               onClick={onNewEntry}
-=======
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
               sx={{ mb: 2 }}>
               New entry
             </Button>
@@ -467,114 +428,6 @@ function TranscriptCard({
     ? new Date(recordedAt).toLocaleString()
     : null;
 
-=======
-function RecorderCard() {
-  return (
-    <Card variant='outlined'>
-      <CardContent>
-        <Stack spacing={2}>
-          <Stack direction='row' spacing={3} alignItems='center'>
-            <Box sx={{ textAlign: 'center', width: 96 }}>
-              <IconButton
-                size='large'
-                sx={{
-                  width: 64,
-                  height: 64,
-                  border: 1,
-                  borderColor: 'divider',
-                  bgcolor: 'error.main',
-                  color: 'error.contrastText',
-                  '&:hover': { bgcolor: 'error.dark' },
-                }}>
-                <Mic />
-              </IconButton>
-              <Typography variant='body2' mt={1}>
-                Record
-              </Typography>
-              <Typography variant='caption' color='text.secondary'>
-                00:00
-              </Typography>
-            </Box>
-
-            <Box sx={{ flex: 1 }}>
-              <MiniWaveform bars={80} />
-              <Stack
-                direction='row'
-                spacing={1}
-                alignItems='center'
-                mt={1}>
-                <MoodDot mood='good' />
-                <Typography variant='caption' color='text.secondary'>
-                  Ready to record
-                </Typography>
-              </Stack>
-            </Box>
-
-            <IconButton>
-              <Tune />
-            </IconButton>
-          </Stack>
-
-          <Divider />
-
-          <Stack
-            direction='row'
-            justifyContent='space-between'
-            alignItems='center'>
-            <Typography variant='body2'>Saved clips</Typography>
-            <Typography variant='body2' color='text.secondary'>
-              3 clips
-            </Typography>
-          </Stack>
-
-          <Stack
-            direction={{ xs: 'column', md: 'row' }}
-            spacing={1.5}>
-            {clips.map((clip, index) => (
-              <Card
-                key={index}
-                variant='outlined'
-                sx={{
-                  flex: 1,
-                  bgcolor: 'background.default',
-                }}>
-                <CardContent
-                  sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                  <Stack
-                    direction='row'
-                    spacing={1.5}
-                    alignItems='center'>
-                    <IconButton size='small'>
-                      <PlayArrow fontSize='small' />
-                    </IconButton>
-
-                    <Box sx={{ flex: 1 }}>
-                      <MiniWaveform bars={18} />
-                    </Box>
-
-                    <Box sx={{ textAlign: 'right' }}>
-                      <Typography variant='caption' display='block'>
-                        {clip.duration}
-                      </Typography>
-                      <Typography
-                        variant='caption'
-                        color='text.secondary'>
-                        {clip.time}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </CardContent>
-              </Card>
-            ))}
-          </Stack>
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-}
-
-function TranscriptCard({ committed, onCommit, title }) {
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
   return (
     <Card variant='outlined' sx={{ flex: 1 }}>
       <CardContent>
@@ -589,7 +442,6 @@ function TranscriptCard({ committed, onCommit, title }) {
             label='Auto-transcribed'
           />
           <Stack direction='row' spacing={1}>
-<<<<<<< HEAD
             <IconButton
               size='small'
               onClick={handleCopy}
@@ -710,38 +562,6 @@ function TranscriptCard({ committed, onCommit, title }) {
             appended here as it is transcribed.
           </Typography>
         )}
-=======
-        <Stack spacing={2.5}>
-          <Typography>
-            Woke up feeling pretty decent today. Slept around 7 hours
-            which is solid for me lately. Did a 20 minute mobility
-            routine and some light stretching, my back already feels
-            better.
-          </Typography>
-
-          <Typography>
-            Work is moving again. Got the BLE config service working
-            the way I want and the GATT structure is finally clicking.
-            Still need to wire up the polarity switch circuit with
-            Pete later this week.
-          </Typography>
-
-          <Typography>
-            Listened to a bunch of Bon Iver on the way in. Helps me
-            get in a calm headspace. Thinking about making a playlist
-            for deep focus days.
-          </Typography>
-
-          <Typography>
-            Mood feels steady, not amazing, not drained. Just trying
-            to stack good days and keep the momentum.
-          </Typography>
-
-          <Typography>
-            Grateful for good coffee and people who build cool things.
-          </Typography>
-        </Stack>
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
 
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
@@ -750,12 +570,8 @@ function TranscriptCard({ committed, onCommit, title }) {
           alignItems={{ xs: 'flex-start', sm: 'center' }}
           mt={4}>
           <Typography variant='caption' color='text.secondary'>
-<<<<<<< HEAD
             {recordedLabel ? `${recordedLabel} • ` : ''}
             {wordCount} {wordCount === 1 ? 'word' : 'words'}
-=======
-            7:43 AM • ~4 min • 612 words
->>>>>>> e032b66 (Feat: add Journal page layout and integrate with dashboard)
           </Typography>
 
           {isEditing ? (
