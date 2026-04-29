@@ -39,6 +39,7 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import ReplayIcon from '@mui/icons-material/Replay';
 import DownloadIcon from '@mui/icons-material/Download';
 import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined';
+import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   setMessage,
@@ -99,6 +100,8 @@ const SpeechToTextContainer = () => {
   const [lastAudioBlob, setLastAudioBlob] = useState(null);
   const [debugAudioUrl, setDebugAudioUrl] = useState(null);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [rejectedTranscriptionId, setRejectedTranscriptionId] =
+    useState(null);
 
   // Keep Redux isRecording in sync with the state machine (for other components that read it)
   const diarizeRef = useRef(diarizeEnabled);
@@ -256,6 +259,7 @@ const SpeechToTextContainer = () => {
           null,
         ),
       );
+      setRejectedTranscriptionId(latestTranscriptionId);
     } finally {
       setIsRejecting(false);
     }
@@ -696,27 +700,45 @@ const SpeechToTextContainer = () => {
                 gap: 0.5,
                 mt: 0.5,
               }}>
-              <Button
-                size='small'
-                variant='text'
-                startIcon={
-                  <ThumbDownAltOutlinedIcon fontSize='small' />
-                }
-                onClick={handleRejectLatestTranscription}
-                disabled={
-                  !latestTranscriptionId ||
-                  isRecordingActive ||
-                  isTranscribing ||
-                  isRejecting
-                }
-                sx={{
-                  textTransform: 'none',
-                  minWidth: 'auto',
-                  px: 1,
-                  color: 'text.secondary',
-                }}>
-                {isRejecting ? 'Rejecting...' : 'Reject'}
-              </Button>
+              <Tooltip
+                title={
+                  !latestTranscriptionId
+                    ? 'No transcription to flag yet'
+                    : rejectedTranscriptionId ===
+                        latestTranscriptionId
+                      ? 'Marked as bad'
+                      : 'Mark transcription as bad'
+                }>
+                <span>
+                  <IconButton
+                    size='small'
+                    onClick={handleRejectLatestTranscription}
+                    disabled={
+                      !latestTranscriptionId ||
+                      isRecordingActive ||
+                      isTranscribing ||
+                      isRejecting ||
+                      rejectedTranscriptionId ===
+                        latestTranscriptionId
+                    }
+                    sx={{
+                      color:
+                        rejectedTranscriptionId ===
+                        latestTranscriptionId
+                          ? 'error.main'
+                          : 'text.secondary',
+                    }}>
+                    {isRejecting ? (
+                      <CircularProgress size={16} />
+                    ) : rejectedTranscriptionId ===
+                      latestTranscriptionId ? (
+                      <ThumbDownAltIcon fontSize='small' />
+                    ) : (
+                      <ThumbDownAltOutlinedIcon fontSize='small' />
+                    )}
+                  </IconButton>
+                </span>
+              </Tooltip>
               <Button
                 size='small'
                 variant='text'

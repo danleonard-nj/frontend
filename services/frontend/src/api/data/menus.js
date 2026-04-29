@@ -1,6 +1,7 @@
 const pages = [
   'Schedules',
   'Tasks',
+  'Journal',
   'Banking',
   'Email',
   'Kubernetes',

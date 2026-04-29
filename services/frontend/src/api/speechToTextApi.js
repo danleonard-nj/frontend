@@ -218,9 +218,10 @@ export default class SpeechToTextApi extends ApiBase {
     notes = null,
   ) {
     const { status, data, isSuccess } = await this.send(
-      `${this.baseUrl}/api/tools/transcription/feedback/${transcriptionId}`,
+      `${this.baseUrl}/api/tools/transcription/feedback`,
       'POST',
       {
+        transcription_id: transcriptionId,
         reason,
         notes,
       },
