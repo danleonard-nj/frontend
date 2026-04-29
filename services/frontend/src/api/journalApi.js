@@ -8,14 +8,14 @@ export default class JournalApi extends ApiBase {
 
   async listEntries(limit = 50) {
     return this.send(
-      `${this.baseUrl}/api/journal/entries?limit=${limit}`,
+      `${this.baseUrl}/api/tools/journal/entries?limit=${limit}`,
       'GET',
     );
   }
 
   async createEntry(entry) {
     return this.send(
-      `${this.baseUrl}/api/journal/entries`,
+      `${this.baseUrl}/api/tools/journal/entries`,
       'POST',
       entry,
     );
@@ -23,14 +23,14 @@ export default class JournalApi extends ApiBase {
 
   async getEntry(entryId) {
     return this.send(
-      `${this.baseUrl}/api/journal/entries/${entryId}`,
+      `${this.baseUrl}/api/tools/journal/entries/${entryId}`,
       'GET',
     );
   }
 
   async processEntry(entryId, force = false) {
     return this.send(
-      `${this.baseUrl}/api/journal/entries/${entryId}/process`,
+      `${this.baseUrl}/api/tools/journal/entries/${entryId}/process`,
       'POST',
       { force },
     );
@@ -38,7 +38,7 @@ export default class JournalApi extends ApiBase {
 
   async patchEntry(entryId, patch) {
     return this.send(
-      `${this.baseUrl}/api/journal/entries/${entryId}`,
+      `${this.baseUrl}/api/tools/journal/entries/${entryId}`,
       'PATCH',
       patch,
     );
@@ -46,8 +46,30 @@ export default class JournalApi extends ApiBase {
 
   async deleteEntry(entryId) {
     return this.send(
-      `${this.baseUrl}/api/journal/entries/${entryId}`,
+      `${this.baseUrl}/api/tools/journal/entries/${entryId}`,
       'DELETE',
+    );
+  }
+
+  async polishEntry(entryId, modes) {
+    return this.send(
+      `${this.baseUrl}/api/tools/journal/entries/${entryId}/polish`,
+      'POST',
+      { modes },
+    );
+  }
+
+  async undoPolish(entryId) {
+    return this.send(
+      `${this.baseUrl}/api/tools/journal/entries/${entryId}/polish/undo`,
+      'POST',
+    );
+  }
+
+  async getInsights(days = 14) {
+    return this.send(
+      `${this.baseUrl}/api/tools/journal/insights?days=${days}`,
+      'GET',
     );
   }
 }

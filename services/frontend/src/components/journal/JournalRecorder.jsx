@@ -49,6 +49,7 @@ const JournalRecorder = ({ onTranscriptReady }) => {
           onTranscriptReady(text, {
             started_at: startedAt || new Date().toISOString(),
             duration_seconds: durationSeconds,
+            clip_id: result?.transcription_id || null,
           });
         }
       } catch (err) {

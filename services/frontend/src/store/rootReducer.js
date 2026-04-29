@@ -24,6 +24,7 @@ import redisSlice from './redis/redisSlice';
 import addressBookReducer from './addressBook/addressBookSlice';
 import tsPostsSlice from './tsPosts/tsPostsSlice';
 import speechToTextSlice from './speechToText/speechToTextSlice';
+import journalReducer from './journal/journalSlice';
 
 const rootReducer = combineReducers({
   schedule: scheduleReducer,
@@ -50,6 +51,7 @@ const rootReducer = combineReducers({
   addressBook: addressBookReducer,
   tsPosts: tsPostsSlice,
   speechToText: speechToTextSlice,
+  journal: journalReducer,
 });
 
 export default rootReducer;

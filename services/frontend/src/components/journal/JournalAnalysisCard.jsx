@@ -76,7 +76,56 @@ function SectionLabel({ children }) {
   );
 }
 
-const JournalAnalysisCard = ({ entryId }) => {
+// Sections shown per variant. Order matters — it controls render order.
+const VARIANT_SECTIONS = {
+  compact: ['summary_short', 'key_events_top'],
+  detail: [
+    'summary_detailed',
+    'key_events',
+    'stressors',
+    'positive_developments',
+    'open_loops',
+    'mood',
+    'themes',
+    'people_mentioned',
+    'places_or_contexts',
+    'symptoms',
+    'action_items',
+    'risk_flags',
+  ],
+  digest: [
+    'summary_detailed',
+    'key_events',
+    'mood',
+    'themes',
+    'open_loops',
+  ],
+};
+
+const KNOWN_ANALYSIS_KEYS = new Set([
+  'cleaned_transcript',
+  'summary',
+  'summary_short',
+  'summary_detailed',
+  'bullets',
+  'key_events',
+  'people_mentioned',
+  'places_or_contexts',
+  'stressors',
+  'positive_developments',
+  'open_loops',
+  'themes',
+  'mood',
+  'symptoms',
+  'action_items',
+  'risk_flags',
+]);
+
+const JournalAnalysisCard = ({
+  entryId,
+  refreshKey = 0,
+  variant = 'detail',
+}) => {
   const api = useMemo(() => new JournalApi(), []);
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -106,7 +155,10 @@ const JournalAnalysisCard = ({ entryId }) => {
 
   useEffect(() => {
     fetchEntry();
-  }, [fetchEntry]);
+    // refreshKey is included so callers can force a re-fetch (e.g. delayed
+    // refresh after committing an entry to pick up backend analysis).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchEntry, refreshKey]);
 
   const status = entry?.status;
   const analysis = entry?.analysis || null;
@@ -134,27 +186,32 @@ const JournalAnalysisCard = ({ entryId }) => {
     [api, entryId, fetchEntry],
   );
 
-  const extras = analysis
-    ? Object.entries(analysis).filter(
-        ([key, value]) =>
-          ![
-            'summary',
-            'bullets',
-            'themes',
-            'mood',
-            'symptoms',
-            'action_items',
-            'risk_flags',
-          ].includes(key) &&
-          value !== null &&
-          value !== undefined,
-      )
-    : [];
+  const extras =
+    analysis && variant === 'detail'
+      ? Object.entries(analysis).filter(
+          ([key, value]) =>
+            !KNOWN_ANALYSIS_KEYS.has(key) &&
+            value !== null &&
+            value !== undefined,
+        )
+      : [];
 
   const riskFlags = analysis?.risk_flags || null;
   const hasRiskFlags =
     riskFlags &&
     (riskFlags.crisis_language || riskFlags.medical_concern);
+
+  const sections =
+    VARIANT_SECTIONS[variant] || VARIANT_SECTIONS.detail;
+  const summaryShort =
+    analysis?.summary_short || analysis?.summary || null;
+  const summaryDetailed =
+    analysis?.summary_detailed || analysis?.summary || null;
+  const keyEvents = Array.isArray(analysis?.key_events)
+    ? analysis.key_events
+    : Array.isArray(analysis?.bullets)
+      ? analysis.bullets
+      : [];
 
   return (
     <Card variant='outlined'>
@@ -233,134 +290,294 @@ const JournalAnalysisCard = ({ entryId }) => {
 
         {!loading && !processing && !error && isReady && (
           <Stack spacing={2.5}>
-            {analysis.summary && (
-              <Typography
-                variant='body1'
-                sx={{ fontStyle: 'italic' }}>
-                {analysis.summary}
-              </Typography>
-            )}
+            {sections.map((section) => {
+              switch (section) {
+                case 'summary_short':
+                  return summaryShort ? (
+                    <Typography
+                      key={section}
+                      variant='body1'
+                      sx={{ fontStyle: 'italic' }}>
+                      {summaryShort}
+                    </Typography>
+                  ) : null;
 
-            {Array.isArray(analysis.bullets) &&
-              analysis.bullets.length > 0 && (
-                <Box>
-                  <SectionLabel>Highlights</SectionLabel>
-                  <Box component='ul' sx={{ pl: 2.5, mt: 1, mb: 0 }}>
-                    {analysis.bullets.map((bullet, index) => (
-                      <li key={index}>
+                case 'summary_detailed':
+                  return summaryDetailed ? (
+                    <Typography key={section} variant='body1'>
+                      {summaryDetailed}
+                    </Typography>
+                  ) : null;
+
+                case 'key_events_top':
+                  return keyEvents.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>Key events</SectionLabel>
+                      <Box
+                        component='ul'
+                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
+                        {keyEvents.slice(0, 3).map((item, index) => (
+                          <li key={index}>
+                            <Typography variant='body2'>
+                              {item}
+                            </Typography>
+                          </li>
+                        ))}
+                      </Box>
+                    </Box>
+                  ) : null;
+
+                case 'key_events':
+                  return keyEvents.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>Key events</SectionLabel>
+                      <Box
+                        component='ul'
+                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
+                        {keyEvents.map((item, index) => (
+                          <li key={index}>
+                            <Typography variant='body2'>
+                              {item}
+                            </Typography>
+                          </li>
+                        ))}
+                      </Box>
+                    </Box>
+                  ) : null;
+
+                case 'stressors':
+                  return Array.isArray(analysis.stressors) &&
+                    analysis.stressors.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>Stressors</SectionLabel>
+                      <Stack
+                        direction='row'
+                        flexWrap='wrap'
+                        gap={1}
+                        mt={1}>
+                        {analysis.stressors.map((item, index) => (
+                          <Chip
+                            key={`${item}-${index}`}
+                            size='small'
+                            label={item}
+                            variant='outlined'
+                            color='warning'
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
+                  ) : null;
+
+                case 'positive_developments':
+                  return Array.isArray(
+                    analysis.positive_developments,
+                  ) && analysis.positive_developments.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>Positives</SectionLabel>
+                      <Box
+                        component='ul'
+                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
+                        {analysis.positive_developments.map(
+                          (item, index) => (
+                            <li key={index}>
+                              <Typography variant='body2'>
+                                {item}
+                              </Typography>
+                            </li>
+                          ),
+                        )}
+                      </Box>
+                    </Box>
+                  ) : null;
+
+                case 'open_loops':
+                  return Array.isArray(analysis.open_loops) &&
+                    analysis.open_loops.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>Open loops</SectionLabel>
+                      <Box
+                        component='ul'
+                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
+                        {analysis.open_loops.map((item, index) => (
+                          <li key={index}>
+                            <Typography variant='body2'>
+                              {item}
+                            </Typography>
+                          </li>
+                        ))}
+                      </Box>
+                    </Box>
+                  ) : null;
+
+                case 'mood':
+                  return analysis.mood ? (
+                    <Box key={section}>
+                      <SectionLabel>Mood</SectionLabel>
+                      <Stack
+                        direction='row'
+                        spacing={1}
+                        alignItems='center'
+                        mt={1}>
+                        <MoodDot label={analysis.mood.label} />
                         <Typography variant='body2'>
-                          {bullet}
+                          {analysis.mood.label || 'unknown'}
+                          {typeof analysis.mood.score === 'number' &&
+                            ` • score ${analysis.mood.score}`}
+                          {typeof analysis.mood.confidence ===
+                            'number' &&
+                            ` • ${Math.round(
+                              analysis.mood.confidence * 100,
+                            )}% confidence`}
                         </Typography>
-                      </li>
-                    ))}
-                  </Box>
-                </Box>
-              )}
+                      </Stack>
+                    </Box>
+                  ) : null;
 
-            {analysis.mood && (
-              <Box>
-                <SectionLabel>Mood</SectionLabel>
-                <Stack
-                  direction='row'
-                  spacing={1}
-                  alignItems='center'
-                  mt={1}>
-                  <MoodDot label={analysis.mood.label} />
-                  <Typography variant='body2'>
-                    {analysis.mood.label || 'unknown'}
-                    {typeof analysis.mood.score === 'number' &&
-                      ` • score ${analysis.mood.score}`}
-                    {typeof analysis.mood.confidence === 'number' &&
-                      ` • ${Math.round(
-                        analysis.mood.confidence * 100,
-                      )}% confidence`}
-                  </Typography>
-                </Stack>
-              </Box>
-            )}
+                case 'themes':
+                  return Array.isArray(analysis.themes) &&
+                    analysis.themes.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>Themes</SectionLabel>
+                      <Stack
+                        direction='row'
+                        flexWrap='wrap'
+                        gap={1}
+                        mt={1}>
+                        {analysis.themes.map((theme) => (
+                          <Chip
+                            key={theme}
+                            size='small'
+                            label={theme}
+                            variant='outlined'
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
+                  ) : null;
 
-            {Array.isArray(analysis.themes) &&
-              analysis.themes.length > 0 && (
-                <Box>
-                  <SectionLabel>Themes</SectionLabel>
-                  <Stack
-                    direction='row'
-                    flexWrap='wrap'
-                    gap={1}
-                    mt={1}>
-                    {analysis.themes.map((theme) => (
-                      <Chip
-                        key={theme}
-                        size='small'
-                        label={theme}
-                        variant='outlined'
-                      />
-                    ))}
-                  </Stack>
-                </Box>
-              )}
+                case 'people_mentioned':
+                  return Array.isArray(analysis.people_mentioned) &&
+                    analysis.people_mentioned.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>People</SectionLabel>
+                      <Stack
+                        direction='row'
+                        flexWrap='wrap'
+                        gap={1}
+                        mt={1}>
+                        {analysis.people_mentioned.map(
+                          (person, index) => (
+                            <Chip
+                              key={`${person}-${index}`}
+                              size='small'
+                              label={person}
+                              variant='outlined'
+                            />
+                          ),
+                        )}
+                      </Stack>
+                    </Box>
+                  ) : null;
 
-            {Array.isArray(analysis.symptoms) &&
-              analysis.symptoms.length > 0 && (
-                <Box>
-                  <SectionLabel>Symptoms</SectionLabel>
-                  <Stack
-                    direction='row'
-                    flexWrap='wrap'
-                    gap={1}
-                    mt={1}>
-                    {analysis.symptoms.map((symptom) => (
-                      <Chip
-                        key={symptom}
-                        size='small'
-                        label={symptom}
-                        variant='outlined'
-                        color='warning'
-                      />
-                    ))}
-                  </Stack>
-                </Box>
-              )}
+                case 'places_or_contexts':
+                  return Array.isArray(analysis.places_or_contexts) &&
+                    analysis.places_or_contexts.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>Places & contexts</SectionLabel>
+                      <Stack
+                        direction='row'
+                        flexWrap='wrap'
+                        gap={1}
+                        mt={1}>
+                        {analysis.places_or_contexts.map(
+                          (place, index) => (
+                            <Chip
+                              key={`${place}-${index}`}
+                              size='small'
+                              label={place}
+                              variant='outlined'
+                            />
+                          ),
+                        )}
+                      </Stack>
+                    </Box>
+                  ) : null;
 
-            {Array.isArray(analysis.action_items) &&
-              analysis.action_items.length > 0 && (
-                <Box>
-                  <SectionLabel>Action items</SectionLabel>
-                  <Box component='ul' sx={{ pl: 2.5, mt: 1, mb: 0 }}>
-                    {analysis.action_items.map((item, index) => (
-                      <li key={index}>
-                        <Typography variant='body2'>
-                          {item}
-                        </Typography>
-                      </li>
-                    ))}
-                  </Box>
-                </Box>
-              )}
+                case 'symptoms':
+                  return Array.isArray(analysis.symptoms) &&
+                    analysis.symptoms.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>Symptoms</SectionLabel>
+                      <Stack
+                        direction='row'
+                        flexWrap='wrap'
+                        gap={1}
+                        mt={1}>
+                        {analysis.symptoms.map((symptom) => (
+                          <Chip
+                            key={symptom}
+                            size='small'
+                            label={symptom}
+                            variant='outlined'
+                            color='warning'
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
+                  ) : null;
 
-            {hasRiskFlags && (
-              <Box>
-                <SectionLabel>Risk flags</SectionLabel>
-                <Stack direction='row' flexWrap='wrap' gap={1} mt={1}>
-                  {riskFlags.crisis_language && (
-                    <Chip
-                      size='small'
-                      icon={<Warning />}
-                      label='Crisis language'
-                      color='error'
-                    />
-                  )}
-                  {riskFlags.medical_concern && (
-                    <Chip
-                      size='small'
-                      icon={<Warning />}
-                      label='Medical concern'
-                      color='warning'
-                    />
-                  )}
-                </Stack>
-              </Box>
-            )}
+                case 'action_items':
+                  return Array.isArray(analysis.action_items) &&
+                    analysis.action_items.length > 0 ? (
+                    <Box key={section}>
+                      <SectionLabel>Action items</SectionLabel>
+                      <Box
+                        component='ul'
+                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
+                        {analysis.action_items.map((item, index) => (
+                          <li key={index}>
+                            <Typography variant='body2'>
+                              {item}
+                            </Typography>
+                          </li>
+                        ))}
+                      </Box>
+                    </Box>
+                  ) : null;
+
+                case 'risk_flags':
+                  return hasRiskFlags ? (
+                    <Box key={section}>
+                      <SectionLabel>Risk flags</SectionLabel>
+                      <Stack
+                        direction='row'
+                        flexWrap='wrap'
+                        gap={1}
+                        mt={1}>
+                        {riskFlags.crisis_language && (
+                          <Chip
+                            size='small'
+                            icon={<Warning />}
+                            label='Crisis language'
+                            color='error'
+                          />
+                        )}
+                        {riskFlags.medical_concern && (
+                          <Chip
+                            size='small'
+                            icon={<Warning />}
+                            label='Medical concern'
+                            color='warning'
+                          />
+                        )}
+                      </Stack>
+                    </Box>
+                  ) : null;
+
+                default:
+                  return null;
+              }
+            })}
 
             {extras.length > 0 && (
               <Stack spacing={0.5}>
