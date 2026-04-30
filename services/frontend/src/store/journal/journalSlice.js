@@ -11,6 +11,9 @@ const initialState = {
   // Per-entry detail (full record from GET /entries/:id), keyed by id.
   // Shape: { [id]: { entry, loading, processing, error } }
   entryDetails: {},
+  // Global list of distinct tags across all entries (sorted).
+  tags: [],
+  tagsLoading: false,
 };
 
 function ensureDetail(state, id) {
@@ -92,6 +95,21 @@ const journalSlice = createSlice({
     clearEntryDetail(state, { payload }) {
       delete state.entryDetails[payload];
     },
+    setTagsLoading(state, { payload }) {
+      state.tagsLoading = payload;
+    },
+    setTags(state, { payload }) {
+      state.tags = Array.isArray(payload) ? payload : [];
+      state.tagsLoading = false;
+    },
+    mergeTags(state, { payload }) {
+      if (!Array.isArray(payload) || payload.length === 0) return;
+      const set = new Set(state.tags);
+      for (const t of payload) {
+        if (typeof t === 'string' && t.trim()) set.add(t.trim());
+      }
+      state.tags = Array.from(set).sort((a, b) => a.localeCompare(b));
+    },
   },
 });
 
@@ -111,6 +129,9 @@ export const {
   setEntryDetailError,
   setEntryDetailProcessing,
   clearEntryDetail,
+  setTagsLoading,
+  setTags,
+  mergeTags,
 } = journalSlice.actions;
 
 export default journalSlice.reducer;

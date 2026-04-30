@@ -72,4 +72,8 @@ export default class JournalApi extends ApiBase {
       'GET',
     );
   }
+
+  async listTags() {
+    return this.send(`${this.baseUrl}/api/tools/journal/tags`, 'GET');
+  }
 }

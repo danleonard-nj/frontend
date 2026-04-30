@@ -17,6 +17,9 @@ import {
   setEntryDetailError,
   setEntryDetailProcessing,
   clearEntryDetail,
+  setTagsLoading,
+  setTags,
+  mergeTags,
 } from './journalSlice';
 
 function moodFromAnalysis(analysis) {
@@ -68,6 +71,7 @@ export function entryFromApi(raw) {
     segments: Array.isArray(raw.segments) ? raw.segments : [],
     source: raw.source || 'voice',
     status: raw.status || 'created',
+    tags: Array.isArray(raw.tags) ? raw.tags : [],
     createdAt,
     date,
     time,
@@ -183,6 +187,56 @@ export default class JournalActions {
         dispatch(popMessage('Title updated'));
       } catch (err) {
         dispatch(popErrorMessage('Failed to update title'));
+      }
+    };
+  }
+
+  loadTags() {
+    return async (dispatch) => {
+      dispatch(setTagsLoading(true));
+      try {
+        const response = await this.journalApi.listTags();
+        if (response.status === 200) {
+          const list = Array.isArray(response.data?.tags)
+            ? response.data.tags
+            : Array.isArray(response.data)
+              ? response.data
+              : [];
+          dispatch(setTags(list));
+        } else {
+          dispatch(setTagsLoading(false));
+        }
+      } catch (err) {
+        dispatch(setTagsLoading(false));
+      }
+    };
+  }
+
+  patchEntryTags(entryId, tags) {
+    return async (dispatch) => {
+      const cleaned = Array.isArray(tags)
+        ? Array.from(
+            new Set(
+              tags
+                .map((t) => (typeof t === 'string' ? t.trim() : ''))
+                .filter(Boolean),
+            ),
+          )
+        : [];
+      try {
+        const response = await this.journalApi.patchEntry(entryId, {
+          tags: cleaned,
+        });
+        if (response.status >= 200 && response.status < 300) {
+          dispatch(updateEntry({ id: entryId, tags: cleaned }));
+          dispatch(mergeTags(cleaned));
+          return true;
+        }
+        dispatch(popErrorMessage('Failed to update tags'));
+        return false;
+      } catch (err) {
+        dispatch(popErrorMessage('Failed to update tags'));
+        return false;
       }
     };
   }

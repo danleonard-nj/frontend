@@ -56,6 +56,7 @@ import {
 } from '@mui/icons-material';
 import JournalRecorder from '../journal/JournalRecorder';
 import JournalAnalysisCard from '../journal/JournalAnalysisCard';
+import TagsEditor from '../journal/TagsEditor';
 import { journalActions } from '../../store/journal/journalActions';
 import { setCommitError } from '../../store/journal/journalSlice';
 
@@ -1187,11 +1188,50 @@ const DashboardJournalLayout = () => {
       return;
     if (!transcript.trim()) return;
 
+    // If the user edited the transcript before committing, propagate the
+    // edits onto the segments themselves so the backend (which treats
+    // segments as the source of truth) actually persists the new text.
+    let segmentsToCommit = draftSegments;
+    if (transcriptOverride !== null) {
+      const parts = transcript.split(/\n{2,}/);
+      if (
+        parts.length === draftSegments.length &&
+        draftSegments.length > 0
+      ) {
+        // Same paragraph count → remap each segment's transcript by index.
+        segmentsToCommit = draftSegments.map((seg, i) => ({
+          ...seg,
+          transcript: parts[i],
+        }));
+      } else {
+        // Structure changed (added/removed paragraphs) → collapse into a
+        // single segment that aggregates the original clips' metadata.
+        const totalDuration = draftSegments.reduce(
+          (sum, s) =>
+            sum +
+            (typeof s.duration_seconds === 'number'
+              ? s.duration_seconds
+              : 0),
+          0,
+        );
+        segmentsToCommit = [
+          {
+            clip_id: draftSegments[0]?.clip_id || null,
+            started_at:
+              draftSegments[0]?.started_at ||
+              new Date().toISOString(),
+            duration_seconds: totalDuration || null,
+            transcript,
+          },
+        ];
+      }
+    }
+
     const payload = {
       title: titleOverride?.trim() || null,
       source: 'voice',
       raw_transcript: transcript,
-      segments: draftSegments,
+      segments: segmentsToCommit,
     };
 
     const created = await dispatch(
@@ -1217,6 +1257,7 @@ const DashboardJournalLayout = () => {
     selectedEntry.id,
     titleOverride,
     transcript,
+    transcriptOverride,
   ]);
 
   // ── Action nodes ───────────────────────────────────────────────────────
@@ -1296,7 +1337,17 @@ const DashboardJournalLayout = () => {
     <Box sx={{ width: '100%' }}>
       <Tabs
         value={activeTab}
-        onChange={(_, v) => setActiveTab(v)}
+        onChange={(_, v) => {
+          // Switching to the Write tab should always present a fresh
+          // draft.  If the user is currently focused on a saved entry
+          // (e.g. they just committed), reset back to the new-entry
+          // state so the Write tab doesn't show the old content.
+          if (v === 'write' && selectedEntry.id) {
+            setSelectedEntry(NEW_ENTRY);
+            resetDraft();
+          }
+          setActiveTab(v);
+        }}
         sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
         <Tab label='Write' value='write' />
         <Tab label='Journal' value='journal' />
@@ -1393,6 +1444,11 @@ const DashboardJournalLayout = () => {
                   onPolish={handlePolishEntry}
                   onUndoPolish={handleUndoPolishEntry}
                   canUndoPolish={polishedEntryId === selectedEntry.id}
+                />
+
+                <TagsEditor
+                  entryId={selectedEntry.id}
+                  tags={selectedEntry.tags}
                 />
 
                 <JournalAnalysisCard
