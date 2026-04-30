@@ -396,11 +396,16 @@ export default class JournalActions {
    *   { text, transcriptionId } on success
    *   null                      on failure (a user-facing alert is shown)
    */
-  transcribeJournalClip(audioBlob) {
+  transcribeJournalClip(audioBlob, options = {}) {
     return async (dispatch) => {
+      const { provider = null } = options;
       try {
-        const result =
-          await this.speechToTextApi.transcribeAudio(audioBlob);
+        const result = await this.speechToTextApi.transcribeAudio(
+          audioBlob,
+          false, // diarize
+          false, // returnWaveform
+          provider,
+        );
         const text = (result?.text || '').trim();
         return {
           text,

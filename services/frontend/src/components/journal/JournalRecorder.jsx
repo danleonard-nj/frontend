@@ -1,27 +1,34 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
   Button,
   Card,
   CardContent,
   CircularProgress,
+  FormControl,
   IconButton,
+  MenuItem,
+  Select,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import {
-  Check,
-  Close,
-  Mic,
-  Refresh,
-  Tune,
-} from '@mui/icons-material';
+import { Check, Close, Mic, Refresh } from '@mui/icons-material';
 import useRecorderStateMachine, {
   RecState,
 } from '../chatgpt/useRecorderStateMachine';
 import WaveformVisualizer from '../chatgpt/WaveformVisualizer';
 import { journalActions } from '../../store/journal/journalActions';
+import { setProvider } from '../../store/speechToText/speechToTextSlice';
+
+const PROVIDER_OPTIONS = [
+  { value: 'default', label: 'Default' },
+  { value: 'openai', label: 'OpenAI' },
+  { value: 'azure', label: 'Azure' },
+  { value: 'google', label: 'Google' },
+  { value: 'whisper', label: 'Whisper' },
+];
 
 /**
  * Journal-side recorder. Black-box wrapper around the existing
@@ -37,6 +44,9 @@ import { journalActions } from '../../store/journal/journalActions';
  */
 const JournalRecorder = ({ onTranscriptReady }) => {
   const dispatch = useDispatch();
+  const provider = useSelector(
+    (s) => s.speechToText?.provider || 'default',
+  );
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [error, setError] = useState(null);
   // Preserves the most recent failed clip so the user can retry without
@@ -44,13 +54,19 @@ const JournalRecorder = ({ onTranscriptReady }) => {
   // recording is armed.
   const [pendingClip, setPendingClip] = useState(null);
   const clipStartRef = useRef(null);
+  // Snapshot the provider at clip-creation time so a retry honors the
+  // engine the user originally chose, even if they change the dropdown.
+  const providerRef = useRef(provider);
+  providerRef.current = provider;
 
   const transcribeClip = useCallback(
     async (clip) => {
       setIsTranscribing(true);
       setError(null);
       const result = await dispatch(
-        journalActions.transcribeJournalClip(clip.blob),
+        journalActions.transcribeJournalClip(clip.blob, {
+          provider: clip.provider,
+        }),
       );
       setIsTranscribing(false);
       if (!result) {
@@ -83,6 +99,7 @@ const JournalRecorder = ({ onTranscriptReady }) => {
         blob: audioBlob,
         startedAt,
         durationSeconds,
+        provider: providerRef.current,
       });
     },
     [transcribeClip],
@@ -234,9 +251,29 @@ const JournalRecorder = ({ onTranscriptReady }) => {
             )}
           </Box>
 
-          <IconButton>
-            <Tune />
-          </IconButton>
+          <Tooltip title='Speech-to-text engine'>
+            <FormControl
+              size='small'
+              disabled={isRecording || isArming || isTranscribing}
+              sx={{ minWidth: 110 }}>
+              <Select
+                value={provider}
+                onChange={(e) =>
+                  dispatch(setProvider(e.target.value))
+                }
+                sx={{
+                  height: 32,
+                  fontSize: '0.8125rem',
+                  '& .MuiSelect-select': { py: 0.5 },
+                }}>
+                {PROVIDER_OPTIONS.map((opt) => (
+                  <MenuItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Tooltip>
         </Stack>
       </CardContent>
     </Card>
