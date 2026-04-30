@@ -1,5 +1,6 @@
 import autoBind from 'auto-bind';
 import JournalApi from '../../api/journalApi';
+import SpeechToTextApi from '../../api/speechToTextApi';
 import { popErrorMessage, popMessage } from '../alert/alertActions';
 import {
   setEntriesLoading,
@@ -82,6 +83,7 @@ export function entryFromApi(raw) {
 export default class JournalActions {
   constructor() {
     this.journalApi = new JournalApi();
+    this.speechToTextApi = new SpeechToTextApi();
     autoBind(this);
   }
 
@@ -380,6 +382,34 @@ export default class JournalActions {
         return null;
       } catch (err) {
         dispatch(popErrorMessage('Failed to undo polish'));
+        return null;
+      }
+    };
+  }
+
+  /**
+   * Transcribe a single audio clip captured by the journal recorder.
+   *
+   * Kept intentionally narrow — does NOT touch the speech-to-text slice
+   * used by the chat composer (which would pollute that flow with
+   * journal recordings).  Returns:
+   *   { text, transcriptionId } on success
+   *   null                      on failure (a user-facing alert is shown)
+   */
+  transcribeJournalClip(audioBlob) {
+    return async (dispatch) => {
+      try {
+        const result =
+          await this.speechToTextApi.transcribeAudio(audioBlob);
+        const text = (result?.text || '').trim();
+        return {
+          text,
+          transcriptionId: result?.transcription_id || null,
+        };
+      } catch (err) {
+        dispatch(
+          popErrorMessage(err.message || 'Transcription failed'),
+        );
         return null;
       }
     };

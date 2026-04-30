@@ -1,6 +1,8 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import {
   Box,
+  Button,
   Card,
   CardContent,
   CircularProgress,
@@ -8,12 +10,18 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { Check, Close, Mic, Tune } from '@mui/icons-material';
+import {
+  Check,
+  Close,
+  Mic,
+  Refresh,
+  Tune,
+} from '@mui/icons-material';
 import useRecorderStateMachine, {
   RecState,
 } from '../chatgpt/useRecorderStateMachine';
 import WaveformVisualizer from '../chatgpt/WaveformVisualizer';
-import SpeechToTextApi from '../../api/speechToTextApi';
+import { journalActions } from '../../store/journal/journalActions';
 
 /**
  * Journal-side recorder. Black-box wrapper around the existing
@@ -28,37 +36,56 @@ import SpeechToTextApi from '../../api/speechToTextApi';
  * button, waveform, and settings row.
  */
 const JournalRecorder = ({ onTranscriptReady }) => {
-  const api = useMemo(() => new SpeechToTextApi(), []);
+  const dispatch = useDispatch();
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [error, setError] = useState(null);
+  // Preserves the most recent failed clip so the user can retry without
+  // re-recording.  Cleared on success, on cancel/discard, or when a new
+  // recording is armed.
+  const [pendingClip, setPendingClip] = useState(null);
   const clipStartRef = useRef(null);
+
+  const transcribeClip = useCallback(
+    async (clip) => {
+      setIsTranscribing(true);
+      setError(null);
+      const result = await dispatch(
+        journalActions.transcribeJournalClip(clip.blob),
+      );
+      setIsTranscribing(false);
+      if (!result) {
+        setError('Transcription failed');
+        setPendingClip(clip);
+        return;
+      }
+      if (result.text && typeof onTranscriptReady === 'function') {
+        onTranscriptReady(result.text, {
+          started_at: clip.startedAt,
+          duration_seconds: clip.durationSeconds,
+          clip_id: result.transcriptionId,
+        });
+      }
+      setPendingClip(null);
+    },
+    [dispatch, onTranscriptReady],
+  );
 
   const handleAudioReady = useCallback(
     async (audioBlob) => {
-      setIsTranscribing(true);
-      setError(null);
-      const startedAt = clipStartRef.current;
-      const durationSeconds = startedAt
-        ? (Date.now() - new Date(startedAt).getTime()) / 1000
+      const startedAt =
+        clipStartRef.current || new Date().toISOString();
+      const durationSeconds = clipStartRef.current
+        ? (Date.now() - new Date(clipStartRef.current).getTime()) /
+          1000
         : null;
       clipStartRef.current = null;
-      try {
-        const result = await api.transcribeAudio(audioBlob);
-        const text = (result?.text || '').trim();
-        if (text && typeof onTranscriptReady === 'function') {
-          onTranscriptReady(text, {
-            started_at: startedAt || new Date().toISOString(),
-            duration_seconds: durationSeconds,
-            clip_id: result?.transcription_id || null,
-          });
-        }
-      } catch (err) {
-        setError(err.message || 'Transcription failed');
-      } finally {
-        setIsTranscribing(false);
-      }
+      await transcribeClip({
+        blob: audioBlob,
+        startedAt,
+        durationSeconds,
+      });
     },
-    [api, onTranscriptReady],
+    [transcribeClip],
   );
 
   const { phase, analyserNode, arm, confirm, cancel } =
@@ -71,6 +98,8 @@ const JournalRecorder = ({ onTranscriptReady }) => {
 
   const handleMicClick = useCallback(async () => {
     setError(null);
+    // Starting a fresh recording discards any previous failed clip.
+    setPendingClip(null);
     try {
       clipStartRef.current = new Date().toISOString();
       await arm();
@@ -86,6 +115,15 @@ const JournalRecorder = ({ onTranscriptReady }) => {
     clipStartRef.current = null;
     cancel();
   }, [cancel]);
+
+  const handleRetry = useCallback(() => {
+    if (pendingClip) transcribeClip(pendingClip);
+  }, [pendingClip, transcribeClip]);
+
+  const handleDiscardPending = useCallback(() => {
+    setPendingClip(null);
+    setError(null);
+  }, []);
 
   const statusLabel = isTranscribing
     ? 'Transcribing…'
@@ -173,6 +211,27 @@ const JournalRecorder = ({ onTranscriptReady }) => {
               sx={{ mt: 1, display: 'block' }}>
               {statusLabel}
             </Typography>
+            {pendingClip && !isTranscribing && (
+              <Stack
+                direction='row'
+                spacing={1}
+                alignItems='center'
+                sx={{ mt: 1 }}>
+                <Button
+                  size='small'
+                  variant='outlined'
+                  startIcon={<Refresh />}
+                  onClick={handleRetry}>
+                  Retry transcription
+                </Button>
+                <Button
+                  size='small'
+                  color='inherit'
+                  onClick={handleDiscardPending}>
+                  Discard clip
+                </Button>
+              </Stack>
+            )}
           </Box>
 
           <IconButton>
