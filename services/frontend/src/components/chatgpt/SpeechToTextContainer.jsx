@@ -307,6 +307,7 @@ const SpeechToTextContainer = () => {
         'audio/ogg',
         'audio/m4a',
         'audio/mp4',
+        'audio/amr',
       ];
 
       if (

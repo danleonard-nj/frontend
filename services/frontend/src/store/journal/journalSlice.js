@@ -14,7 +14,22 @@ const initialState = {
   // Global list of distinct tags across all entries (sorted).
   tags: [],
   tagsLoading: false,
+  // Per-entry attachments, keyed by entryId.
+  // Shape: { [id]: { items: [], pending: [], loading: false, error: null } }
+  attachments: {},
 };
+
+function ensureAttachments(state, id) {
+  if (!state.attachments[id]) {
+    state.attachments[id] = {
+      items: [],
+      pending: [],
+      loading: false,
+      error: null,
+    };
+  }
+  return state.attachments[id];
+}
 
 function ensureDetail(state, id) {
   if (!state.entryDetails[id]) {
@@ -110,6 +125,69 @@ const journalSlice = createSlice({
       }
       state.tags = Array.from(set).sort((a, b) => a.localeCompare(b));
     },
+    setAttachmentsLoading(state, { payload }) {
+      const { id, loading } = payload;
+      ensureAttachments(state, id).loading = loading;
+    },
+    setAttachments(state, { payload }) {
+      const { id, items } = payload;
+      const att = ensureAttachments(state, id);
+      att.items = Array.isArray(items) ? items : [];
+      att.loading = false;
+      att.error = null;
+    },
+    setAttachmentsError(state, { payload }) {
+      const { id, error } = payload;
+      const att = ensureAttachments(state, id);
+      att.error = error;
+      att.loading = false;
+    },
+    addPendingAttachment(state, { payload }) {
+      const { id, pending } = payload;
+      const att = ensureAttachments(state, id);
+      att.pending = [
+        ...att.pending.filter((p) => p.tempId !== pending.tempId),
+        pending,
+      ];
+    },
+    updatePendingAttachment(state, { payload }) {
+      const { id, tempId, changes } = payload;
+      const att = ensureAttachments(state, id);
+      att.pending = att.pending.map((p) =>
+        p.tempId === tempId ? { ...p, ...changes } : p,
+      );
+    },
+    removePendingAttachment(state, { payload }) {
+      const { id, tempId } = payload;
+      const att = ensureAttachments(state, id);
+      att.pending = att.pending.filter((p) => p.tempId !== tempId);
+    },
+    addAttachment(state, { payload }) {
+      const { id, attachment } = payload;
+      const att = ensureAttachments(state, id);
+      const aid =
+        attachment?.attachment_id ||
+        attachment?.id ||
+        attachment?.attachmentId;
+      att.items = [
+        ...att.items.filter(
+          (a) => (a.attachment_id || a.id || a.attachmentId) !== aid,
+        ),
+        attachment,
+      ];
+    },
+    removeAttachment(state, { payload }) {
+      const { id, attachmentId } = payload;
+      const att = ensureAttachments(state, id);
+      att.items = att.items.filter(
+        (a) =>
+          (a.attachment_id || a.id || a.attachmentId) !==
+          attachmentId,
+      );
+    },
+    clearAttachments(state, { payload }) {
+      delete state.attachments[payload];
+    },
   },
 });
 
@@ -132,6 +210,15 @@ export const {
   setTagsLoading,
   setTags,
   mergeTags,
+  setAttachmentsLoading,
+  setAttachments,
+  setAttachmentsError,
+  addPendingAttachment,
+  updatePendingAttachment,
+  removePendingAttachment,
+  addAttachment,
+  removeAttachment,
+  clearAttachments,
 } = journalSlice.actions;
 
 export default journalSlice.reducer;

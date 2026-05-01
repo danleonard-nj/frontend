@@ -57,6 +57,8 @@ import {
 import JournalRecorder from '../journal/JournalRecorder';
 import JournalAnalysisCard from '../journal/JournalAnalysisCard';
 import TagsEditor from '../journal/TagsEditor';
+import AttachmentStager from '../journal/AttachmentStager';
+import JournalAttachments from '../journal/JournalAttachments';
 import { journalActions } from '../../store/journal/journalActions';
 import { setCommitError } from '../../store/journal/journalSlice';
 
@@ -131,9 +133,15 @@ function bucketEntries(entries, searchValue) {
       groups[groups.length - 1].entries.push(entry);
       continue;
     }
-    const diffDays =
-      (startOfToday - new Date(entry.createdAt)) /
-      (1000 * 60 * 60 * 24);
+    const entryDate = new Date(entry.createdAt);
+    const startOfEntryDay = new Date(
+      entryDate.getFullYear(),
+      entryDate.getMonth(),
+      entryDate.getDate(),
+    );
+    const diffDays = Math.round(
+      (startOfToday - startOfEntryDay) / (1000 * 60 * 60 * 24),
+    );
     const idx = buckets.findIndex((b) => diffDays < b.maxDays);
     groups[idx >= 0 ? idx : groups.length - 1].entries.push(entry);
   }
@@ -1052,6 +1060,8 @@ const DashboardJournalLayout = () => {
   const [polishedEntryId, setPolishedEntryId] = useState(null);
   // Time window for the Insights tab. Defaults to the smallest option.
   const [insightsDaysBack, setInsightsDaysBack] = useState(3);
+  // Files staged on the Write tab. Uploaded after the entry commits.
+  const [stagedAttachments, setStagedAttachments] = useState([]);
 
   // ── Derived values ─────────────────────────────────────────────────────
   const transcript = useMemo(() => {
@@ -1109,6 +1119,7 @@ const DashboardJournalLayout = () => {
     dispatch(setCommitError(null));
     setTitleOverride(null);
     setTranscriptOverride(null);
+    setStagedAttachments([]);
   }, [dispatch]);
 
   // ── Handlers ───────────────────────────────────────────────────────────
@@ -1238,6 +1249,15 @@ const DashboardJournalLayout = () => {
       journalActions.commitEntry(payload),
     );
     if (created) {
+      // Kick off background uploads for any staged attachments.
+      if (stagedAttachments.length > 0) {
+        dispatch(
+          journalActions.uploadStagedAttachments(
+            created.id,
+            stagedAttachments,
+          ),
+        );
+      }
       // Navigate to the new entry so the user can see it.
       setSelectedEntry(created);
       setCommitted(true);
@@ -1245,6 +1265,7 @@ const DashboardJournalLayout = () => {
       setDraftSegments([]);
       setTitleOverride(null);
       setTranscriptOverride(null);
+      setStagedAttachments([]);
       setActiveTab('journal');
       // The JournalAnalysisCard polls in the background until the
       // backend analysis lands, so no manual delayed refresh needed.
@@ -1255,6 +1276,7 @@ const DashboardJournalLayout = () => {
     dispatch,
     draftSegments,
     selectedEntry.id,
+    stagedAttachments,
     titleOverride,
     transcript,
     transcriptOverride,
@@ -1394,6 +1416,12 @@ const DashboardJournalLayout = () => {
             canUndo={draftSegments.length > 0 && !committed}
           />
 
+          <AttachmentStager
+            files={stagedAttachments}
+            onChange={setStagedAttachments}
+            disabled={committing || committed}
+          />
+
           {committedEntryId && (
             <JournalAnalysisCard
               entryId={committedEntryId}
@@ -1443,13 +1471,18 @@ const DashboardJournalLayout = () => {
                   }
                   onPolish={handlePolishEntry}
                   onUndoPolish={handleUndoPolishEntry}
-                  canUndoPolish={polishedEntryId === selectedEntry.id}
+                  canUndoPolish={
+                    polishedEntryId === selectedEntry.id ||
+                    Boolean(selectedEntry.pre_polish_transcript)
+                  }
                 />
 
                 <TagsEditor
                   entryId={selectedEntry.id}
                   tags={selectedEntry.tags}
                 />
+
+                <JournalAttachments entryId={selectedEntry.id} />
 
                 <JournalAnalysisCard
                   entryId={selectedEntry.id}

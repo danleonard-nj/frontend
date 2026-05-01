@@ -21,7 +21,21 @@ import {
   setTagsLoading,
   setTags,
   mergeTags,
+  setAttachmentsLoading,
+  setAttachments,
+  setAttachmentsError,
+  addPendingAttachment,
+  updatePendingAttachment,
+  removePendingAttachment,
+  addAttachment,
+  removeAttachment,
 } from './journalSlice';
+
+export const ATTACHMENT_MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+
+function makeTempId() {
+  return `pending-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 function moodFromAnalysis(analysis) {
   const label = analysis?.mood?.label;
@@ -47,9 +61,21 @@ function moodFromAnalysis(analysis) {
   return 'neutral';
 }
 
+// Server emits ISO timestamps in UTC but sometimes without a trailing 'Z'
+// (e.g. "2026-04-30T16:06:30.160000"). JS's Date parser treats those naive
+// strings as local time, which makes everything appear shifted by the user's
+// UTC offset. Normalize by appending 'Z' when no explicit offset is present.
+export function normalizeUtcTimestamp(value) {
+  if (!value || typeof value !== 'string') return value;
+  if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(value)) return value;
+  return `${value}Z`;
+}
+
 export function entryFromApi(raw) {
   if (!raw) return null;
-  const createdAt = raw.created_at || raw.createdAt || null;
+  const createdAt = normalizeUtcTimestamp(
+    raw.created_at || raw.createdAt || null,
+  );
   const date = createdAt
     ? new Date(createdAt).toLocaleDateString(undefined, {
         weekday: 'short',
@@ -416,6 +442,222 @@ export default class JournalActions {
           popErrorMessage(err.message || 'Transcription failed'),
         );
         return null;
+      }
+    };
+  }
+
+  // ── Attachments ────────────────────────────────────────────────────
+
+  loadAttachments(entryId) {
+    return async (dispatch) => {
+      if (!entryId) return;
+      dispatch(setAttachmentsLoading({ id: entryId, loading: true }));
+      try {
+        const response =
+          await this.journalApi.listAttachments(entryId);
+        if (response.status === 200) {
+          const items = Array.isArray(response.data)
+            ? response.data
+            : Array.isArray(response.data?.attachments)
+              ? response.data.attachments
+              : [];
+          dispatch(setAttachments({ id: entryId, items }));
+        } else if (response.status === 404) {
+          dispatch(setAttachments({ id: entryId, items: [] }));
+        } else {
+          dispatch(
+            setAttachmentsError({
+              id: entryId,
+              error: `Failed to load attachments (${response.status})`,
+            }),
+          );
+        }
+      } catch (err) {
+        dispatch(
+          setAttachmentsError({
+            id: entryId,
+            error: err.message || 'Failed to load attachments',
+          }),
+        );
+      }
+    };
+  }
+
+  uploadAttachment(entryId, file, { tempId: providedTempId } = {}) {
+    return async (dispatch) => {
+      if (!entryId || !file) return null;
+
+      if (file.size > ATTACHMENT_MAX_BYTES) {
+        dispatch(
+          popErrorMessage(
+            `${file.name} exceeds the 5 MB attachment limit`,
+          ),
+        );
+        return null;
+      }
+
+      const tempId = providedTempId || makeTempId();
+      dispatch(
+        addPendingAttachment({
+          id: entryId,
+          pending: {
+            tempId,
+            file,
+            filename: file.name,
+            size: file.size,
+            contentType: file.type || 'application/octet-stream',
+            status: 'uploading',
+            error: null,
+          },
+        }),
+      );
+
+      try {
+        const response = await this.journalApi.uploadAttachment(
+          entryId,
+          file,
+        );
+        if (response.isSuccess && response.data) {
+          dispatch(
+            addAttachment({
+              id: entryId,
+              attachment: response.data,
+            }),
+          );
+          dispatch(removePendingAttachment({ id: entryId, tempId }));
+          return response.data;
+        }
+        dispatch(
+          updatePendingAttachment({
+            id: entryId,
+            tempId,
+            changes: {
+              status: 'failed',
+              error:
+                response.data?.error ||
+                `Upload failed (${response.status})`,
+            },
+          }),
+        );
+        dispatch(
+          popErrorMessage(
+            `Failed to upload ${file.name} \u2014 open the entry to retry`,
+          ),
+        );
+        return null;
+      } catch (err) {
+        dispatch(
+          updatePendingAttachment({
+            id: entryId,
+            tempId,
+            changes: {
+              status: 'failed',
+              error: err.message || 'Upload failed',
+            },
+          }),
+        );
+        dispatch(
+          popErrorMessage(
+            `Failed to upload ${file.name} \u2014 open the entry to retry`,
+          ),
+        );
+        return null;
+      }
+    };
+  }
+
+  uploadStagedAttachments(entryId, files) {
+    return async (dispatch) => {
+      if (!entryId || !Array.isArray(files) || files.length === 0)
+        return;
+      // Fire each upload independently — don't await as a group so the
+      // user isn't blocked on a slow file.
+      for (const file of files) {
+        dispatch(this.uploadAttachment(entryId, file));
+      }
+    };
+  }
+
+  retryAttachmentUpload(entryId, tempId) {
+    return async (dispatch, getState) => {
+      const att = getState().journal.attachments?.[entryId];
+      const pending = att?.pending?.find((p) => p.tempId === tempId);
+      if (!pending || !pending.file) return;
+      dispatch(
+        updatePendingAttachment({
+          id: entryId,
+          tempId,
+          changes: { status: 'uploading', error: null },
+        }),
+      );
+      dispatch(
+        this.uploadAttachment(entryId, pending.file, { tempId }),
+      );
+    };
+  }
+
+  dismissFailedAttachment(entryId, tempId) {
+    return (dispatch) => {
+      dispatch(removePendingAttachment({ id: entryId, tempId }));
+    };
+  }
+
+  deleteAttachment(entryId, attachmentId) {
+    return async (dispatch) => {
+      try {
+        const response = await this.journalApi.deleteAttachment(
+          entryId,
+          attachmentId,
+        );
+        if (
+          response.status === 200 ||
+          response.status === 204 ||
+          response.status === 404
+        ) {
+          dispatch(removeAttachment({ id: entryId, attachmentId }));
+          dispatch(popMessage('Attachment deleted'));
+          return true;
+        }
+        dispatch(popErrorMessage('Failed to delete attachment'));
+        return false;
+      } catch (err) {
+        dispatch(popErrorMessage('Failed to delete attachment'));
+        return false;
+      }
+    };
+  }
+
+  downloadAttachment(entryId, attachment) {
+    return async (dispatch) => {
+      const attachmentId =
+        attachment?.attachment_id ||
+        attachment?.id ||
+        attachment?.attachmentId;
+      if (!entryId || !attachmentId) return;
+      try {
+        const result = await this.journalApi.downloadAttachment(
+          entryId,
+          attachmentId,
+        );
+        if (!result.blob) {
+          dispatch(popErrorMessage('Failed to download attachment'));
+          return;
+        }
+        const filename =
+          result.filename ||
+          attachment.filename ||
+          attachment.name ||
+          'attachment';
+        const url = URL.createObjectURL(result.blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        dispatch(popErrorMessage('Failed to download attachment'));
       }
     };
   }
