@@ -312,10 +312,10 @@ const SpeechToTextContainer = () => {
 
       if (
         !validTypes.includes(file.type) &&
-        !file.name.match(/\.(mp3|wav|webm|ogg|m4a|mp4)$/i)
+        !file.name.match(/\.(mp3|wav|webm|ogg|m4a|mp4|amr)$/i)
       ) {
         alert(
-          'Please upload a valid audio file (MP3, WAV, WEBM, OGG, M4A)',
+          'Please upload a valid audio file (MP3, WAV, WEBM, OGG, M4A, MP4, AMR)',
         );
         return;
       }
@@ -483,7 +483,7 @@ const SpeechToTextContainer = () => {
         <input
           ref={fileInputRef}
           type='file'
-          accept='audio/*,.mp3,.wav,.webm,.ogg,.m4a'
+          accept='audio/*,.mp3,.wav,.webm,.ogg,.m4a,.mp4,.amr'
           style={{ display: 'none' }}
           onChange={handleFileChange}
         />
