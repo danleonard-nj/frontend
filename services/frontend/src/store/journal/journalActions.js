@@ -368,6 +368,57 @@ export default class JournalActions {
     };
   }
 
+  reprocessEntryAnalysis(entryId) {
+    return async (dispatch) => {
+      if (!entryId) return null;
+      dispatch(
+        setEntryDetailProcessing({ id: entryId, processing: true }),
+      );
+      try {
+        const response = await this.journalApi.reprocessEntry(
+          entryId,
+          true,
+        );
+        if (response.status === 202 || response.status === 200) {
+          // Poll until analysis lands
+          const fresh = await dispatch(
+            this.loadEntryDetail(entryId, { silent: true }),
+          );
+          return fresh;
+        }
+        if (response.status === 409) {
+          // Already queued — just refresh the card
+          await dispatch(
+            this.loadEntryDetail(entryId, { silent: true }),
+          );
+          return null;
+        }
+        dispatch(
+          setEntryDetailError({
+            id: entryId,
+            error: `Reprocess request failed (${response.status})`,
+          }),
+        );
+        return null;
+      } catch (err) {
+        dispatch(
+          setEntryDetailError({
+            id: entryId,
+            error: err.message || 'Failed to request reprocess',
+          }),
+        );
+        return null;
+      } finally {
+        dispatch(
+          setEntryDetailProcessing({
+            id: entryId,
+            processing: false,
+          }),
+        );
+      }
+    };
+  }
+
   polishEntry(entryId, modes) {
     return async (dispatch) => {
       try {

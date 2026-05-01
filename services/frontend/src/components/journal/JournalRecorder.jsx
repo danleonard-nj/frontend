@@ -14,7 +14,13 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { Check, Close, Mic, Refresh } from '@mui/icons-material';
+import {
+  Check,
+  Close,
+  Mic,
+  Refresh,
+  UploadFile,
+} from '@mui/icons-material';
 import useRecorderStateMachine, {
   RecState,
 } from '../chatgpt/useRecorderStateMachine';
@@ -54,6 +60,7 @@ const JournalRecorder = ({ onTranscriptReady }) => {
   // recording is armed.
   const [pendingClip, setPendingClip] = useState(null);
   const clipStartRef = useRef(null);
+  const fileInputRef = useRef(null);
   // Snapshot the provider at clip-creation time so a retry honors the
   // engine the user originally chose, even if they change the dropdown.
   const providerRef = useRef(provider);
@@ -141,6 +148,36 @@ const JournalRecorder = ({ onTranscriptReady }) => {
     setPendingClip(null);
     setError(null);
   }, []);
+
+  const handleUploadClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback(
+    async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const maxSize = 25 * 1024 * 1024;
+      if (file.size > maxSize) {
+        setError('File size must be less than 25 MB');
+        event.target.value = '';
+        return;
+      }
+
+      setError(null);
+      setPendingClip(null);
+      const startedAt = new Date().toISOString();
+      await transcribeClip({
+        blob: file,
+        startedAt,
+        durationSeconds: null,
+        provider: providerRef.current,
+      });
+      event.target.value = '';
+    },
+    [transcribeClip],
+  );
 
   const statusLabel = isTranscribing
     ? 'Transcribing…'
@@ -250,6 +287,42 @@ const JournalRecorder = ({ onTranscriptReady }) => {
               </Stack>
             )}
           </Box>
+
+          <input
+            ref={fileInputRef}
+            type='file'
+            accept='audio/*'
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+          />
+
+          <Tooltip title='Upload audio file'>
+            <span>
+              <IconButton
+                onClick={handleUploadClick}
+                disabled={
+                  isRecording ||
+                  isArming ||
+                  isStopping ||
+                  isTranscribing
+                }
+                sx={{
+                  width: 40,
+                  height: 40,
+                  border: 1,
+                  borderColor: 'divider',
+                }}
+                size='small'>
+                {isTranscribing &&
+                pendingClip === null &&
+                !isRecording ? (
+                  <CircularProgress size={18} />
+                ) : (
+                  <UploadFile fontSize='small' />
+                )}
+              </IconButton>
+            </span>
+          </Tooltip>
 
           <Tooltip title='Speech-to-text engine'>
             <FormControl

@@ -14,6 +14,7 @@ import {
   AutoAwesome,
   PlayArrow,
   Refresh,
+  ReplayOutlined,
   Warning,
 } from '@mui/icons-material';
 import { journalActions } from '../../store/journal/journalActions';
@@ -178,6 +179,11 @@ const JournalAnalysisCard = ({
     [dispatch, entryId],
   );
 
+  const handleReprocess = useCallback(() => {
+    if (!entryId) return;
+    dispatch(journalActions.reprocessEntryAnalysis(entryId));
+  }, [dispatch, entryId]);
+
   const extras =
     analysis && variant === 'detail'
       ? Object.entries(analysis).filter(
@@ -249,6 +255,13 @@ const JournalAnalysisCard = ({
               disabled={loading || processing}
               title='Refresh'>
               <Refresh fontSize='small' />
+            </IconButton>
+            <IconButton
+              size='small'
+              onClick={handleReprocess}
+              disabled={loading || processing || isInFlight}
+              title='Regenerate analysis'>
+              <ReplayOutlined fontSize='small' />
             </IconButton>
           </Stack>
         </Stack>

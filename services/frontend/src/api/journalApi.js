@@ -36,6 +36,14 @@ export default class JournalApi extends ApiBase {
     );
   }
 
+  async reprocessEntry(entryId, force = true) {
+    const params = force ? '?force=true' : '?force=false';
+    return this.send(
+      `${this.baseUrl}/api/tools/journal/entries/${entryId}/reprocess${params}`,
+      'POST',
+    );
+  }
+
   async patchEntry(entryId, patch) {
     return this.send(
       `${this.baseUrl}/api/tools/journal/entries/${entryId}`,
