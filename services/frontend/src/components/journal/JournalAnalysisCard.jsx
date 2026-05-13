@@ -21,32 +21,38 @@ import { journalActions } from '../../store/journal/journalActions';
 
 const TERMINAL_STATUSES = new Set(['processed', 'failed']);
 
-function moodTone(label) {
-  if (!label) return 'text.disabled';
-  const normalized = label.toLowerCase();
-  if (
-    [
-      'good',
-      'great',
-      'positive',
-      'happy',
-      'calm',
-      'grateful',
-    ].includes(normalized)
-  ) {
+function moodTone(score) {
+  // Use a numeric score (0-10 scale) to create a color gradient
+  if (typeof score !== 'number') return 'text.disabled';
+
+  if (score <= 2) {
+    // Very negative - red
+    return 'error.main';
+  } else if (score <= 3) {
+    // Negative/stressed - orange
+    return 'warning.main';
+  } else if (score <= 4) {
+    // Below neutral - secondary
+    return 'secondary.main';
+  } else if (score <= 5) {
+    // Neutral - grey
+    return 'text.disabled';
+  } else if (score <= 6) {
+    // Slightly positive - secondary
+    return 'secondary.main';
+  } else if (score <= 7) {
+    // Positive - info/cyan
+    return 'info.main';
+  } else if (score <= 8) {
+    // Very positive - blue
+    return 'primary.main';
+  } else {
+    // Extremely positive - green
     return 'success.main';
   }
-  if (
-    ['low', 'sad', 'anxious', 'stressed', 'angry', 'down'].includes(
-      normalized,
-    )
-  ) {
-    return 'warning.main';
-  }
-  return 'text.disabled';
 }
 
-function MoodDot({ label }) {
+function MoodDot({ score }) {
   return (
     <Box
       component='span'
@@ -54,7 +60,7 @@ function MoodDot({ label }) {
         width: 8,
         height: 8,
         borderRadius: '50%',
-        bgcolor: moodTone(label),
+        bgcolor: moodTone(score),
         display: 'inline-block',
         flexShrink: 0,
       }}
@@ -423,7 +429,7 @@ const JournalAnalysisCard = ({
                         spacing={1}
                         alignItems='center'
                         mt={1}>
-                        <MoodDot label={analysis.mood.label} />
+                        <MoodDot score={analysis.mood.score} />
                         <Typography variant='body2'>
                           {analysis.mood.label || 'unknown'}
                           {typeof analysis.mood.score === 'number' &&
