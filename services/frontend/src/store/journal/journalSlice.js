@@ -1,5 +1,40 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// Tab values for the journal layout's top-level Tabs control.
+export const JOURNAL_TAB = {
+  WRITE: 'write',
+  JOURNAL: 'journal',
+  INSIGHTS: 'insights',
+};
+
+const INITIAL_DRAFT = {
+  // Captured-but-not-committed transcript clips.
+  segments: [],
+  // Whether the current draft was just committed (drives the
+  // "Committing…" / disabled state on the Write tab).
+  committed: false,
+  // Local overrides that have not yet been persisted.
+  titleOverride: null,
+  transcriptOverride: null,
+  // Files staged on the Write tab; uploaded after the entry commits.
+  stagedAttachments: [],
+};
+
+const INITIAL_UI = {
+  searchValue: '',
+  // Id of the entry shown in the detail pane. `null` means "new draft".
+  selectedEntryId: null,
+  activeTab: JOURNAL_TAB.WRITE,
+  insightsDaysBack: 3,
+  confirmDeleteOpen: false,
+  // Tracks the most recently polished entry so we can show an Undo button
+  // even on entries that don't expose `pre_polish_transcript` directly.
+  polishedEntryId: null,
+  // Tracks an entry committed in this browser session, so the Write tab
+  // can show its analysis card after navigating away.
+  committedEntryId: null,
+};
+
 const initialState = {
   entries: [],
   entriesLoading: false,
@@ -17,6 +52,10 @@ const initialState = {
   // Per-entry attachments, keyed by entryId.
   // Shape: { [id]: { items: [], pending: [], loading: false, error: null } }
   attachments: {},
+  // UI state for the journal layout (search, active tab, selection, etc.)
+  ui: INITIAL_UI,
+  // In-progress draft state for the Write tab.
+  draft: INITIAL_DRAFT,
 };
 
 function ensureAttachments(state, id) {
@@ -188,6 +227,61 @@ const journalSlice = createSlice({
     clearAttachments(state, { payload }) {
       delete state.attachments[payload];
     },
+
+    // ── UI state ─────────────────────────────────────────────────────
+    setSearchValue(state, { payload }) {
+      state.ui.searchValue = payload || '';
+    },
+    setSelectedEntryId(state, { payload }) {
+      state.ui.selectedEntryId = payload || null;
+    },
+    setActiveTab(state, { payload }) {
+      state.ui.activeTab = payload;
+    },
+    setInsightsDaysBack(state, { payload }) {
+      state.ui.insightsDaysBack = payload;
+    },
+    setConfirmDeleteOpen(state, { payload }) {
+      state.ui.confirmDeleteOpen = Boolean(payload);
+    },
+    setPolishedEntryId(state, { payload }) {
+      state.ui.polishedEntryId = payload || null;
+    },
+    setCommittedEntryId(state, { payload }) {
+      state.ui.committedEntryId = payload || null;
+    },
+
+    // ── Draft state ──────────────────────────────────────────────────
+    appendDraftSegment(state, { payload }) {
+      state.draft.segments.push(payload);
+      state.draft.committed = false;
+      state.draft.transcriptOverride = null;
+    },
+    popDraftSegment(state) {
+      state.draft.segments.pop();
+      state.draft.transcriptOverride = null;
+    },
+    setDraftSegments(state, { payload }) {
+      state.draft.segments = Array.isArray(payload) ? payload : [];
+    },
+    setTitleOverride(state, { payload }) {
+      state.draft.titleOverride = payload;
+    },
+    setTranscriptOverride(state, { payload }) {
+      state.draft.transcriptOverride = payload;
+    },
+    setStagedAttachments(state, { payload }) {
+      state.draft.stagedAttachments = Array.isArray(payload)
+        ? payload
+        : [];
+    },
+    setCommitted(state, { payload }) {
+      state.draft.committed = Boolean(payload);
+    },
+    resetDraft(state) {
+      state.draft = INITIAL_DRAFT;
+      state.commitError = null;
+    },
   },
 });
 
@@ -219,6 +313,21 @@ export const {
   addAttachment,
   removeAttachment,
   clearAttachments,
+  setSearchValue,
+  setSelectedEntryId,
+  setActiveTab,
+  setInsightsDaysBack,
+  setConfirmDeleteOpen,
+  setPolishedEntryId,
+  setCommittedEntryId,
+  appendDraftSegment,
+  popDraftSegment,
+  setDraftSegments,
+  setTitleOverride,
+  setTranscriptOverride,
+  setStagedAttachments,
+  setCommitted,
+  resetDraft,
 } = journalSlice.actions;
 
 export default journalSlice.reducer;

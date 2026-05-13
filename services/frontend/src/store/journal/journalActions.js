@@ -29,6 +29,12 @@ import {
   removePendingAttachment,
   addAttachment,
   removeAttachment,
+  setSelectedEntryId,
+  setActiveTab,
+  setCommittedEntryId,
+  setPolishedEntryId,
+  resetDraft,
+  JOURNAL_TAB,
 } from './journalSlice';
 
 export const ATTACHMENT_MAX_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -37,28 +43,16 @@ function makeTempId() {
   return `pending-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/**
+ * Extract the mood block from an analysis payload for use on the
+ * entry list. Returns the analysis mood object verbatim
+ * (`{ label, score, confidence }`) so consumers can render a numeric
+ * mood dot, or `null` when the entry hasn't been analyzed yet.
+ */
 function moodFromAnalysis(analysis) {
-  const label = analysis?.mood?.label;
-  if (!label) return 'neutral';
-  const normalized = label.toLowerCase();
-  if (
-    [
-      'good',
-      'great',
-      'positive',
-      'happy',
-      'calm',
-      'grateful',
-    ].includes(normalized)
-  )
-    return 'good';
-  if (
-    ['low', 'sad', 'anxious', 'stressed', 'angry', 'down'].includes(
-      normalized,
-    )
-  )
-    return 'low';
-  return 'neutral';
+  const mood = analysis?.mood;
+  if (!mood || typeof mood !== 'object') return null;
+  return mood;
 }
 
 // Server emits ISO timestamps in UTC but sometimes without a trailing 'Z'
@@ -104,6 +98,43 @@ export function entryFromApi(raw) {
     time,
     mood: moodFromAnalysis(raw.analysis),
   };
+}
+
+/**
+ * If the user edited the transcript before committing, propagate the
+ * edits onto the draft segments themselves so the backend (which treats
+ * segments as the source of truth) actually persists the new text.
+ *
+ * Two cases:
+ *   - Same paragraph count → remap each segment's transcript by index.
+ *   - Structure changed → collapse into a single segment that aggregates
+ *     the original clips' metadata.
+ */
+function normaliseDraftSegments(segments, transcript, override) {
+  if (override === null) return segments;
+  const parts = transcript.split(/\n{2,}/);
+  if (parts.length === segments.length && segments.length > 0) {
+    return segments.map((seg, i) => ({
+      ...seg,
+      transcript: parts[i],
+    }));
+  }
+  const totalDuration = segments.reduce(
+    (sum, s) =>
+      sum +
+      (typeof s.duration_seconds === 'number'
+        ? s.duration_seconds
+        : 0),
+    0,
+  );
+  return [
+    {
+      clip_id: segments[0]?.clip_id || null,
+      started_at: segments[0]?.started_at || new Date().toISOString(),
+      duration_seconds: totalDuration || null,
+      transcript,
+    },
+  ];
 }
 
 export default class JournalActions {
@@ -184,6 +215,91 @@ export default class JournalActions {
         dispatch(setCommitting(false));
         return null;
       }
+    };
+  }
+
+  /**
+   * Build the entry payload from the current draft slice state and
+   * commit it. Handles segment normalisation when the user has edited
+   * the transcript before committing, then resets the draft, navigates
+   * to the new entry, and kicks off background uploads for staged
+   * attachments.
+   */
+  commitDraft() {
+    return async (dispatch, getState) => {
+      const state = getState().journal;
+      const { committing, ui } = state;
+      const {
+        segments,
+        titleOverride,
+        transcriptOverride,
+        stagedAttachments,
+        committed,
+      } = state.draft;
+
+      if (committing || committed || ui.selectedEntryId) return null;
+      if (segments.length === 0) return null;
+
+      const transcript =
+        transcriptOverride !== null
+          ? transcriptOverride
+          : segments.map((s) => s.transcript).join('\n\n');
+      if (!transcript.trim()) return null;
+
+      const segmentsToCommit = normaliseDraftSegments(
+        segments,
+        transcript,
+        transcriptOverride,
+      );
+
+      const created = await dispatch(
+        this.commitEntry({
+          title: titleOverride?.trim() || null,
+          source: 'voice',
+          raw_transcript: transcript,
+          segments: segmentsToCommit,
+        }),
+      );
+      if (!created) return null;
+
+      if (stagedAttachments.length > 0) {
+        dispatch(
+          this.uploadStagedAttachments(created.id, stagedAttachments),
+        );
+      }
+
+      dispatch(resetDraft());
+      dispatch(setSelectedEntryId(created.id));
+      dispatch(setCommittedEntryId(created.id));
+      dispatch(setActiveTab(JOURNAL_TAB.JOURNAL));
+      return created;
+    };
+  }
+
+  /**
+   * Switch to the Write tab with a fresh draft.
+   */
+  startNewDraft() {
+    return (dispatch) => {
+      dispatch(resetDraft());
+      dispatch(setSelectedEntryId(null));
+      dispatch(setCommittedEntryId(null));
+      dispatch(setActiveTab(JOURNAL_TAB.WRITE));
+    };
+  }
+
+  /**
+   * Select an existing entry from the sidebar.  Clears the in-flight
+   * draft state so the detail pane shows the persisted entry verbatim.
+   */
+  selectEntry(entryId) {
+    return (dispatch) => {
+      dispatch(setSelectedEntryId(entryId || null));
+      dispatch(resetDraft());
+      // committedEntryId tracks entries committed *in this session* so
+      // the Write tab can show their analysis card.  Selecting from the
+      // sidebar is a separate action and shouldn't carry that flag.
+      dispatch(setCommittedEntryId(null));
     };
   }
 
@@ -270,7 +386,7 @@ export default class JournalActions {
   }
 
   deleteEntry(entryId) {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
       try {
         const response = await this.journalApi.deleteEntry(entryId);
         if (
@@ -278,8 +394,20 @@ export default class JournalActions {
           response.status === 204 ||
           response.status === 404
         ) {
+          const ui = getState().journal.ui;
           dispatch(removeEntry(entryId));
           dispatch(clearEntryDetail(entryId));
+          if (ui.selectedEntryId === entryId) {
+            dispatch(setSelectedEntryId(null));
+            dispatch(resetDraft());
+            dispatch(setActiveTab(JOURNAL_TAB.JOURNAL));
+          }
+          if (ui.committedEntryId === entryId) {
+            dispatch(setCommittedEntryId(null));
+          }
+          if (ui.polishedEntryId === entryId) {
+            dispatch(setPolishedEntryId(null));
+          }
           dispatch(popMessage('Entry deleted'));
           dispatch(this.loadInsights());
           return true;
@@ -428,7 +556,10 @@ export default class JournalActions {
         );
         if (response.status === 200) {
           const updated = entryFromApi(response.data);
-          if (updated) dispatch(updateEntry(updated));
+          if (updated) {
+            dispatch(updateEntry(updated));
+            dispatch(setPolishedEntryId(updated.id));
+          }
           dispatch(popMessage('Transcript polished'));
           return updated;
         }
@@ -447,7 +578,10 @@ export default class JournalActions {
         const response = await this.journalApi.undoPolish(entryId);
         if (response.status === 200) {
           const updated = entryFromApi(response.data);
-          if (updated) dispatch(updateEntry(updated));
+          if (updated) {
+            dispatch(updateEntry(updated));
+            dispatch(setPolishedEntryId(null));
+          }
           dispatch(popMessage('Polish undone'));
           return updated;
         }

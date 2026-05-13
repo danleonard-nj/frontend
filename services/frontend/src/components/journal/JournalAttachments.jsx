@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Box,
+  Button,
   Card,
   CardContent,
   Chip,
@@ -13,7 +13,6 @@ import {
   Stack,
   Tooltip,
   Typography,
-  Button,
 } from '@mui/material';
 import {
   AttachFile,
@@ -28,24 +27,9 @@ import {
   ATTACHMENT_MAX_BYTES,
   journalActions,
 } from '../../store/journal/journalActions';
+import { formatBytes, formatDate } from './journalFormatters';
 
 const EMPTY = { items: [], pending: [], loading: false, error: null };
-
-function formatBytes(bytes) {
-  if (bytes == null) return '';
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function formatDate(value) {
-  if (!value) return '';
-  try {
-    return new Date(value).toLocaleString();
-  } catch {
-    return '';
-  }
-}
 
 const JournalAttachments = ({ entryId }) => {
   const dispatch = useDispatch();
@@ -61,59 +45,38 @@ const JournalAttachments = ({ entryId }) => {
     }
   }, [dispatch, entryId]);
 
-  const handlePick = useCallback(
-    (e) => {
-      const picked = Array.from(e.target.files || []);
-      e.target.value = '';
-      if (!entryId || picked.length === 0) return;
-      for (const f of picked) {
-        if (f.size > ATTACHMENT_MAX_BYTES) {
-          dispatch(
-            popErrorMessage(
-              `${f.name} exceeds the 5 MB attachment limit`,
-            ),
-          );
-          continue;
-        }
-        dispatch(journalActions.uploadAttachment(entryId, f));
+  const handlePick = (e) => {
+    const picked = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!entryId || picked.length === 0) return;
+    for (const f of picked) {
+      if (f.size > ATTACHMENT_MAX_BYTES) {
+        dispatch(
+          popErrorMessage(
+            `${f.name} exceeds the 5 MB attachment limit`,
+          ),
+        );
+        continue;
       }
-    },
-    [dispatch, entryId],
-  );
+      dispatch(journalActions.uploadAttachment(entryId, f));
+    }
+  };
 
-  const handleDelete = useCallback(
-    (attachmentId) => {
-      dispatch(
-        journalActions.deleteAttachment(entryId, attachmentId),
-      );
-    },
-    [dispatch, entryId],
-  );
+  const handleDelete = (attachmentId) => {
+    dispatch(journalActions.deleteAttachment(entryId, attachmentId));
+  };
 
-  const handleRetry = useCallback(
-    (tempId) => {
-      dispatch(journalActions.retryAttachmentUpload(entryId, tempId));
-    },
-    [dispatch, entryId],
-  );
+  const handleRetry = (tempId) => {
+    dispatch(journalActions.retryAttachmentUpload(entryId, tempId));
+  };
 
-  const handleDismiss = useCallback(
-    (tempId) => {
-      dispatch(
-        journalActions.dismissFailedAttachment(entryId, tempId),
-      );
-    },
-    [dispatch, entryId],
-  );
+  const handleDismiss = (tempId) => {
+    dispatch(journalActions.dismissFailedAttachment(entryId, tempId));
+  };
 
-  const handleDownload = useCallback(
-    (attachment) => {
-      dispatch(
-        journalActions.downloadAttachment(entryId, attachment),
-      );
-    },
-    [dispatch, entryId],
-  );
+  const handleDownload = (attachment) => {
+    dispatch(journalActions.downloadAttachment(entryId, attachment));
+  };
 
   const total = (items?.length || 0) + (pending?.length || 0);
 

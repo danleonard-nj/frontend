@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Box,
   Card,
   CardContent,
   Chip,
@@ -15,69 +14,19 @@ import {
   PlayArrow,
   Refresh,
   ReplayOutlined,
-  Warning,
 } from '@mui/icons-material';
 import { journalActions } from '../../store/journal/journalActions';
+import {
+  BulletList,
+  ChipList,
+  ExtraFields,
+  MoodSection,
+  RiskFlags,
+  SectionLabel,
+} from './JournalAnalysisSections';
 
 const TERMINAL_STATUSES = new Set(['processed', 'failed']);
-
-function moodTone(score) {
-  // Use a numeric score (0-10 scale) to create a color gradient
-  if (typeof score !== 'number') return 'text.disabled';
-
-  if (score <= 2) {
-    // Very negative - red
-    return 'error.main';
-  } else if (score <= 3) {
-    // Negative/stressed - orange
-    return 'warning.main';
-  } else if (score <= 4) {
-    // Below neutral - secondary
-    return 'secondary.main';
-  } else if (score <= 5) {
-    // Neutral - grey
-    return 'text.disabled';
-  } else if (score <= 6) {
-    // Slightly positive - secondary
-    return 'secondary.main';
-  } else if (score <= 7) {
-    // Positive - info/cyan
-    return 'info.main';
-  } else if (score <= 8) {
-    // Very positive - blue
-    return 'primary.main';
-  } else {
-    // Extremely positive - green
-    return 'success.main';
-  }
-}
-
-function MoodDot({ score }) {
-  return (
-    <Box
-      component='span'
-      sx={{
-        width: 8,
-        height: 8,
-        borderRadius: '50%',
-        bgcolor: moodTone(score),
-        display: 'inline-block',
-        flexShrink: 0,
-      }}
-    />
-  );
-}
-
-function SectionLabel({ children }) {
-  return (
-    <Typography
-      variant='overline'
-      color='text.secondary'
-      fontWeight={700}>
-      {children}
-    </Typography>
-  );
-}
+const POLL_INTERVAL_MS = 2000;
 
 // Sections shown per variant. Order matters — it controls render order.
 const VARIANT_SECTIONS = {
@@ -131,41 +80,145 @@ const EMPTY_DETAIL = {
   error: null,
 };
 
-const JournalAnalysisCard = ({
-  entryId,
-  refreshKey = 0,
-  variant = 'detail',
-}) => {
+const STATUS_CHIP_COLOR = {
+  processed: 'success',
+  failed: 'error',
+};
+
+function getKeyEvents(analysis) {
+  if (Array.isArray(analysis.key_events)) return analysis.key_events;
+  if (Array.isArray(analysis.bullets)) return analysis.bullets;
+  return [];
+}
+
+function renderSection(section, analysis) {
+  switch (section) {
+    case 'summary_short': {
+      const text = analysis.summary_short || analysis.summary;
+      return text ? (
+        <Typography variant='body1' sx={{ fontStyle: 'italic' }}>
+          {text}
+        </Typography>
+      ) : null;
+    }
+    case 'summary_detailed': {
+      const text = analysis.summary_detailed || analysis.summary;
+      return text ? (
+        <Typography variant='body1'>{text}</Typography>
+      ) : null;
+    }
+    case 'key_events_top':
+      return (
+        <BulletList
+          label='Key events'
+          items={getKeyEvents(analysis)}
+          limit={3}
+        />
+      );
+    case 'key_events':
+      return (
+        <BulletList
+          label='Key events'
+          items={getKeyEvents(analysis)}
+        />
+      );
+    case 'stressors':
+      return (
+        <ChipList
+          label='Stressors'
+          items={analysis.stressors}
+          color='warning'
+        />
+      );
+    case 'positive_developments':
+      return (
+        <BulletList
+          label='Positives'
+          items={analysis.positive_developments}
+        />
+      );
+    case 'open_loops':
+      return (
+        <BulletList label='Open loops' items={analysis.open_loops} />
+      );
+    case 'mood':
+      return <MoodSection mood={analysis.mood} />;
+    case 'themes':
+      return <ChipList label='Themes' items={analysis.themes} />;
+    case 'people_mentioned':
+      return (
+        <ChipList label='People' items={analysis.people_mentioned} />
+      );
+    case 'places_or_contexts':
+      return (
+        <ChipList
+          label='Places & contexts'
+          items={analysis.places_or_contexts}
+        />
+      );
+    case 'symptoms':
+      return (
+        <ChipList
+          label='Symptoms'
+          items={analysis.symptoms}
+          color='warning'
+        />
+      );
+    case 'action_items':
+      return (
+        <BulletList
+          label='Action items'
+          items={analysis.action_items}
+        />
+      );
+    case 'risk_flags':
+      return <RiskFlags flags={analysis.risk_flags} />;
+    default:
+      return null;
+  }
+}
+
+const JournalAnalysisCard = ({ entryId, variant = 'detail' }) => {
   const dispatch = useDispatch();
   const detail = useSelector(
     (s) => s.journal.entryDetails[entryId] || EMPTY_DETAIL,
   );
   const { entry, loading, processing, error } = detail;
 
+  // Track whether a fetch is in flight to prevent the background
+  // poller from stacking duplicate requests (e.g. when the network is
+  // slow and the response takes longer than POLL_INTERVAL_MS).
+  const inFlightRef = useRef(false);
+  useEffect(() => {
+    inFlightRef.current = loading;
+  }, [loading]);
+
   const fetchEntry = useCallback(
-    (opts) => dispatch(journalActions.loadEntryDetail(entryId, opts)),
+    (opts) => {
+      if (inFlightRef.current && opts?.silent) return undefined;
+      return dispatch(journalActions.loadEntryDetail(entryId, opts));
+    },
     [dispatch, entryId],
   );
 
   useEffect(() => {
     if (!entryId) return;
     fetchEntry();
-    // refreshKey allows callers to force a re-fetch.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entryId, fetchEntry, refreshKey]);
+  }, [entryId, fetchEntry]);
 
   const status = entry?.status;
 
   // Background poll: while the entry is queued/processing (or has no
-  // analysis yet on a non-terminal status), silently re-fetch every 2s
-  // until we hit a terminal state (processed / failed) or the entry
-  // changes.
+  // analysis yet on a non-terminal status), silently re-fetch every
+  // POLL_INTERVAL_MS until we hit a terminal state (processed /
+  // failed) or the entry changes. The in-flight guard above prevents
+  // overlapping requests if a fetch is already pending.
   useEffect(() => {
     if (!entryId) return undefined;
     if (status && TERMINAL_STATUSES.has(status)) return undefined;
     const interval = setInterval(() => {
       fetchEntry({ silent: true });
-    }, 2000);
+    }, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [entryId, status, fetchEntry]);
 
@@ -177,18 +230,15 @@ const JournalAnalysisCard = ({
     status && !isInFlight && !TERMINAL_STATUSES.has(status);
   const canRetry = status === 'failed';
 
-  const handleProcess = useCallback(
-    (force = false) => {
-      if (!entryId) return;
-      dispatch(journalActions.processEntryAnalysis(entryId, force));
-    },
-    [dispatch, entryId],
-  );
+  const handleProcess = (force = false) => {
+    if (!entryId) return;
+    dispatch(journalActions.processEntryAnalysis(entryId, force));
+  };
 
-  const handleReprocess = useCallback(() => {
+  const handleReprocess = () => {
     if (!entryId) return;
     dispatch(journalActions.reprocessEntryAnalysis(entryId));
-  }, [dispatch, entryId]);
+  };
 
   const extras =
     analysis && variant === 'detail'
@@ -200,22 +250,8 @@ const JournalAnalysisCard = ({
         )
       : [];
 
-  const riskFlags = analysis?.risk_flags || null;
-  const hasRiskFlags =
-    riskFlags &&
-    (riskFlags.crisis_language || riskFlags.medical_concern);
-
   const sections =
     VARIANT_SECTIONS[variant] || VARIANT_SECTIONS.detail;
-  const summaryShort =
-    analysis?.summary_short || analysis?.summary || null;
-  const summaryDetailed =
-    analysis?.summary_detailed || analysis?.summary || null;
-  const keyEvents = Array.isArray(analysis?.key_events)
-    ? analysis.key_events
-    : Array.isArray(analysis?.bullets)
-      ? analysis.bullets
-      : [];
 
   return (
     <Card variant='outlined'>
@@ -232,13 +268,7 @@ const JournalAnalysisCard = ({
               <Chip
                 size='small'
                 label={status}
-                color={
-                  status === 'processed'
-                    ? 'success'
-                    : status === 'failed'
-                      ? 'error'
-                      : 'default'
-                }
+                color={STATUS_CHIP_COLOR[status] || 'default'}
                 variant='outlined'
               />
             )}
@@ -302,309 +332,12 @@ const JournalAnalysisCard = ({
         {!loading && !processing && !error && isReady && (
           <Stack spacing={2.5}>
             {sections.map((section) => {
-              switch (section) {
-                case 'summary_short':
-                  return summaryShort ? (
-                    <Typography
-                      key={section}
-                      variant='body1'
-                      sx={{ fontStyle: 'italic' }}>
-                      {summaryShort}
-                    </Typography>
-                  ) : null;
-
-                case 'summary_detailed':
-                  return summaryDetailed ? (
-                    <Typography key={section} variant='body1'>
-                      {summaryDetailed}
-                    </Typography>
-                  ) : null;
-
-                case 'key_events_top':
-                  return keyEvents.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>Key events</SectionLabel>
-                      <Box
-                        component='ul'
-                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
-                        {keyEvents.slice(0, 3).map((item, index) => (
-                          <li key={index}>
-                            <Typography variant='body2'>
-                              {item}
-                            </Typography>
-                          </li>
-                        ))}
-                      </Box>
-                    </Box>
-                  ) : null;
-
-                case 'key_events':
-                  return keyEvents.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>Key events</SectionLabel>
-                      <Box
-                        component='ul'
-                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
-                        {keyEvents.map((item, index) => (
-                          <li key={index}>
-                            <Typography variant='body2'>
-                              {item}
-                            </Typography>
-                          </li>
-                        ))}
-                      </Box>
-                    </Box>
-                  ) : null;
-
-                case 'stressors':
-                  return Array.isArray(analysis.stressors) &&
-                    analysis.stressors.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>Stressors</SectionLabel>
-                      <Stack
-                        direction='row'
-                        flexWrap='wrap'
-                        gap={1}
-                        mt={1}>
-                        {analysis.stressors.map((item, index) => (
-                          <Chip
-                            key={`${item}-${index}`}
-                            size='small'
-                            label={item}
-                            variant='outlined'
-                            color='warning'
-                          />
-                        ))}
-                      </Stack>
-                    </Box>
-                  ) : null;
-
-                case 'positive_developments':
-                  return Array.isArray(
-                    analysis.positive_developments,
-                  ) && analysis.positive_developments.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>Positives</SectionLabel>
-                      <Box
-                        component='ul'
-                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
-                        {analysis.positive_developments.map(
-                          (item, index) => (
-                            <li key={index}>
-                              <Typography variant='body2'>
-                                {item}
-                              </Typography>
-                            </li>
-                          ),
-                        )}
-                      </Box>
-                    </Box>
-                  ) : null;
-
-                case 'open_loops':
-                  return Array.isArray(analysis.open_loops) &&
-                    analysis.open_loops.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>Open loops</SectionLabel>
-                      <Box
-                        component='ul'
-                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
-                        {analysis.open_loops.map((item, index) => (
-                          <li key={index}>
-                            <Typography variant='body2'>
-                              {item}
-                            </Typography>
-                          </li>
-                        ))}
-                      </Box>
-                    </Box>
-                  ) : null;
-
-                case 'mood':
-                  return analysis.mood ? (
-                    <Box key={section}>
-                      <SectionLabel>Mood</SectionLabel>
-                      <Stack
-                        direction='row'
-                        spacing={1}
-                        alignItems='center'
-                        mt={1}>
-                        <MoodDot score={analysis.mood.score} />
-                        <Typography variant='body2'>
-                          {analysis.mood.label || 'unknown'}
-                          {typeof analysis.mood.score === 'number' &&
-                            ` • score ${analysis.mood.score}`}
-                          {typeof analysis.mood.confidence ===
-                            'number' &&
-                            ` • ${Math.round(
-                              analysis.mood.confidence * 100,
-                            )}% confidence`}
-                        </Typography>
-                      </Stack>
-                    </Box>
-                  ) : null;
-
-                case 'themes':
-                  return Array.isArray(analysis.themes) &&
-                    analysis.themes.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>Themes</SectionLabel>
-                      <Stack
-                        direction='row'
-                        flexWrap='wrap'
-                        gap={1}
-                        mt={1}>
-                        {analysis.themes.map((theme) => (
-                          <Chip
-                            key={theme}
-                            size='small'
-                            label={theme}
-                            variant='outlined'
-                          />
-                        ))}
-                      </Stack>
-                    </Box>
-                  ) : null;
-
-                case 'people_mentioned':
-                  return Array.isArray(analysis.people_mentioned) &&
-                    analysis.people_mentioned.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>People</SectionLabel>
-                      <Stack
-                        direction='row'
-                        flexWrap='wrap'
-                        gap={1}
-                        mt={1}>
-                        {analysis.people_mentioned.map(
-                          (person, index) => (
-                            <Chip
-                              key={`${person}-${index}`}
-                              size='small'
-                              label={person}
-                              variant='outlined'
-                            />
-                          ),
-                        )}
-                      </Stack>
-                    </Box>
-                  ) : null;
-
-                case 'places_or_contexts':
-                  return Array.isArray(analysis.places_or_contexts) &&
-                    analysis.places_or_contexts.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>Places & contexts</SectionLabel>
-                      <Stack
-                        direction='row'
-                        flexWrap='wrap'
-                        gap={1}
-                        mt={1}>
-                        {analysis.places_or_contexts.map(
-                          (place, index) => (
-                            <Chip
-                              key={`${place}-${index}`}
-                              size='small'
-                              label={place}
-                              variant='outlined'
-                            />
-                          ),
-                        )}
-                      </Stack>
-                    </Box>
-                  ) : null;
-
-                case 'symptoms':
-                  return Array.isArray(analysis.symptoms) &&
-                    analysis.symptoms.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>Symptoms</SectionLabel>
-                      <Stack
-                        direction='row'
-                        flexWrap='wrap'
-                        gap={1}
-                        mt={1}>
-                        {analysis.symptoms.map((symptom) => (
-                          <Chip
-                            key={symptom}
-                            size='small'
-                            label={symptom}
-                            variant='outlined'
-                            color='warning'
-                          />
-                        ))}
-                      </Stack>
-                    </Box>
-                  ) : null;
-
-                case 'action_items':
-                  return Array.isArray(analysis.action_items) &&
-                    analysis.action_items.length > 0 ? (
-                    <Box key={section}>
-                      <SectionLabel>Action items</SectionLabel>
-                      <Box
-                        component='ul'
-                        sx={{ pl: 2.5, mt: 1, mb: 0 }}>
-                        {analysis.action_items.map((item, index) => (
-                          <li key={index}>
-                            <Typography variant='body2'>
-                              {item}
-                            </Typography>
-                          </li>
-                        ))}
-                      </Box>
-                    </Box>
-                  ) : null;
-
-                case 'risk_flags':
-                  return hasRiskFlags ? (
-                    <Box key={section}>
-                      <SectionLabel>Risk flags</SectionLabel>
-                      <Stack
-                        direction='row'
-                        flexWrap='wrap'
-                        gap={1}
-                        mt={1}>
-                        {riskFlags.crisis_language && (
-                          <Chip
-                            size='small'
-                            icon={<Warning />}
-                            label='Crisis language'
-                            color='error'
-                          />
-                        )}
-                        {riskFlags.medical_concern && (
-                          <Chip
-                            size='small'
-                            icon={<Warning />}
-                            label='Medical concern'
-                            color='warning'
-                          />
-                        )}
-                      </Stack>
-                    </Box>
-                  ) : null;
-
-                default:
-                  return null;
-              }
+              const node = renderSection(section, analysis);
+              return node ? (
+                <React.Fragment key={section}>{node}</React.Fragment>
+              ) : null;
             })}
-
-            {extras.length > 0 && (
-              <Stack spacing={0.5}>
-                {extras.map(([key, value]) => (
-                  <Typography
-                    key={key}
-                    variant='body2'
-                    color='text.secondary'>
-                    <strong>{key}:</strong>{' '}
-                    {typeof value === 'object'
-                      ? JSON.stringify(value)
-                      : String(value)}
-                  </Typography>
-                ))}
-              </Stack>
-            )}
+            <ExtraFields entries={extras} />
           </Stack>
         )}
       </CardContent>

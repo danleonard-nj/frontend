@@ -120,7 +120,7 @@ const JournalRecorder = ({ onTranscriptReady }) => {
   const isStopping =
     phase === RecState.STOPPING || phase === RecState.PROCESSING;
 
-  const handleMicClick = useCallback(async () => {
+  const handleMicClick = async () => {
     setError(null);
     // Starting a fresh recording discards any previous failed clip.
     setPendingClip(null);
@@ -133,51 +133,48 @@ const JournalRecorder = ({ onTranscriptReady }) => {
         'Microphone access is required. Please grant permission and try again.',
       );
     }
-  }, [arm]);
+  };
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     clipStartRef.current = null;
     cancel();
-  }, [cancel]);
+  };
 
-  const handleRetry = useCallback(() => {
+  const handleRetry = () => {
     if (pendingClip) transcribeClip(pendingClip);
-  }, [pendingClip, transcribeClip]);
+  };
 
-  const handleDiscardPending = useCallback(() => {
+  const handleDiscardPending = () => {
     setPendingClip(null);
     setError(null);
-  }, []);
+  };
 
-  const handleUploadClick = useCallback(() => {
+  const handleUploadClick = () => {
     fileInputRef.current?.click();
-  }, []);
+  };
 
-  const handleFileChange = useCallback(
-    async (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
+  const handleFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-      const maxSize = 25 * 1024 * 1024;
-      if (file.size > maxSize) {
-        setError('File size must be less than 25 MB');
-        event.target.value = '';
-        return;
-      }
-
-      setError(null);
-      setPendingClip(null);
-      const startedAt = new Date().toISOString();
-      await transcribeClip({
-        blob: file,
-        startedAt,
-        durationSeconds: null,
-        provider: providerRef.current,
-      });
+    const maxSize = 25 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError('File size must be less than 25 MB');
       event.target.value = '';
-    },
-    [transcribeClip],
-  );
+      return;
+    }
+
+    setError(null);
+    setPendingClip(null);
+    const startedAt = new Date().toISOString();
+    await transcribeClip({
+      blob: file,
+      startedAt,
+      durationSeconds: null,
+      provider: providerRef.current,
+    });
+    event.target.value = '';
+  };
 
   const statusLabel = isTranscribing
     ? 'Transcribing…'

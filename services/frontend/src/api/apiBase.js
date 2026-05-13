@@ -1,5 +1,5 @@
-import { msalInstance } from "..";
-import { getConfig } from "./data/configProvider";
+import { msalInstance } from '..';
+import { getConfig } from './data/configProvider';
 
 export default class ApiBase {
   constructor(scope) {
@@ -33,13 +33,13 @@ export default class ApiBase {
   async getAuthHeaders() {
     return {
       Authorization: `Bearer ${await this.getToken()}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
   }
 
   getHeaders() {
     return {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
   }
 
@@ -61,7 +61,7 @@ export default class ApiBase {
       return data;
     };
 
-    const isSuccess = response.status < 200 && response.status >= 300;
+    const isSuccess = response.status >= 200 && response.status < 300;
 
     return {
       status: response.status,
